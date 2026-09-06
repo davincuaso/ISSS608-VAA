@@ -1,16 +1,135 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "ISSS608-VAA",
-    "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\n1 + 1\n\n[1] 2"
-  },
-  {
     "objectID": "about.html",
     "href": "about.html",
-    "title": "About",
+    "title": "About this portfolio",
     "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
+    "text": "This website is my learning portfolio for ISSS608 Visual Analytics and Applications. It records the methods, code, visualisations, and interpretations developed through the course’s hands-on exercises.\nThe portfolio is created with R and Quarto, version-controlled on GitHub, and published as a website through Vercel."
+  },
+  {
+    "objectID": "about.html#course-themes",
+    "href": "about.html#course-themes",
+    "title": "About this portfolio",
+    "section": "Course themes",
+    "text": "Course themes\n\nGeospatial data import, transformation, and geoprocessing\nThematic mapping and geovisualisation\nFirst- and second-order spatial point-pattern analysis\nSpatio-temporal point-pattern analysis\n\nThe worked pages are organised under the Hands-on Exercises dropdown in the navigation bar."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html",
+    "href": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html",
+    "title": "Hands-on Exercise 1",
+    "section": "",
+    "text": "This exercise introduces a reproducible geospatial workflow using sf and the tidyverse: importing spatial and aspatial data, checking geometry and attributes, managing coordinate reference systems, and performing geoprocessing."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#learning-focus",
+    "href": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#learning-focus",
+    "title": "Hands-on Exercise 1",
+    "section": "Learning focus",
+    "text": "Learning focus\n\nImport polygon, line, and point data with st_read().\nInspect simple-feature objects and their attributes.\nassign or transform coordinate reference systems appropriately.\nConvert longitude/latitude records into an sf object.\nUse buffering, spatial intersection, and tidy data wrangling."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#analysis-workflow",
+    "href": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#analysis-workflow",
+    "title": "Hands-on Exercise 1",
+    "section": "Analysis workflow",
+    "text": "Analysis workflow\n\nAcquire and organise the required geospatial and aspatial datasets.\nImport the datasets using paths that match this project.\nInspect their geometry types, attributes, extents, and coordinate systems.\nStandardise projected data to SVY21 / Singapore TM (EPSG:3414) when distance or area is analysed.\nComplete and interpret the required geoprocessing tasks.\n\n\n\n\n\n\n\nThe course website’s chap01/data/... paths belong to the lecturer’s project. Code in this repository must use the actual local data folders instead."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.html",
+    "href": "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.html",
+    "title": "Hands-on Exercise 5",
+    "section": "",
+    "text": "This exercise examines whether point events interact across a range of distances and whether the observed pattern is more clustered or dispersed than an appropriate reference process."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.html#learning-focus",
+    "href": "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.html#learning-focus",
+    "title": "Hands-on Exercise 5",
+    "section": "Learning focus",
+    "text": "Learning focus\n\nPrepare spatial point-pattern data and a valid observation window.\nUse the G-function to study nearest-event distances.\nUse the F-function to study empty-space distances.\nUse K- and L-functions to assess spatial dependence across distances.\nCompare observed statistics with simulation envelopes."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.html#analysis-workflow",
+    "href": "Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.html#analysis-workflow",
+    "title": "Hands-on Exercise 5",
+    "section": "Analysis workflow",
+    "text": "Analysis workflow\n\nImport and validate the study-area and event data.\nConvert the data into the structures required for point-pattern analysis.\nDefine a suitable null model and simulation settings.\nCompute G-, F-, K-, and L-function diagnostics.\nInterpret departures from the simulation envelope carefully and in context.\n\n\n\n\n\n\n\nConclusions depend on the observation window, edge correction, distance range, and reference process used."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html",
+    "href": "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html",
+    "title": "Hands-on Exercise 4",
+    "section": "",
+    "text": "This exercise studies the intensity and broad spatial distribution of point events using nearest-neighbour methods and kernel density estimation (KDE)."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html#learning-focus",
+    "href": "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html#learning-focus",
+    "title": "Hands-on Exercise 4",
+    "section": "Learning focus",
+    "text": "Learning focus\n\nImport, wrangle, and validate event and study-area data.\nPrepare point-pattern objects for analysis.\nApply the Clark–Evans nearest-neighbour test.\nEstimate spatial intensity with kernel density estimation.\nCompare fixed and adaptive bandwidth approaches.\nProduce a cartographically clear KDE map.\nSummarise first-order patterns at planning-subzone level."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html#analysis-workflow",
+    "href": "Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html#analysis-workflow",
+    "title": "Hands-on Exercise 4",
+    "section": "Analysis workflow",
+    "text": "Analysis workflow\n\nDefine the study area and clean the point-event data.\nConfirm that the coordinate system is suitable for distance-based analysis.\nExamine nearest-neighbour structure.\nEstimate and compare density surfaces.\nInterpret where event intensity is relatively high or low, with attention to boundary effects and bandwidth choice.\n\n\n\n\n\n\n\nFirst-order methods describe intensity across space; they do not by themselves establish why a pattern occurs."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html",
+    "title": "Hands-on Exercise 2",
+    "section": "",
+    "text": "This exercise develops clear thematic maps from geospatial data and explores how classification, symbols, layout, and interactivity affect what a map communicates."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#learning-focus",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#learning-focus",
+    "title": "Hands-on Exercise 2",
+    "section": "Learning focus",
+    "text": "Learning focus\n\nImport and prepare the required spatial and attribute data.\nBuild choropleth maps with tmap.\nCompare variables through small-multiple maps.\nHighlight spatial features that meet a selection criterion.\nCombine thematic maps with statistical charts.\nCreate an interactive map for exploration."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#analysis-workflow",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#analysis-workflow",
+    "title": "Hands-on Exercise 2",
+    "section": "Analysis workflow",
+    "text": "Analysis workflow\n\nCheck the spatial data, attributes, and coordinate reference system.\nSelect a meaningful variable and appropriate classification method.\nDesign a readable static thematic map with suitable labels and legend.\nCompare patterns with small multiples or a supporting chart.\nAdd interactivity where it improves exploration of the data.\n\n\n\n\n\n\n\nMap design choices should be justified by the analytical question, not only by visual appearance."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html",
+    "title": "Hands-on Exercise 6",
+    "section": "",
+    "text": "This exercise extends point-pattern analysis into time, showing how the location and intensity of events evolve across temporal intervals."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#learning-focus",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#learning-focus",
+    "title": "Hands-on Exercise 6",
+    "section": "Learning focus",
+    "text": "Learning focus\n\nPrepare a study area and event data with valid spatial and temporal fields.\nVisualise point events across time.\nCompute spatio-temporal kernel density estimates by month and day of year.\nCompare alternative approaches to temporal grouping and KDE.\nApply spatio-temporal point-pattern methods and interpret their outputs."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#analysis-workflow",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#analysis-workflow",
+    "title": "Hands-on Exercise 6",
+    "section": "Analysis workflow",
+    "text": "Analysis workflow\n\nImport and validate the study-area boundary.\nClean event coordinates, dates, and temporal attributes.\nExplore how event counts and locations change over time.\nEstimate and compare spatio-temporal density surfaces.\nInterpret persistent, emerging, and changing concentrations with appropriate caveats.\n\n\n\n\n\n\n\nTemporal aggregation can change the apparent pattern, so the selected time unit should match the analytical question."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "ISSS608 Visual Analytics and Applications",
+    "section": "",
+    "text": "This portfolio documents my hands-on work for ISSS608 Visual Analytics and Applications. It brings together geospatial data handling, thematic mapping, spatial point-pattern analysis, and spatio-temporal analysis using R.\nUse the Hands-on Exercises dropdown in the navigation bar, or select an exercise below."
+  },
+  {
+    "objectID": "index.html#hands-on-exercises",
+    "href": "index.html#hands-on-exercises",
+    "title": "ISSS608 Visual Analytics and Applications",
+    "section": "Hands-on exercises",
+    "text": "Hands-on exercises\n\n\nExercise 1\nGeospatial Data Science with R\nImport, inspect, project, wrangle, and analyse spatial data with sf and the tidyverse.\n\n\nExercise 2\nThematic Mapping and GeoVisualisation\nBuild static and interactive thematic maps and complement them with statistical graphics.\n\n\nExercise 4\nFirst-order Spatial Point Patterns\nExplore nearest-neighbour analysis and kernel density estimation for spatial events.\n\n\nExercise 5\nSecond-order Spatial Point Patterns\nStudy spatial interaction across distances with G-, F-, K-, and L-functions.\n\n\nExercise 6\nSpatio-temporal Point Patterns\nAnalyse how event intensity and spatial patterns change over time.\n\n\n\n\n\n\n\n\nEach exercise page follows the corresponding course chapter and provides a dedicated place for the worked analysis, interpretation, and outputs."
   }
 ]

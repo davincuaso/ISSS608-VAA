@@ -1,0 +1,30 @@
+---
+title: "Hands-on Exercise 6"
+subtitle: "Spatio-Temporal Point Patterns Analysis"
+---
+
+This exercise extends point-pattern analysis into time, showing how the location and intensity of events evolve across temporal intervals.
+
+::: {.chapter-link}
+[Open the course reference for Chapter 6](https://r4gdsa.netlify.app/chap06){.btn .btn-primary target="_blank"}
+:::
+
+## Learning focus
+
+- Prepare a study area and event data with valid spatial and temporal fields.
+- Visualise point events across time.
+- Compute spatio-temporal kernel density estimates by month and day of year.
+- Compare alternative approaches to temporal grouping and KDE.
+- Apply spatio-temporal point-pattern methods and interpret their outputs.
+
+## Analysis workflow
+
+1. Import and validate the study-area boundary.
+2. Clean event coordinates, dates, and temporal attributes.
+3. Explore how event counts and locations change over time.
+4. Estimate and compare spatio-temporal density surfaces.
+5. Interpret persistent, emerging, and changing concentrations with appropriate caveats.
+
+::: {.callout-note appearance="simple"}
+Temporal aggregation can change the apparent pattern, so the selected time unit should match the analytical question.
+:::

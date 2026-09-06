@@ -1,0 +1,31 @@
+---
+title: "Hands-on Exercise 2"
+subtitle: "Thematic Mapping and GeoVisualisation with R"
+---
+
+This exercise develops clear thematic maps from geospatial data and explores how classification, symbols, layout, and interactivity affect what a map communicates.
+
+::: {.chapter-link}
+[Open the course reference for Chapter 2](https://r4gdsa.netlify.app/chap02.html){.btn .btn-primary target="_blank"}
+:::
+
+## Learning focus
+
+- Import and prepare the required spatial and attribute data.
+- Build choropleth maps with `tmap`.
+- Compare variables through small-multiple maps.
+- Highlight spatial features that meet a selection criterion.
+- Combine thematic maps with statistical charts.
+- Create an interactive map for exploration.
+
+## Analysis workflow
+
+1. Check the spatial data, attributes, and coordinate reference system.
+2. Select a meaningful variable and appropriate classification method.
+3. Design a readable static thematic map with suitable labels and legend.
+4. Compare patterns with small multiples or a supporting chart.
+5. Add interactivity where it improves exploration of the data.
+
+::: {.callout-note appearance="simple"}
+Map design choices should be justified by the analytical question, not only by visual appearance.
+:::

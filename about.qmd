@@ -1,9 +1,17 @@
 ---
-title: "About"
+title: "About this portfolio"
+toc: false
 ---
 
-About this site
+This website is my learning portfolio for **ISSS608 Visual Analytics and Applications**. It records the methods, code, visualisations, and interpretations developed through the course's hands-on exercises.
 
-```{r}
-1 + 1
-```
+The portfolio is created with **R** and **Quarto**, version-controlled on GitHub, and published as a website through Vercel.
+
+## Course themes
+
+- Geospatial data import, transformation, and geoprocessing
+- Thematic mapping and geovisualisation
+- First- and second-order spatial point-pattern analysis
+- Spatio-temporal point-pattern analysis
+
+The worked pages are organised under the **Hands-on Exercises** dropdown in the navigation bar.

@@ -1,0 +1,30 @@
+---
+title: "Hands-on Exercise 5"
+subtitle: "Second-order Spatial Point Patterns Analysis"
+---
+
+This exercise examines whether point events interact across a range of distances and whether the observed pattern is more clustered or dispersed than an appropriate reference process.
+
+::: {.chapter-link}
+[Open the course reference for Chapter 5](https://r4gdsa.netlify.app/chap05.html){.btn .btn-primary target="_blank"}
+:::
+
+## Learning focus
+
+- Prepare spatial point-pattern data and a valid observation window.
+- Use the G-function to study nearest-event distances.
+- Use the F-function to study empty-space distances.
+- Use K- and L-functions to assess spatial dependence across distances.
+- Compare observed statistics with simulation envelopes.
+
+## Analysis workflow
+
+1. Import and validate the study-area and event data.
+2. Convert the data into the structures required for point-pattern analysis.
+3. Define a suitable null model and simulation settings.
+4. Compute G-, F-, K-, and L-function diagnostics.
+5. Interpret departures from the simulation envelope carefully and in context.
+
+::: {.callout-note appearance="simple"}
+Conclusions depend on the observation window, edge correction, distance range, and reference process used.
+:::

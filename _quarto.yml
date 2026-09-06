@@ -2,12 +2,36 @@ project:
   type: website
 
 website:
-  title: "ISSS608-VAA"
+  title: "ISSS608 Visual Analytics"
+  page-navigation: true
+  back-to-top-navigation: true
   navbar:
+    background: primary
+    search: true
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - text: Hands-on Exercises
+        menu:
+          - href: Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.qmd
+            text: "Exercise 1: Geospatial Data Science"
+          - href: Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.qmd
+            text: "Exercise 2: Thematic Mapping"
+          - href: Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd
+            text: "Exercise 4: First-order SPPA"
+          - href: Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.qmd
+            text: "Exercise 5: Second-order SPPA"
+          - href: Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.qmd
+            text: "Exercise 6: Spatio-temporal SPPA"
+      - href: about.qmd
+        text: About
+    right:
+      - icon: github
+        href: https://github.com/davincuaso/ISSS608-VAA
+        aria-label: GitHub
+  page-footer:
+    left: "ISSS608 Visual Analytics and Applications"
+    right: "Built with Quarto"
 
 format:
   html:
@@ -16,6 +40,7 @@ format:
       - brand
     css: styles.css
     toc: true
+    toc-depth: 3
+    smooth-scroll: true
 
 editor: visual
-

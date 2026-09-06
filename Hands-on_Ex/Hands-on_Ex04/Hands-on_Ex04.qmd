@@ -1,0 +1,32 @@
+---
+title: "Hands-on Exercise 4"
+subtitle: "First-order Spatial Point Patterns Analysis"
+---
+
+This exercise studies the intensity and broad spatial distribution of point events using nearest-neighbour methods and kernel density estimation (KDE).
+
+::: {.chapter-link}
+[Open the course reference for Chapter 4](https://r4gdsa.netlify.app/chap04.html){.btn .btn-primary target="_blank"}
+:::
+
+## Learning focus
+
+- Import, wrangle, and validate event and study-area data.
+- Prepare point-pattern objects for analysis.
+- Apply the Clark–Evans nearest-neighbour test.
+- Estimate spatial intensity with kernel density estimation.
+- Compare fixed and adaptive bandwidth approaches.
+- Produce a cartographically clear KDE map.
+- Summarise first-order patterns at planning-subzone level.
+
+## Analysis workflow
+
+1. Define the study area and clean the point-event data.
+2. Confirm that the coordinate system is suitable for distance-based analysis.
+3. Examine nearest-neighbour structure.
+4. Estimate and compare density surfaces.
+5. Interpret where event intensity is relatively high or low, with attention to boundary effects and bandwidth choice.
+
+::: {.callout-note appearance="simple"}
+First-order methods describe intensity across space; they do not by themselves establish why a pattern occurs.
+:::

@@ -1,0 +1,30 @@
+---
+title: "Hands-on Exercise 1"
+subtitle: "Geospatial Data Science with R"
+---
+
+This exercise introduces a reproducible geospatial workflow using `sf` and the tidyverse: importing spatial and aspatial data, checking geometry and attributes, managing coordinate reference systems, and performing geoprocessing.
+
+::: {.chapter-link}
+[Open the course reference for Chapter 1](https://r4gdsa.netlify.app/chap01.html){.btn .btn-primary target="_blank"}
+:::
+
+## Learning focus
+
+- Import polygon, line, and point data with `st_read()`.
+- Inspect simple-feature objects and their attributes.
+- assign or transform coordinate reference systems appropriately.
+- Convert longitude/latitude records into an `sf` object.
+- Use buffering, spatial intersection, and tidy data wrangling.
+
+## Analysis workflow
+
+1. Acquire and organise the required geospatial and aspatial datasets.
+2. Import the datasets using paths that match this project.
+3. Inspect their geometry types, attributes, extents, and coordinate systems.
+4. Standardise projected data to SVY21 / Singapore TM (EPSG:3414) when distance or area is analysed.
+5. Complete and interpret the required geoprocessing tasks.
+
+::: {.callout-warning appearance="simple"}
+The course website's `chap01/data/...` paths belong to the lecturer's project. Code in this repository must use the actual local data folders instead.
+:::

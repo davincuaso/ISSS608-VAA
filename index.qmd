@@ -1,11 +1,60 @@
 ---
-title: "ISSS608-VAA"
+title: "ISSS608 Visual Analytics and Applications"
+subtitle: "A learning portfolio for geospatial data science with R"
+toc: false
+page-layout: full
 ---
 
-This is a Quarto website.
+::: {.hero-panel}
+This portfolio documents my hands-on work for **ISSS608 Visual Analytics and Applications**. It brings together geospatial data handling, thematic mapping, spatial point-pattern analysis, and spatio-temporal analysis using R.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+Use the **Hands-on Exercises** dropdown in the navigation bar, or select an exercise below.
+:::
 
-```{r}
-1 + 1
-```
+## Hands-on exercises
+
+::: {.exercise-grid}
+::: {.exercise-card}
+### [Exercise 1](Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.qmd)
+
+**Geospatial Data Science with R**
+
+Import, inspect, project, wrangle, and analyse spatial data with `sf` and the tidyverse.
+:::
+
+::: {.exercise-card}
+### [Exercise 2](Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.qmd)
+
+**Thematic Mapping and GeoVisualisation**
+
+Build static and interactive thematic maps and complement them with statistical graphics.
+:::
+
+::: {.exercise-card}
+### [Exercise 4](Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd)
+
+**First-order Spatial Point Patterns**
+
+Explore nearest-neighbour analysis and kernel density estimation for spatial events.
+:::
+
+::: {.exercise-card}
+### [Exercise 5](Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.qmd)
+
+**Second-order Spatial Point Patterns**
+
+Study spatial interaction across distances with G-, F-, K-, and L-functions.
+:::
+
+::: {.exercise-card}
+### [Exercise 6](Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.qmd)
+
+**Spatio-temporal Point Patterns**
+
+Analyse how event intensity and spatial patterns change over time.
+:::
+:::
+
+::: {.callout-note appearance="simple"}
+Each exercise page follows the corresponding course chapter and provides a dedicated place for the worked analysis, interpretation, and outputs.
+:::
