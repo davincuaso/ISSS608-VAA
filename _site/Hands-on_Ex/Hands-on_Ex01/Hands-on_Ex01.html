@@ -6,6 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Davin Cuaso">
+<meta name="dcterms.date" content="2026-09-06">
 
 <title>Hands-on Exercise 1 – ISSS608 Visual Analytics</title>
 <style>
@@ -25,6 +27,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -154,8 +191,23 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#learning-focus" id="toc-learning-focus" class="nav-link active" data-scroll-target="#learning-focus">Learning focus</a></li>
-  <li><a href="#analysis-workflow" id="toc-analysis-workflow" class="nav-link" data-scroll-target="#analysis-workflow">Analysis workflow</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#data-and-packages" id="toc-data-and-packages" class="nav-link" data-scroll-target="#data-and-packages">Data and packages</a></li>
+  <li><a href="#importing-geospatial-data" id="toc-importing-geospatial-data" class="nav-link" data-scroll-target="#importing-geospatial-data">Importing geospatial data</a>
+  <ul class="collapse">
+  <li><a href="#inspecting-the-feature-data-frames" id="toc-inspecting-the-feature-data-frames" class="nav-link" data-scroll-target="#inspecting-the-feature-data-frames">Inspecting the feature data frames</a></li>
+  </ul></li>
+  <li><a href="#working-with-projection" id="toc-working-with-projection" class="nav-link" data-scroll-target="#working-with-projection">Working with projection</a></li>
+  <li><a href="#importing-and-converting-aspatial-data" id="toc-importing-and-converting-aspatial-data" class="nav-link" data-scroll-target="#importing-and-converting-aspatial-data">Importing and converting aspatial data</a></li>
+  <li><a href="#geoprocessing" id="toc-geoprocessing" class="nav-link" data-scroll-target="#geoprocessing">Geoprocessing</a>
+  <ul class="collapse">
+  <li><a href="#question-1-how-much-land-is-within-5-m-of-a-cycling-path" id="toc-question-1-how-much-land-is-within-5-m-of-a-cycling-path" class="nav-link" data-scroll-target="#question-1-how-much-land-is-within-5-m-of-a-cycling-path">Question 1: How much land is within 5 m of a cycling path?</a></li>
+  <li><a href="#question-2-how-many-pre-schools-are-in-each-subzone" id="toc-question-2-how-many-pre-schools-are-in-each-subzone" class="nav-link" data-scroll-target="#question-2-how-many-pre-schools-are-in-each-subzone">Question 2: How many pre-schools are in each subzone?</a></li>
+  <li><a href="#pre-school-density" id="toc-pre-school-density" class="nav-link" data-scroll-target="#pre-school-density">Pre-school density</a></li>
+  </ul></li>
+  <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory data analysis</a></li>
+  <li><a href="#key-findings" id="toc-key-findings" class="nav-link" data-scroll-target="#key-findings">Key findings</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
   </ul>
 </nav>
     </div>
@@ -164,15 +216,27 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Hands-on Exercise 1</h1>
-<p class="subtitle lead">Geospatial Data Science with R</p>
+<div class="quarto-title-block"><div><h1 class="title">Hands-on Exercise 1</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Geospatial data science with R</p>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Davin Cuaso </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 6, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -182,40 +246,608 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This exercise introduces a reproducible geospatial workflow using <code>sf</code> and the tidyverse: importing spatial and aspatial data, checking geometry and attributes, managing coordinate reference systems, and performing geoprocessing.</p>
-<div class="chapter-link">
-<p><a href="https://r4gdsa.netlify.app/chap01.html" class="btn btn-primary" target="_blank">Open the course reference for Chapter 1</a></p>
-</div>
-<section id="learning-focus" class="level2">
-<h2 class="anchored" data-anchor-id="learning-focus">Learning focus</h2>
-<ul>
-<li>Import polygon, line, and point data with <code>st_read()</code>.</li>
-<li>Inspect simple-feature objects and their attributes.</li>
-<li>assign or transform coordinate reference systems appropriately.</li>
-<li>Convert longitude/latitude records into an <code>sf</code> object.</li>
-<li>Use buffering, spatial intersection, and tidy data wrangling.</li>
-</ul>
-</section>
-<section id="analysis-workflow" class="level2">
-<h2 class="anchored" data-anchor-id="analysis-workflow">Analysis workflow</h2>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>This exercise follows <a href="https://r4gdsa.netlify.app/chap01.html">Chapter 1: Geospatial Data Science with R</a>. It demonstrates how to import, inspect, project, convert, and geoprocess spatial data in R. The analysis answers two practical questions:</p>
 <ol type="1">
-<li>Acquire and organise the required geospatial and aspatial datasets.</li>
-<li>Import the datasets using paths that match this project.</li>
-<li>Inspect their geometry types, attributes, extents, and coordinate systems.</li>
-<li>Standardise projected data to SVY21 / Singapore TM (EPSG:3414) when distance or area is analysed.</li>
-<li>Complete and interpret the required geoprocessing tasks.</li>
+<li>How much land lies within five metres of Singapore’s cycling-path network?</li>
+<li>How are pre-schools distributed across Master Plan 2014 subzones?</li>
 </ol>
-<div class="callout callout-style-simple callout-warning">
+</section>
+<section id="data-and-packages" class="level2">
+<h2 class="anchored" data-anchor-id="data-and-packages">Data and packages</h2>
+<p>The current data.gov.sg downloads are GeoJSON rather than the shapefile and KML formats used in the original course notes. GeoJSON is used here because it is the current official downloadable format and preserves the geometry in one file.</p>
+<p>The requested <strong>Master Plan 2014 Subzone Boundary (Web)</strong> collection currently has no downloadable child dataset. I therefore use <strong>Master Plan 2014 Subzone Boundary (No Sea)</strong>. This substitution is appropriate for area-based pre-school density because offshore polygons would enlarge coastal subzones without adding pre-schools.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Dataset</th>
+<th>Source</th>
+<th>Format</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Master Plan 2014 Subzone Boundary (No Sea)</td>
+<td><a href="https://data.gov.sg/datasets/d_226cacceceff94f0c8b814962a5307c9/view">URA via data.gov.sg</a></td>
+<td>GeoJSON</td>
+<td>Analysis zones</td>
+</tr>
+<tr class="even">
+<td>Cycling Path Network</td>
+<td><a href="https://data.gov.sg/datasets/d_8f468b25193f64be8a16fa7d8f60f553/view">LTA via data.gov.sg</a></td>
+<td>GeoJSON</td>
+<td>Buffer analysis</td>
+</tr>
+<tr class="odd">
+<td>Pre-Schools Location</td>
+<td><a href="https://data.gov.sg/datasets/d_61eefab99958fd70e6aab17320a71f1c/view">ECDA via data.gov.sg</a></td>
+<td>GeoJSON</td>
+<td>Point-in-polygon counts</td>
+</tr>
+<tr class="even">
+<td>Singapore Airbnb listings, 28 Dec 2024</td>
+<td><a href="https://beta.insideairbnb.com/get-the-data/">Inside Airbnb</a></td>
+<td>CSV</td>
+<td>Aspatial-to-spatial conversion</td>
+</tr>
+</tbody>
+</table>
+<p>The required packages are loaded with <code>pacman::p_load()</code>: <code>sf</code> manages spatial data, <code>dplyr</code> wrangles tables, <code>ggplot2</code> plots the results, <code>knitr</code> formats tables, and <code>units</code> handles area conversions safely.</p>
+</section>
+<section id="importing-geospatial-data" class="level2">
+<h2 class="anchored" data-anchor-id="importing-geospatial-data">Importing geospatial data</h2>
+<p><code>st_read()</code> reads all three vector datasets as simple-feature data frames. The course’s <code>chap01/data/...</code> path belongs to the lecturer’s project; the paths below match this repository.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"geospatial"</span>, <span class="st">"MasterPlan2014SubzoneBoundaryNoSea.geojson"</span>),</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>cyclingpath <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"geospatial"</span>, <span class="st">"CyclingPathNetwork.geojson"</span>),</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>preschool <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"geospatial"</span>, <span class="st">"PreSchoolsLocation.geojson"</span>),</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<section id="inspecting-the-feature-data-frames" class="level3">
+<h3 class="anchored" data-anchor-id="inspecting-the-feature-data-frames">Inspecting the feature data frames</h3>
+<p>Before analysing the data, I check the number of features, geometry type, attributes, and coordinate reference system (CRS).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>spatial_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Object =</span> <span class="fu">c</span>(<span class="st">"Planning subzones"</span>, <span class="st">"Cycling paths"</span>, <span class="st">"Pre-schools"</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Features =</span> <span class="fu">c</span>(<span class="fu">nrow</span>(mpsz), <span class="fu">nrow</span>(cyclingpath), <span class="fu">nrow</span>(preschool)),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Attributes =</span> <span class="fu">c</span>(<span class="fu">ncol</span>(mpsz) <span class="sc">-</span> <span class="dv">1</span>, <span class="fu">ncol</span>(cyclingpath) <span class="sc">-</span> <span class="dv">1</span>, <span class="fu">ncol</span>(preschool) <span class="sc">-</span> <span class="dv">1</span>),</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Geometry =</span> <span class="fu">c</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="fu">unique</span>(<span class="fu">as.character</span>(<span class="fu">st_geometry_type</span>(mpsz))), <span class="at">collapse =</span> <span class="st">", "</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="fu">unique</span>(<span class="fu">as.character</span>(<span class="fu">st_geometry_type</span>(cyclingpath))), <span class="at">collapse =</span> <span class="st">", "</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="fu">unique</span>(<span class="fu">as.character</span>(<span class="fu">st_geometry_type</span>(preschool))), <span class="at">collapse =</span> <span class="st">", "</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Native CRS</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">st_crs</span>(mpsz)<span class="sc">$</span>input, <span class="fu">st_crs</span>(cyclingpath)<span class="sc">$</span>input, <span class="fu">st_crs</span>(preschool)<span class="sc">$</span>input),</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(spatial_summary, <span class="at">caption =</span> <span class="st">"Imported geospatial datasets"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Imported geospatial datasets</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Object</th>
+<th style="text-align: right;">Features</th>
+<th style="text-align: right;">Attributes</th>
+<th style="text-align: left;">Geometry</th>
+<th style="text-align: left;">Native CRS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Planning subzones</td>
+<td style="text-align: right;">323</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: left;">MULTIPOLYGON</td>
+<td style="text-align: left;">WGS 84</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cycling paths</td>
+<td style="text-align: right;">8523</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: left;">MULTILINESTRING</td>
+<td style="text-align: left;">WGS 84</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Pre-schools</td>
+<td style="text-align: right;">2290</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">POINT</td>
+<td style="text-align: left;">WGS 84</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The objects contain polygon, line, and point geometries respectively. All three arrive in WGS84 (EPSG:4326), whose coordinates are measured in degrees.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> mpsz, <span class="at">fill =</span> <span class="st">"#f5f7fa"</span>, <span class="at">color =</span> <span class="st">"#b8c2cc"</span>, <span class="at">linewidth =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> cyclingpath, <span class="at">color =</span> <span class="st">"#2a9d8f"</span>, <span class="at">linewidth =</span> <span class="fl">0.18</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> preschool, <span class="at">color =</span> <span class="st">"#d1495b"</span>, <span class="at">size =</span> <span class="fl">0.25</span>, <span class="at">alpha =</span> <span class="fl">0.55</span>) <span class="sc">+</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"The three spatial layers align in WGS84"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Subzones (grey), cycling paths (green), and pre-schools (red)"</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Hands-on_Ex01_files/figure-html/preview-map-1.png" class="img-fluid figure-img" width="864"></p>
+<figcaption>Planning subzones, cycling paths, and pre-school locations before analysis</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="working-with-projection" class="level2">
+<h2 class="anchored" data-anchor-id="working-with-projection">Working with projection</h2>
+<p>Distance and area should not be calculated in longitude and latitude. I transform all three objects to <strong>SVY21 / Singapore TM (EPSG:3414)</strong>, a projected CRS measured in metres.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(mpsz, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cyclingpath <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(cyclingpath, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>preschool <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(preschool, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>crs_check <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Object =</span> <span class="fu">c</span>(<span class="st">"Planning subzones"</span>, <span class="st">"Cycling paths"</span>, <span class="st">"Pre-schools"</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">EPSG =</span> <span class="fu">c</span>(<span class="fu">st_crs</span>(mpsz)<span class="sc">$</span>epsg, <span class="fu">st_crs</span>(cyclingpath)<span class="sc">$</span>epsg, <span class="fu">st_crs</span>(preschool)<span class="sc">$</span>epsg),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Units =</span> <span class="fu">c</span>(<span class="st">"metres"</span>, <span class="st">"metres"</span>, <span class="st">"metres"</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(crs_check, <span class="at">caption =</span> <span class="st">"CRS after transformation"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>CRS after transformation</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Object</th>
+<th style="text-align: right;">EPSG</th>
+<th style="text-align: left;">Units</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Planning subzones</td>
+<td style="text-align: right;">3414</td>
+<td style="text-align: left;">metres</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cycling paths</td>
+<td style="text-align: right;">3414</td>
+<td style="text-align: left;">metres</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Pre-schools</td>
+<td style="text-align: right;">3414</td>
+<td style="text-align: left;">metres</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="callout callout-style-simple callout-important">
 <div class="callout-body d-flex">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-body-container">
-<p>The course website’s <code>chap01/data/...</code> paths belong to the lecturer’s project. Code in this repository must use the actual local data folders instead.</p>
+<p><code>st_transform()</code> recalculates the coordinates in a new CRS. <code>st_set_crs()</code> only changes the CRS label and should be used only when the coordinates were already expressed in that CRS but were labelled incorrectly.</p>
 </div>
 </div>
 </div>
+</section>
+<section id="importing-and-converting-aspatial-data" class="level2">
+<h2 class="anchored" data-anchor-id="importing-and-converting-aspatial-data">Importing and converting aspatial data</h2>
+<p>The Airbnb CSV contains longitude and latitude fields but no geometry column, so it begins as an ordinary data frame.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>listings <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"aspatial"</span>, <span class="st">"listings.csv"</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>listings_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  listings,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"longitude"</span>, <span class="st">"latitude"</span>),</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">crs =</span> <span class="dv">4326</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">remove =</span> <span class="cn">FALSE</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>listing_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">Records =</span> <span class="fu">nrow</span>(listings_sf),</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">Geometry =</span> <span class="fu">paste</span>(<span class="fu">unique</span>(<span class="fu">as.character</span>(<span class="fu">st_geometry_type</span>(listings_sf))), <span class="at">collapse =</span> <span class="st">", "</span>),</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">EPSG =</span> <span class="fu">st_crs</span>(listings_sf)<span class="sc">$</span>epsg,</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Longitude/latitude retained</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"longitude"</span>, <span class="st">"latitude"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(listings_sf)),</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(listing_summary, <span class="at">caption =</span> <span class="st">"Airbnb data after conversion to a spatial object"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Airbnb data after conversion to a spatial object</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Records</th>
+<th style="text-align: left;">Geometry</th>
+<th style="text-align: right;">EPSG</th>
+<th style="text-align: left;">Longitude/latitude retained</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">3447</td>
+<td style="text-align: left;">POINT</td>
+<td style="text-align: right;">3414</td>
+<td style="text-align: left;">TRUE</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The coordinate order is <code>longitude, latitude</code> (x, y). Reversing it would place the observations far outside Singapore. The converted object contains 3,447 point features in EPSG:3414.</p>
+</section>
+<section id="geoprocessing" class="level2">
+<h2 class="anchored" data-anchor-id="geoprocessing">Geoprocessing</h2>
+<section id="question-1-how-much-land-is-within-5-m-of-a-cycling-path" class="level3">
+<h3 class="anchored" data-anchor-id="question-1-how-much-land-is-within-5-m-of-a-cycling-path">Question 1: How much land is within 5 m of a cycling path?</h3>
+<p>A five-metre buffer is created on both sides of every cycling-path feature. Summing the separate buffer areas double-counts overlaps, so I also dissolve the buffers with <code>st_union()</code> to obtain the unique footprint.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>buffer_cycling <span class="ot">&lt;-</span> <span class="fu">st_buffer</span>(cyclingpath, <span class="at">dist =</span> <span class="dv">5</span>, <span class="at">nQuadSegs =</span> <span class="dv">30</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>naive_buffer_ha <span class="ot">&lt;-</span> <span class="fu">st_area</span>(buffer_cycling) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>() <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_units</span>(<span class="st">"ha"</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>dissolved_buffer_ha <span class="ot">&lt;-</span> buffer_cycling <span class="sc">|&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_union</span>() <span class="sc">|&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_area</span>() <span class="sc">|&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_units</span>(<span class="st">"ha"</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>overlap_pct <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  (naive_buffer_ha <span class="sc">-</span> dissolved_buffer_ha) <span class="sc">/</span> naive_buffer_ha <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>buffer_results <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method =</span> <span class="fu">c</span>(<span class="st">"Sum of individual buffers"</span>, <span class="st">"Dissolved unique footprint"</span>),</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Area (hectares)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">as.numeric</span>(naive_buffer_ha), <span class="fu">as.numeric</span>(dissolved_buffer_ha)), <span class="dv">2</span>),</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(buffer_results, <span class="at">caption =</span> <span class="st">"Area within five metres of cycling paths"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Area within five metres of cycling paths</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Method</th>
+<th style="text-align: right;">Area (hectares)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Sum of individual buffers</td>
+<td style="text-align: right;">498.97</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dissolved unique footprint</td>
+<td style="text-align: right;">431.51</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Answer.</strong> The non-overlapping five-metre buffer covers approximately <strong>431.51 hectares</strong>. A simple sum gives 498.97 hectares because overlapping buffers are counted more than once, overstating the unique footprint by about 13.5%.</p>
+</section>
+<section id="question-2-how-many-pre-schools-are-in-each-subzone" class="level3">
+<h3 class="anchored" data-anchor-id="question-2-how-many-pre-schools-are-in-each-subzone">Question 2: How many pre-schools are in each subzone?</h3>
+<p><code>st_intersects()</code> returns the pre-school row indices that fall inside each subzone. <code>lengths()</code> converts that list into one count per subzone.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mpsz<span class="sc">$</span>PreSch_Count <span class="ot">&lt;-</span> <span class="fu">lengths</span>(<span class="fu">st_intersects</span>(mpsz, preschool))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>top_count <span class="ot">&lt;-</span> mpsz <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(SUBZONE_N, PLN_AREA_N, PreSch_Count) <span class="sc">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(PreSch_Count)) <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  top_count,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Subzone"</span>, <span class="st">"Planning area"</span>, <span class="st">"Pre-schools"</span>),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Subzones with the most pre-schools"</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Subzones with the most pre-schools</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Subzone</th>
+<th style="text-align: left;">Planning area</th>
+<th style="text-align: right;">Pre-schools</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">TAMPINES EAST</td>
+<td style="text-align: left;">TAMPINES</td>
+<td style="text-align: right;">72</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">WOODLANDS EAST</td>
+<td style="text-align: left;">WOODLANDS</td>
+<td style="text-align: right;">54</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ALJUNIED</td>
+<td style="text-align: left;">GEYLANG</td>
+<td style="text-align: right;">40</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">TAMPINES WEST</td>
+<td style="text-align: left;">TAMPINES</td>
+<td style="text-align: right;">38</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BEDOK NORTH</td>
+<td style="text-align: left;">BEDOK</td>
+<td style="text-align: right;">38</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">FRANKEL</td>
+<td style="text-align: left;">BEDOK</td>
+<td style="text-align: right;">36</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SENGKANG TOWN CENTRE</td>
+<td style="text-align: left;">SENGKANG</td>
+<td style="text-align: right;">33</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">YUNNAN</td>
+<td style="text-align: left;">JURONG WEST</td>
+<td style="text-align: right;">32</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HONG KAH</td>
+<td style="text-align: left;">JURONG WEST</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BEDOK SOUTH</td>
+<td style="text-align: left;">BEDOK</td>
+<td style="text-align: right;">29</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>All 2,290 pre-school points were assigned to a subzone. <strong>TAMPINES EAST has the highest count, with 72 pre-schools.</strong> The median subzone has 4 pre-schools, while some subzones have none.</p>
+</section>
+<section id="pre-school-density" class="level3">
+<h3 class="anchored" data-anchor-id="pre-school-density">Pre-school density</h3>
+<p>Counts favour large residential subzones. Dividing by area shows the number of pre-schools per square kilometre and provides a different view of provision.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>mpsz<span class="sc">$</span>Area_sqkm <span class="ot">&lt;-</span> <span class="fu">st_area</span>(mpsz) <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_units</span>(<span class="st">"km^2"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>mpsz<span class="sc">$</span>PreSch_Density <span class="ot">&lt;-</span> mpsz<span class="sc">$</span>PreSch_Count <span class="sc">/</span> mpsz<span class="sc">$</span>Area_sqkm</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>top_density <span class="ot">&lt;-</span> mpsz <span class="sc">|&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(SUBZONE_N, PreSch_Count, Area_sqkm, PreSch_Density) <span class="sc">|&gt;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(PreSch_Density)) <span class="sc">|&gt;</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">|&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">Area_sqkm =</span> <span class="fu">round</span>(Area_sqkm, <span class="dv">2</span>),</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">PreSch_Density =</span> <span class="fu">round</span>(PreSch_Density, <span class="dv">2</span>)</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  top_density,</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Subzone"</span>, <span class="st">"Pre-schools"</span>, <span class="st">"Area (km²)"</span>, <span class="st">"Pre-schools per km²"</span>),</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Subzones with the highest pre-school density"</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Subzones with the highest pre-school density</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Subzone</th>
+<th style="text-align: right;">Pre-schools</th>
+<th style="text-align: right;">Area (km²)</th>
+<th style="text-align: right;">Pre-schools per km²</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">CECIL</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0.20</td>
+<td style="text-align: right;">35.60</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">MANDAI ESTATE</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.14</td>
+<td style="text-align: right;">34.93</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SEMBAWANG CENTRAL</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">28.05</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">PHILLIP</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">25.36</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">SERANGOON NORTH</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">0.68</td>
+<td style="text-align: right;">24.83</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SENGKANG TOWN CENTRE</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">1.46</td>
+<td style="text-align: right;">22.67</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">WOODLANDS EAST</td>
+<td style="text-align: right;">54</td>
+<td style="text-align: right;">2.55</td>
+<td style="text-align: right;">21.15</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">KATONG</td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">1.08</td>
+<td style="text-align: right;">20.39</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">MIDVIEW</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">20.29</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">KEAT HONG</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">1.14</td>
+<td style="text-align: right;">20.11</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>CECIL has the highest density at 35.6 pre-schools per km².</strong> This does not mean it has the most facilities: small-area subzones can rank highly even with modest counts. Count is more useful for absolute provision, while density is more useful for provision relative to land area.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>count_map <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> PreSch_Count), <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.08</span>) <span class="sc">+</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">name =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Pre-school count by subzone"</span>) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>), <span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>density_map <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> PreSch_Density), <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.08</span>) <span class="sc">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">name =</span> <span class="st">"Per km²"</span>) <span class="sc">+</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Pre-school density by subzone"</span>) <span class="sc">+</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>), <span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>count_map</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Hands-on_Ex01_files/figure-html/preschool-maps-1.png" class="img-fluid figure-img" width="960"></p>
+<figcaption>Absolute pre-school count and density tell different stories</figcaption>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>density_map</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Hands-on_Ex01_files/figure-html/preschool-maps-2.png" class="img-fluid figure-img" width="960"></p>
+<figcaption>Absolute pre-school count and density tell different stories</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory data analysis</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mpsz, <span class="fu">aes</span>(<span class="at">x =</span> PreSch_Density)) <span class="sc">+</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, <span class="at">fill =</span> <span class="st">"#4f86c6"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Pre-school density is strongly right-skewed"</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Most subzones have low density; a small number have high values"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Pre-schools per square kilometre"</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of subzones"</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Hands-on_Ex01_files/figure-html/density-histogram-1.png" class="img-fluid figure-img" width="768"></p>
+<figcaption>Distribution of pre-school density across subzones</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The long right tail confirms that most subzones have few pre-schools per square kilometre and a small number have much higher density. This matters for later thematic mapping because different classification methods can present a skewed variable very differently.</p>
+</section>
+<section id="key-findings" class="level2">
+<h2 class="anchored" data-anchor-id="key-findings">Key findings</h2>
+<ul>
+<li>The current official spatial files contain 323 subzones, 8,523 cycling-path features, and 2,290 pre-school locations.</li>
+<li>Transforming from WGS84 to EPSG:3414 is essential before calculating metres or square kilometres.</li>
+<li>The unique five-metre cycling-path buffer covers about <strong>431.51 hectares</strong>.</li>
+<li><strong>TAMPINES EAST</strong> has the most pre-schools (72), while <strong>CECIL</strong> has the highest density (35.6 per km²).</li>
+<li>Count and density answer different questions, and density is sensitive to very small subzone areas.</li>
+</ul>
+</section>
+<section id="limitations" class="level2">
+<h2 class="anchored" data-anchor-id="limitations">Limitations</h2>
+<p>The datasets come from different reference dates, so the analysis is a methodological exercise rather than a fully time-aligned planning study. A five-metre buffer measures geometric proximity, not construction feasibility or legal land acquisition. Density per land area also does not account for the number or age of children living in each subzone.</p>
 
+
+<!-- -->
 
 </section>
 
@@ -290,6 +922,57 @@ ul.task-list li input[type="checkbox"] {
         container: window.document.getElementById('quarto-embedded-source-code-modal')
       });
       clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -619,7 +1302,333 @@ ul.task-list li input[type="checkbox"] {
       }
     }
   });
-  </script>
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Hands-on Exercise 1"</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Geospatial data science with R"</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Davin Cuaso"</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> last-modified</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Show the R code"</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="fu">## Overview</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>This exercise follows <span class="co">[</span><span class="ot">Chapter 1: Geospatial Data Science with R</span><span class="co">](https://r4gdsa.netlify.app/chap01.html)</span>. It demonstrates how to import, inspect, project, convert, and geoprocess spatial data in R. The analysis answers two practical questions:</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>How much land lies within five metres of Singapore's cycling-path network?</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>How are pre-schools distributed across Master Plan 2014 subzones?</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="co">#| include: false</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, dplyr, ggplot2, knitr, units)</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>))</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="st">"data"</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data and packages</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>The current data.gov.sg downloads are GeoJSON rather than the shapefile and KML formats used in the original course notes. GeoJSON is used here because it is the current official downloadable format and preserves the geometry in one file.</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>The requested **Master Plan 2014 Subzone Boundary (Web)** collection currently has no downloadable child dataset. I therefore use **Master Plan 2014 Subzone Boundary (No Sea)**. This substitution is appropriate for area-based pre-school density because offshore polygons would enlarge coastal subzones without adding pre-schools.</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Dataset <span class="pp">|</span> Source <span class="pp">|</span> Format <span class="pp">|</span> Purpose <span class="pp">|</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|---|---|</span></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Master Plan 2014 Subzone Boundary (No Sea) <span class="pp">|</span> <span class="co">[</span><span class="ot">URA via data.gov.sg</span><span class="co">](https://data.gov.sg/datasets/d_226cacceceff94f0c8b814962a5307c9/view)</span> <span class="pp">|</span> GeoJSON <span class="pp">|</span> Analysis zones <span class="pp">|</span></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Cycling Path Network <span class="pp">|</span> <span class="co">[</span><span class="ot">LTA via data.gov.sg</span><span class="co">](https://data.gov.sg/datasets/d_8f468b25193f64be8a16fa7d8f60f553/view)</span> <span class="pp">|</span> GeoJSON <span class="pp">|</span> Buffer analysis <span class="pp">|</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Pre-Schools Location <span class="pp">|</span> <span class="co">[</span><span class="ot">ECDA via data.gov.sg</span><span class="co">](https://data.gov.sg/datasets/d_61eefab99958fd70e6aab17320a71f1c/view)</span> <span class="pp">|</span> GeoJSON <span class="pp">|</span> Point-in-polygon counts <span class="pp">|</span></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Singapore Airbnb listings, 28 Dec 2024 <span class="pp">|</span> <span class="co">[</span><span class="ot">Inside Airbnb</span><span class="co">](https://beta.insideairbnb.com/get-the-data/)</span> <span class="pp">|</span> CSV <span class="pp">|</span> Aspatial-to-spatial conversion <span class="pp">|</span></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>The required packages are loaded with <span class="in">`pacman::p_load()`</span>: <span class="in">`sf`</span> manages spatial data, <span class="in">`dplyr`</span> wrangles tables, <span class="in">`ggplot2`</span> plots the results, <span class="in">`knitr`</span> formats tables, and <span class="in">`units`</span> handles area conversions safely.</span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a><span class="fu">## Importing geospatial data</span></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a><span class="in">`st_read()`</span> reads all three vector datasets as simple-feature data frames. The course's <span class="in">`chap01/data/...`</span> path belongs to the lecturer's project; the paths below match this repository.</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: import-spatial-data</span></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"geospatial"</span>, <span class="st">"MasterPlan2014SubzoneBoundaryNoSea.geojson"</span>),</span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>cyclingpath <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"geospatial"</span>, <span class="st">"CyclingPathNetwork.geojson"</span>),</span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>preschool <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"geospatial"</span>, <span class="st">"PreSchoolsLocation.geojson"</span>),</span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a><span class="fu">### Inspecting the feature data frames</span></span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>Before analysing the data, I check the number of features, geometry type, attributes, and coordinate reference system (CRS).</span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: spatial-data-summary</span></span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a>spatial_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>  <span class="at">Object =</span> <span class="fu">c</span>(<span class="st">"Planning subzones"</span>, <span class="st">"Cycling paths"</span>, <span class="st">"Pre-schools"</span>),</span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>  <span class="at">Features =</span> <span class="fu">c</span>(<span class="fu">nrow</span>(mpsz), <span class="fu">nrow</span>(cyclingpath), <span class="fu">nrow</span>(preschool)),</span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>  <span class="at">Attributes =</span> <span class="fu">c</span>(<span class="fu">ncol</span>(mpsz) <span class="sc">-</span> <span class="dv">1</span>, <span class="fu">ncol</span>(cyclingpath) <span class="sc">-</span> <span class="dv">1</span>, <span class="fu">ncol</span>(preschool) <span class="sc">-</span> <span class="dv">1</span>),</span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a>  <span class="at">Geometry =</span> <span class="fu">c</span>(</span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="fu">unique</span>(<span class="fu">as.character</span>(<span class="fu">st_geometry_type</span>(mpsz))), <span class="at">collapse =</span> <span class="st">", "</span>),</span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="fu">unique</span>(<span class="fu">as.character</span>(<span class="fu">st_geometry_type</span>(cyclingpath))), <span class="at">collapse =</span> <span class="st">", "</span>),</span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="fu">unique</span>(<span class="fu">as.character</span>(<span class="fu">st_geometry_type</span>(preschool))), <span class="at">collapse =</span> <span class="st">", "</span>)</span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Native CRS</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">st_crs</span>(mpsz)<span class="sc">$</span>input, <span class="fu">st_crs</span>(cyclingpath)<span class="sc">$</span>input, <span class="fu">st_crs</span>(preschool)<span class="sc">$</span>input),</span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(spatial_summary, <span class="at">caption =</span> <span class="st">"Imported geospatial datasets"</span>)</span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a>The objects contain polygon, line, and point geometries respectively. All three arrive in WGS84 (EPSG:4326), whose coordinates are measured in degrees.</span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: preview-map</span></span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Planning subzones, cycling paths, and pre-school locations before analysis"</span></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6</span></span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> mpsz, <span class="at">fill =</span> <span class="st">"#f5f7fa"</span>, <span class="at">color =</span> <span class="st">"#b8c2cc"</span>, <span class="at">linewidth =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> cyclingpath, <span class="at">color =</span> <span class="st">"#2a9d8f"</span>, <span class="at">linewidth =</span> <span class="fl">0.18</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> preschool, <span class="at">color =</span> <span class="st">"#d1495b"</span>, <span class="at">size =</span> <span class="fl">0.25</span>, <span class="at">alpha =</span> <span class="fl">0.55</span>) <span class="sc">+</span></span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"The three spatial layers align in WGS84"</span>,</span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Subzones (grey), cycling paths (green), and pre-schools (red)"</span></span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>))</span>
+<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a><span class="fu">## Working with projection</span></span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a>Distance and area should not be calculated in longitude and latitude. I transform all three objects to **SVY21 / Singapore TM (EPSG:3414)**, a projected CRS measured in metres.</span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-134"><a href="#cb12-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-135"><a href="#cb12-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: transform-crs</span></span>
+<span id="cb12-136"><a href="#cb12-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-137"><a href="#cb12-137" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(mpsz, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb12-138"><a href="#cb12-138" aria-hidden="true" tabindex="-1"></a>cyclingpath <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(cyclingpath, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb12-139"><a href="#cb12-139" aria-hidden="true" tabindex="-1"></a>preschool <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(preschool, <span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb12-140"><a href="#cb12-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-141"><a href="#cb12-141" aria-hidden="true" tabindex="-1"></a>crs_check <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-142"><a href="#cb12-142" aria-hidden="true" tabindex="-1"></a>  <span class="at">Object =</span> <span class="fu">c</span>(<span class="st">"Planning subzones"</span>, <span class="st">"Cycling paths"</span>, <span class="st">"Pre-schools"</span>),</span>
+<span id="cb12-143"><a href="#cb12-143" aria-hidden="true" tabindex="-1"></a>  <span class="at">EPSG =</span> <span class="fu">c</span>(<span class="fu">st_crs</span>(mpsz)<span class="sc">$</span>epsg, <span class="fu">st_crs</span>(cyclingpath)<span class="sc">$</span>epsg, <span class="fu">st_crs</span>(preschool)<span class="sc">$</span>epsg),</span>
+<span id="cb12-144"><a href="#cb12-144" aria-hidden="true" tabindex="-1"></a>  <span class="at">Units =</span> <span class="fu">c</span>(<span class="st">"metres"</span>, <span class="st">"metres"</span>, <span class="st">"metres"</span>)</span>
+<span id="cb12-145"><a href="#cb12-145" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-146"><a href="#cb12-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-147"><a href="#cb12-147" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(crs_check, <span class="at">caption =</span> <span class="st">"CRS after transformation"</span>)</span>
+<span id="cb12-148"><a href="#cb12-148" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-149"><a href="#cb12-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-150"><a href="#cb12-150" aria-hidden="true" tabindex="-1"></a>::: {.callout-important appearance="simple"}</span>
+<span id="cb12-151"><a href="#cb12-151" aria-hidden="true" tabindex="-1"></a><span class="in">`st_transform()`</span> recalculates the coordinates in a new CRS. <span class="in">`st_set_crs()`</span> only changes the CRS label and should be used only when the coordinates were already expressed in that CRS but were labelled incorrectly.</span>
+<span id="cb12-152"><a href="#cb12-152" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb12-153"><a href="#cb12-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-154"><a href="#cb12-154" aria-hidden="true" tabindex="-1"></a><span class="fu">## Importing and converting aspatial data</span></span>
+<span id="cb12-155"><a href="#cb12-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-156"><a href="#cb12-156" aria-hidden="true" tabindex="-1"></a>The Airbnb CSV contains longitude and latitude fields but no geometry column, so it begins as an ordinary data frame.</span>
+<span id="cb12-157"><a href="#cb12-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-160"><a href="#cb12-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-161"><a href="#cb12-161" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: import-aspatial-data</span></span>
+<span id="cb12-162"><a href="#cb12-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-163"><a href="#cb12-163" aria-hidden="true" tabindex="-1"></a>listings <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(</span>
+<span id="cb12-164"><a href="#cb12-164" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"aspatial"</span>, <span class="st">"listings.csv"</span>),</span>
+<span id="cb12-165"><a href="#cb12-165" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb12-166"><a href="#cb12-166" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-167"><a href="#cb12-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-168"><a href="#cb12-168" aria-hidden="true" tabindex="-1"></a>listings_sf <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(</span>
+<span id="cb12-169"><a href="#cb12-169" aria-hidden="true" tabindex="-1"></a>  listings,</span>
+<span id="cb12-170"><a href="#cb12-170" aria-hidden="true" tabindex="-1"></a>  <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"longitude"</span>, <span class="st">"latitude"</span>),</span>
+<span id="cb12-171"><a href="#cb12-171" aria-hidden="true" tabindex="-1"></a>  <span class="at">crs =</span> <span class="dv">4326</span>,</span>
+<span id="cb12-172"><a href="#cb12-172" aria-hidden="true" tabindex="-1"></a>  <span class="at">remove =</span> <span class="cn">FALSE</span></span>
+<span id="cb12-173"><a href="#cb12-173" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb12-174"><a href="#cb12-174" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span>
+<span id="cb12-175"><a href="#cb12-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-176"><a href="#cb12-176" aria-hidden="true" tabindex="-1"></a>listing_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-177"><a href="#cb12-177" aria-hidden="true" tabindex="-1"></a>  <span class="at">Records =</span> <span class="fu">nrow</span>(listings_sf),</span>
+<span id="cb12-178"><a href="#cb12-178" aria-hidden="true" tabindex="-1"></a>  <span class="at">Geometry =</span> <span class="fu">paste</span>(<span class="fu">unique</span>(<span class="fu">as.character</span>(<span class="fu">st_geometry_type</span>(listings_sf))), <span class="at">collapse =</span> <span class="st">", "</span>),</span>
+<span id="cb12-179"><a href="#cb12-179" aria-hidden="true" tabindex="-1"></a>  <span class="at">EPSG =</span> <span class="fu">st_crs</span>(listings_sf)<span class="sc">$</span>epsg,</span>
+<span id="cb12-180"><a href="#cb12-180" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Longitude/latitude retained</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"longitude"</span>, <span class="st">"latitude"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(listings_sf)),</span>
+<span id="cb12-181"><a href="#cb12-181" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb12-182"><a href="#cb12-182" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-183"><a href="#cb12-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-184"><a href="#cb12-184" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(listing_summary, <span class="at">caption =</span> <span class="st">"Airbnb data after conversion to a spatial object"</span>)</span>
+<span id="cb12-185"><a href="#cb12-185" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-186"><a href="#cb12-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-187"><a href="#cb12-187" aria-hidden="true" tabindex="-1"></a>The coordinate order is <span class="in">`longitude, latitude`</span> (x, y). Reversing it would place the observations far outside Singapore. The converted object contains <span class="in">`r format(nrow(listings_sf), big.mark = ",")`</span> point features in EPSG:3414.</span>
+<span id="cb12-188"><a href="#cb12-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-189"><a href="#cb12-189" aria-hidden="true" tabindex="-1"></a><span class="fu">## Geoprocessing</span></span>
+<span id="cb12-190"><a href="#cb12-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-191"><a href="#cb12-191" aria-hidden="true" tabindex="-1"></a><span class="fu">### Question 1: How much land is within 5 m of a cycling path?</span></span>
+<span id="cb12-192"><a href="#cb12-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-193"><a href="#cb12-193" aria-hidden="true" tabindex="-1"></a>A five-metre buffer is created on both sides of every cycling-path feature. Summing the separate buffer areas double-counts overlaps, so I also dissolve the buffers with <span class="in">`st_union()`</span> to obtain the unique footprint.</span>
+<span id="cb12-194"><a href="#cb12-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-197"><a href="#cb12-197" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-198"><a href="#cb12-198" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cycling-buffer</span></span>
+<span id="cb12-199"><a href="#cb12-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-200"><a href="#cb12-200" aria-hidden="true" tabindex="-1"></a>buffer_cycling <span class="ot">&lt;-</span> <span class="fu">st_buffer</span>(cyclingpath, <span class="at">dist =</span> <span class="dv">5</span>, <span class="at">nQuadSegs =</span> <span class="dv">30</span>)</span>
+<span id="cb12-201"><a href="#cb12-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-202"><a href="#cb12-202" aria-hidden="true" tabindex="-1"></a>naive_buffer_ha <span class="ot">&lt;-</span> <span class="fu">st_area</span>(buffer_cycling) <span class="sc">|&gt;</span></span>
+<span id="cb12-203"><a href="#cb12-203" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-204"><a href="#cb12-204" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_units</span>(<span class="st">"ha"</span>)</span>
+<span id="cb12-205"><a href="#cb12-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-206"><a href="#cb12-206" aria-hidden="true" tabindex="-1"></a>dissolved_buffer_ha <span class="ot">&lt;-</span> buffer_cycling <span class="sc">|&gt;</span></span>
+<span id="cb12-207"><a href="#cb12-207" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_union</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-208"><a href="#cb12-208" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_area</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-209"><a href="#cb12-209" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_units</span>(<span class="st">"ha"</span>)</span>
+<span id="cb12-210"><a href="#cb12-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-211"><a href="#cb12-211" aria-hidden="true" tabindex="-1"></a>overlap_pct <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb12-212"><a href="#cb12-212" aria-hidden="true" tabindex="-1"></a>  (naive_buffer_ha <span class="sc">-</span> dissolved_buffer_ha) <span class="sc">/</span> naive_buffer_ha <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb12-213"><a href="#cb12-213" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-214"><a href="#cb12-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-215"><a href="#cb12-215" aria-hidden="true" tabindex="-1"></a>buffer_results <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-216"><a href="#cb12-216" aria-hidden="true" tabindex="-1"></a>  <span class="at">Method =</span> <span class="fu">c</span>(<span class="st">"Sum of individual buffers"</span>, <span class="st">"Dissolved unique footprint"</span>),</span>
+<span id="cb12-217"><a href="#cb12-217" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Area (hectares)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">as.numeric</span>(naive_buffer_ha), <span class="fu">as.numeric</span>(dissolved_buffer_ha)), <span class="dv">2</span>),</span>
+<span id="cb12-218"><a href="#cb12-218" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb12-219"><a href="#cb12-219" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-220"><a href="#cb12-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-221"><a href="#cb12-221" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(buffer_results, <span class="at">caption =</span> <span class="st">"Area within five metres of cycling paths"</span>)</span>
+<span id="cb12-222"><a href="#cb12-222" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-223"><a href="#cb12-223" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-224"><a href="#cb12-224" aria-hidden="true" tabindex="-1"></a>**Answer.** The non-overlapping five-metre buffer covers approximately **`r round(as.numeric(dissolved_buffer_ha), 2)` hectares**. A simple sum gives <span class="in">`r round(as.numeric(naive_buffer_ha), 2)`</span> hectares because overlapping buffers are counted more than once, overstating the unique footprint by about <span class="in">`r round(overlap_pct, 1)`</span>%.</span>
+<span id="cb12-225"><a href="#cb12-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-226"><a href="#cb12-226" aria-hidden="true" tabindex="-1"></a><span class="fu">### Question 2: How many pre-schools are in each subzone?</span></span>
+<span id="cb12-227"><a href="#cb12-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-228"><a href="#cb12-228" aria-hidden="true" tabindex="-1"></a><span class="in">`st_intersects()`</span> returns the pre-school row indices that fall inside each subzone. <span class="in">`lengths()`</span> converts that list into one count per subzone.</span>
+<span id="cb12-229"><a href="#cb12-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-232"><a href="#cb12-232" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-233"><a href="#cb12-233" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: preschool-counts</span></span>
+<span id="cb12-234"><a href="#cb12-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-235"><a href="#cb12-235" aria-hidden="true" tabindex="-1"></a>mpsz<span class="sc">$</span>PreSch_Count <span class="ot">&lt;-</span> <span class="fu">lengths</span>(<span class="fu">st_intersects</span>(mpsz, preschool))</span>
+<span id="cb12-236"><a href="#cb12-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-237"><a href="#cb12-237" aria-hidden="true" tabindex="-1"></a>top_count <span class="ot">&lt;-</span> mpsz <span class="sc">|&gt;</span></span>
+<span id="cb12-238"><a href="#cb12-238" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-239"><a href="#cb12-239" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(SUBZONE_N, PLN_AREA_N, PreSch_Count) <span class="sc">|&gt;</span></span>
+<span id="cb12-240"><a href="#cb12-240" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(PreSch_Count)) <span class="sc">|&gt;</span></span>
+<span id="cb12-241"><a href="#cb12-241" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb12-242"><a href="#cb12-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-243"><a href="#cb12-243" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(</span>
+<span id="cb12-244"><a href="#cb12-244" aria-hidden="true" tabindex="-1"></a>  top_count,</span>
+<span id="cb12-245"><a href="#cb12-245" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Subzone"</span>, <span class="st">"Planning area"</span>, <span class="st">"Pre-schools"</span>),</span>
+<span id="cb12-246"><a href="#cb12-246" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Subzones with the most pre-schools"</span></span>
+<span id="cb12-247"><a href="#cb12-247" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-248"><a href="#cb12-248" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-249"><a href="#cb12-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-250"><a href="#cb12-250" aria-hidden="true" tabindex="-1"></a>All <span class="in">`r format(sum(mpsz$PreSch_Count), big.mark = ",")`</span> pre-school points were assigned to a subzone. **`r top_count$SUBZONE_N[1]` has the highest count, with `r top_count$PreSch_Count[1]` pre-schools.** The median subzone has <span class="in">`r median(mpsz$PreSch_Count)`</span> pre-schools, while some subzones have none.</span>
+<span id="cb12-251"><a href="#cb12-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-252"><a href="#cb12-252" aria-hidden="true" tabindex="-1"></a><span class="fu">### Pre-school density</span></span>
+<span id="cb12-253"><a href="#cb12-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-254"><a href="#cb12-254" aria-hidden="true" tabindex="-1"></a>Counts favour large residential subzones. Dividing by area shows the number of pre-schools per square kilometre and provides a different view of provision.</span>
+<span id="cb12-255"><a href="#cb12-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-258"><a href="#cb12-258" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-259"><a href="#cb12-259" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: preschool-density</span></span>
+<span id="cb12-260"><a href="#cb12-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-261"><a href="#cb12-261" aria-hidden="true" tabindex="-1"></a>mpsz<span class="sc">$</span>Area_sqkm <span class="ot">&lt;-</span> <span class="fu">st_area</span>(mpsz) <span class="sc">|&gt;</span></span>
+<span id="cb12-262"><a href="#cb12-262" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_units</span>(<span class="st">"km^2"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-263"><a href="#cb12-263" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>()</span>
+<span id="cb12-264"><a href="#cb12-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-265"><a href="#cb12-265" aria-hidden="true" tabindex="-1"></a>mpsz<span class="sc">$</span>PreSch_Density <span class="ot">&lt;-</span> mpsz<span class="sc">$</span>PreSch_Count <span class="sc">/</span> mpsz<span class="sc">$</span>Area_sqkm</span>
+<span id="cb12-266"><a href="#cb12-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-267"><a href="#cb12-267" aria-hidden="true" tabindex="-1"></a>top_density <span class="ot">&lt;-</span> mpsz <span class="sc">|&gt;</span></span>
+<span id="cb12-268"><a href="#cb12-268" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_drop_geometry</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-269"><a href="#cb12-269" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(SUBZONE_N, PreSch_Count, Area_sqkm, PreSch_Density) <span class="sc">|&gt;</span></span>
+<span id="cb12-270"><a href="#cb12-270" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(PreSch_Density)) <span class="sc">|&gt;</span></span>
+<span id="cb12-271"><a href="#cb12-271" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-272"><a href="#cb12-272" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-273"><a href="#cb12-273" aria-hidden="true" tabindex="-1"></a>    <span class="at">Area_sqkm =</span> <span class="fu">round</span>(Area_sqkm, <span class="dv">2</span>),</span>
+<span id="cb12-274"><a href="#cb12-274" aria-hidden="true" tabindex="-1"></a>    <span class="at">PreSch_Density =</span> <span class="fu">round</span>(PreSch_Density, <span class="dv">2</span>)</span>
+<span id="cb12-275"><a href="#cb12-275" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-276"><a href="#cb12-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-277"><a href="#cb12-277" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(</span>
+<span id="cb12-278"><a href="#cb12-278" aria-hidden="true" tabindex="-1"></a>  top_density,</span>
+<span id="cb12-279"><a href="#cb12-279" aria-hidden="true" tabindex="-1"></a>  <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Subzone"</span>, <span class="st">"Pre-schools"</span>, <span class="st">"Area (km²)"</span>, <span class="st">"Pre-schools per km²"</span>),</span>
+<span id="cb12-280"><a href="#cb12-280" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Subzones with the highest pre-school density"</span></span>
+<span id="cb12-281"><a href="#cb12-281" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-282"><a href="#cb12-282" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-283"><a href="#cb12-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-284"><a href="#cb12-284" aria-hidden="true" tabindex="-1"></a>**`r top_density$SUBZONE_N[1]` has the highest density at `r top_density$PreSch_Density[1]` pre-schools per km².** This does not mean it has the most facilities: small-area subzones can rank highly even with modest counts. Count is more useful for absolute provision, while density is more useful for provision relative to land area.</span>
+<span id="cb12-285"><a href="#cb12-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-288"><a href="#cb12-288" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-289"><a href="#cb12-289" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: preschool-maps</span></span>
+<span id="cb12-290"><a href="#cb12-290" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Absolute pre-school count and density tell different stories"</span></span>
+<span id="cb12-291"><a href="#cb12-291" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb12-292"><a href="#cb12-292" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 8</span></span>
+<span id="cb12-293"><a href="#cb12-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-294"><a href="#cb12-294" aria-hidden="true" tabindex="-1"></a>count_map <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb12-295"><a href="#cb12-295" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> PreSch_Count), <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.08</span>) <span class="sc">+</span></span>
+<span id="cb12-296"><a href="#cb12-296" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">name =</span> <span class="st">"Count"</span>) <span class="sc">+</span></span>
+<span id="cb12-297"><a href="#cb12-297" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Pre-school count by subzone"</span>) <span class="sc">+</span></span>
+<span id="cb12-298"><a href="#cb12-298" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb12-299"><a href="#cb12-299" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb12-300"><a href="#cb12-300" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>), <span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb12-301"><a href="#cb12-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-302"><a href="#cb12-302" aria-hidden="true" tabindex="-1"></a>density_map <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(mpsz) <span class="sc">+</span></span>
+<span id="cb12-303"><a href="#cb12-303" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> PreSch_Density), <span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.08</span>) <span class="sc">+</span></span>
+<span id="cb12-304"><a href="#cb12-304" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">name =</span> <span class="st">"Per km²"</span>) <span class="sc">+</span></span>
+<span id="cb12-305"><a href="#cb12-305" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Pre-school density by subzone"</span>) <span class="sc">+</span></span>
+<span id="cb12-306"><a href="#cb12-306" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb12-307"><a href="#cb12-307" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb12-308"><a href="#cb12-308" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>), <span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span>
+<span id="cb12-309"><a href="#cb12-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-310"><a href="#cb12-310" aria-hidden="true" tabindex="-1"></a>count_map</span>
+<span id="cb12-311"><a href="#cb12-311" aria-hidden="true" tabindex="-1"></a>density_map</span>
+<span id="cb12-312"><a href="#cb12-312" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-313"><a href="#cb12-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-314"><a href="#cb12-314" aria-hidden="true" tabindex="-1"></a><span class="fu">## Exploratory data analysis</span></span>
+<span id="cb12-315"><a href="#cb12-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-318"><a href="#cb12-318" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb12-319"><a href="#cb12-319" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: density-histogram</span></span>
+<span id="cb12-320"><a href="#cb12-320" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Distribution of pre-school density across subzones"</span></span>
+<span id="cb12-321"><a href="#cb12-321" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb12-322"><a href="#cb12-322" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb12-323"><a href="#cb12-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-324"><a href="#cb12-324" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mpsz, <span class="fu">aes</span>(<span class="at">x =</span> PreSch_Density)) <span class="sc">+</span></span>
+<span id="cb12-325"><a href="#cb12-325" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">20</span>, <span class="at">fill =</span> <span class="st">"#4f86c6"</span>, <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb12-326"><a href="#cb12-326" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb12-327"><a href="#cb12-327" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Pre-school density is strongly right-skewed"</span>,</span>
+<span id="cb12-328"><a href="#cb12-328" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Most subzones have low density; a small number have high values"</span>,</span>
+<span id="cb12-329"><a href="#cb12-329" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Pre-schools per square kilometre"</span>,</span>
+<span id="cb12-330"><a href="#cb12-330" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of subzones"</span></span>
+<span id="cb12-331"><a href="#cb12-331" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-332"><a href="#cb12-332" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb12-333"><a href="#cb12-333" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-334"><a href="#cb12-334" aria-hidden="true" tabindex="-1"></a>The long right tail confirms that most subzones have few pre-schools per square kilometre and a small number have much higher density. This matters for later thematic mapping because different classification methods can present a skewed variable very differently.</span>
+<span id="cb12-335"><a href="#cb12-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-336"><a href="#cb12-336" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key findings</span></span>
+<span id="cb12-337"><a href="#cb12-337" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-338"><a href="#cb12-338" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The current official spatial files contain <span class="in">`r nrow(mpsz)`</span> subzones, <span class="in">`r format(nrow(cyclingpath), big.mark = ",")`</span> cycling-path features, and <span class="in">`r format(nrow(preschool), big.mark = ",")`</span> pre-school locations.</span>
+<span id="cb12-339"><a href="#cb12-339" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Transforming from WGS84 to EPSG:3414 is essential before calculating metres or square kilometres.</span>
+<span id="cb12-340"><a href="#cb12-340" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The unique five-metre cycling-path buffer covers about **`r round(as.numeric(dissolved_buffer_ha), 2)` hectares**.</span>
+<span id="cb12-341"><a href="#cb12-341" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**`r top_count$SUBZONE_N[1]`** has the most pre-schools (`r top_count$PreSch_Count[1]`), while **`r top_density$SUBZONE_N[1]`** has the highest density (<span class="in">`r top_density$PreSch_Density[1]`</span> per km²).</span>
+<span id="cb12-342"><a href="#cb12-342" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Count and density answer different questions, and density is sensitive to very small subzone areas.</span>
+<span id="cb12-343"><a href="#cb12-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-344"><a href="#cb12-344" aria-hidden="true" tabindex="-1"></a><span class="fu">## Limitations</span></span>
+<span id="cb12-345"><a href="#cb12-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-346"><a href="#cb12-346" aria-hidden="true" tabindex="-1"></a>The datasets come from different reference dates, so the analysis is a methodological exercise rather than a fully time-aligned planning study. A five-metre buffer measures geometric proximity, not construction feasibility or legal land acquisition. Density per land area also does not account for the number or age of children living in each subzone.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
