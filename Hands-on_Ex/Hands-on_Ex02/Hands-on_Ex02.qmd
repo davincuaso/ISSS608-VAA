@@ -1,31 +1,283 @@
 ---
 title: "Hands-on Exercise 2"
 subtitle: "Thematic Mapping and GeoVisualisation with R"
+author: "Davin Cuaso"
+date: last-modified
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the R code"
+    code-tools: true
+    toc: true
+    toc-depth: 3
+execute:
+  echo: true
+  warning: false
+  message: false
 ---
 
-This exercise develops clear thematic maps from geospatial data and explores how classification, symbols, layout, and interactivity affect what a map communicates.
+## Overview
 
-::: {.chapter-link}
-[Open the course reference for Chapter 2](https://r4gdsa.netlify.app/chap02.html){.btn .btn-primary target="_blank"}
-:::
+This exercise follows [Chapter 2: Thematic Mapping and GeoVisualisation with R](https://r4gdsa.netlify.app/chap02.html). It joins population attributes to Singapore's Master Plan 2019 subzones and asks:
 
-## Learning focus
+1. Where are dependency ratios relatively high?
+2. How much does the classification method change the visual message?
+3. Which subzones deserve closer inspection?
 
-- Import and prepare the required spatial and attribute data.
-- Build choropleth maps with `tmap`.
-- Compare variables through small-multiple maps.
-- Highlight spatial features that meet a selection criterion.
-- Combine thematic maps with statistical charts.
-- Create an interactive map for exploration.
+```{r}
+#| label: setup
+#| include: false
 
-## Analysis workflow
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(classInt)
+library(knitr)
+library(tmap)
 
-1. Check the spatial data, attributes, and coordinate reference system.
-2. Select a meaningful variable and appropriate classification method.
-3. Design a readable static thematic map with suitable labels and legend.
-4. Compare patterns with small multiples or a supporting chart.
-5. Add interactivity where it improves exploration of the data.
+options(scipen = 999)
+theme_set(theme_minimal(base_size = 12))
+data_path <- "../../data"
+```
 
-::: {.callout-note appearance="simple"}
-Map design choices should be justified by the analytical question, not only by visual appearance.
-:::
+## Data and preparation
+
+The map uses the current official downloadable boundaries and the 2020 Census population table. The course notes use a later SingStat file, but the public table below contains the same subzone-by-age structure needed to reproduce the method.
+
+| Dataset | Source | Use |
+|---|---|---|
+| Master Plan 2019 Subzone Boundary (No Sea) | [URA via data.gov.sg](https://data.gov.sg/datasets/d_8594ae9ff96d0c708bc2af633048edfb/view) | Mapping units |
+| Resident Population by Planning Area/Subzone, Age and Sex, Census 2020 | [Singapore Department of Statistics via data.gov.sg](https://data.gov.sg/collections/1894/view) | Age-group counts |
+
+```{r}
+#| label: import-and-prepare
+
+mpsz <- st_read(
+  file.path(data_path, "geospatial", "MP2019_Subzone.geojson"),
+  quiet = TRUE
+) |>
+  st_make_valid()
+
+population <- read.csv(
+  file.path(data_path, "aspatial", "resident_population_2020.csv"),
+  check.names = FALSE,
+  na.strings = "-"
+)
+
+numeric_fields <- setdiff(names(population), "Number")
+population[numeric_fields] <- lapply(population[numeric_fields], as.numeric)
+
+# Remove national and planning-area totals, leaving one row per subzone.
+population <- population |>
+  filter(Number != "Total", !grepl(" - Total$", Number)) |>
+  mutate(join_key = toupper(trimws(Number)))
+
+young_fields <- c(
+  "Total_0_4", "Total_5_9", "Total_10_14", "Total_15_19", "Total_20_24"
+)
+active_fields <- c(
+  "Total_25_29", "Total_30_34", "Total_35_39", "Total_40_44",
+  "Total_45_49", "Total_50_54", "Total_55_59", "Total_60_64"
+)
+aged_fields <- c(
+  "Total_65_69", "Total_70_74", "Total_75_79",
+  "Total_80_84", "Total_85_89", "Total_90andOver"
+)
+
+population <- population |>
+  mutate(
+    YOUNG = rowSums(across(all_of(young_fields)), na.rm = TRUE),
+    ECONOMY_ACTIVE = rowSums(across(all_of(active_fields)), na.rm = TRUE),
+    AGED = rowSums(across(all_of(aged_fields)), na.rm = TRUE),
+    DEPENDENCY = 100 * (YOUNG + AGED) / ECONOMY_ACTIVE
+  )
+
+residential <- mpsz |>
+  left_join(population, by = c("SUBZONE_N" = "join_key")) |>
+  filter(Total_Total > 0, is.finite(DEPENDENCY))
+```
+
+The dependency ratio is the number of residents aged **0–24 or 65+ per 100 residents aged 25–64**. `r nrow(residential)` populated subzones have a valid ratio; unpopulated and unmatched planning polygons are excluded from the thematic analysis.
+
+```{r}
+#| label: data-quality-summary
+
+quality <- data.frame(
+  Check = c("Boundary features", "Subzones joined to population", "Populated subzones analysed"),
+  Result = c(
+    nrow(mpsz),
+    sum(!is.na(left_join(mpsz, population, by = c("SUBZONE_N" = "join_key"))$Total_Total)),
+    nrow(residential)
+  )
+)
+kable(quality, caption = "Join and filtering checks")
+```
+
+## Choropleth map
+
+A sequential palette is appropriate because dependency ratio has a natural low-to-high order. Quantile classes put a similar number of subzones in each colour, making relative rank easy to see.
+
+```{r}
+#| label: dependency-map
+#| fig-cap: "Dependency ratio by populated subzone, Census 2020"
+#| fig-width: 9
+#| fig-height: 7
+
+quantile_breaks <- classIntervals(
+  residential$DEPENDENCY,
+  n = 5,
+  style = "quantile"
+)$brks
+
+residential <- residential |>
+  mutate(
+    Dependency_class = cut(
+      DEPENDENCY,
+      breaks = unique(quantile_breaks),
+      include.lowest = TRUE,
+      dig.lab = 4
+    )
+  )
+
+ggplot(residential) +
+  geom_sf(aes(fill = Dependency_class), color = "white", linewidth = 0.08) +
+  scale_fill_brewer(palette = "YlOrRd", direction = 1, drop = FALSE) +
+  coord_sf(datum = NA) +
+  labs(
+    title = "Dependency ratios vary sharply across residential Singapore",
+    subtitle = "Dependents aged 0–24 or 65+ per 100 residents aged 25–64",
+    fill = "Ratio (quantiles)",
+    caption = "Source: Singapore Census of Population 2020 and URA MP2019"
+  ) +
+  theme_void(base_size = 12) +
+  theme(
+    plot.title = element_text(face = "bold"),
+    legend.position = "right"
+  )
+```
+
+**Answer.** Across populated subzones, the median dependency ratio is **`r round(median(residential$DEPENDENCY), 1)`** dependents per 100 working-age residents. Very small resident populations can produce unstable ratios, so the ranking below requires at least 5,000 residents.
+
+## Classification matters
+
+Equal-interval and quantile classifications answer different visual questions. Equal intervals preserve the numeric scale; quantiles emphasise relative position among subzones.
+
+```{r}
+#| label: classification-comparison
+#| fig-cap: "The same dependency ratios classified in two ways"
+#| fig-width: 11
+#| fig-height: 5.6
+
+equal_breaks <- classIntervals(
+  residential$DEPENDENCY,
+  n = 5,
+  style = "equal"
+)$brks
+
+quantile_map <- residential |>
+  mutate(
+    Class_number = as.integer(cut(DEPENDENCY, unique(quantile_breaks), include.lowest = TRUE)),
+    Method = "Quantile: similar number of subzones per class"
+  )
+
+equal_map <- residential |>
+  mutate(
+    Class_number = as.integer(cut(DEPENDENCY, unique(equal_breaks), include.lowest = TRUE)),
+    Method = "Equal interval: same numeric width per class"
+  )
+
+comparison_map <- rbind(quantile_map, equal_map)
+
+ggplot(comparison_map) +
+  geom_sf(aes(fill = factor(Class_number)), color = "white", linewidth = 0.05) +
+  facet_wrap(~Method) +
+  scale_fill_brewer(
+    palette = "YlOrRd",
+    drop = FALSE,
+    labels = c("1 (lowest)", "2", "3", "4", "5 (highest)")
+  ) +
+  coord_sf(datum = NA) +
+  labs(fill = "Within-method class") +
+  theme_void(base_size = 11) +
+  theme(
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom",
+    legend.key.width = grid::unit(1.1, "cm")
+  )
+```
+
+The equal-interval map is dominated by the low-population outlier **Loyang West**. Quantiles provide a more useful comparison among the ordinary residential subzones, while the exact values remain available in the table and interactive map.
+
+## Selecting high-dependency subzones
+
+```{r}
+#| label: high-dependency-table
+
+high_dependency <- residential |>
+  st_drop_geometry() |>
+  filter(Total_Total >= 5000) |>
+  arrange(desc(DEPENDENCY)) |>
+  select(SUBZONE_N, PLN_AREA_N, Total_Total, YOUNG, ECONOMY_ACTIVE, AGED, DEPENDENCY) |>
+  slice_head(n = 10) |>
+  mutate(DEPENDENCY = round(DEPENDENCY, 1))
+
+kable(
+  high_dependency,
+  col.names = c("Subzone", "Planning area", "Population", "Age 0–24", "Age 25–64", "Age 65+", "Dependency ratio"),
+  caption = "Highest dependency ratios among subzones with at least 5,000 residents"
+)
+```
+
+```{r}
+#| label: high-dependency-chart
+#| fig-cap: "Highest dependency ratios among substantively populated subzones"
+#| fig-width: 9
+#| fig-height: 5.5
+
+ggplot(
+  high_dependency,
+  aes(x = reorder(SUBZONE_N, DEPENDENCY), y = DEPENDENCY)
+) +
+  geom_col(fill = "#d94841", width = 0.72) +
+  geom_text(aes(label = DEPENDENCY), hjust = -0.15, size = 3.4) +
+  coord_flip(clip = "off") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.12))) +
+  labs(
+    title = "Pearl's Hill has the highest stable dependency ratio",
+    x = NULL,
+    y = "Dependents per 100 residents aged 25–64"
+  ) +
+  theme(panel.grid.major.y = element_blank())
+```
+
+**Answer.** After excluding very small populations, **`r high_dependency$SUBZONE_N[1]`** has the highest ratio at **`r high_dependency$DEPENDENCY[1]`**, followed by **`r high_dependency$SUBZONE_N[2]`**. This is a demographic indicator, not a direct measure of need: the 0–24 category includes students and other young adults, and the map does not account for household income or service access.
+
+## Interactive map
+
+The same layer is rendered with `tmap` in view mode. Hover and click to inspect exact values instead of relying only on class colours.
+
+```{r}
+#| label: interactive-dependency-map
+#| fig-width: 10
+#| fig-height: 6
+
+tmap_mode("view")
+
+tm_shape(residential) +
+  tm_polygons(
+    col = "DEPENDENCY",
+    style = "quantile",
+    palette = "YlOrRd",
+    title = "Dependency ratio",
+    popup.vars = c(
+      "Subzone" = "SUBZONE_N",
+      "Planning area" = "PLN_AREA_N",
+      "Population" = "Total_Total",
+      "Dependency ratio" = "DEPENDENCY"
+    )
+  )
+```
+
+## Conclusion
+
+The exercise shows why a thematic map is an analytical argument rather than decoration. Quantiles reveal relative differences cleanly, equal intervals expose the influence of extreme values, selection prevents tiny denominators from dominating the ranking, and the interactive version preserves exact values for exploration.

@@ -1,30 +1,353 @@
 ---
 title: "Hands-on Exercise 6"
 subtitle: "Spatio-Temporal Point Patterns Analysis"
+author: "Davin Cuaso"
+date: last-modified
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the R code"
+    code-tools: true
+    toc: true
+    toc-depth: 3
+execute:
+  echo: true
+  warning: false
+  message: false
 ---
 
-This exercise extends point-pattern analysis into time, showing how the location and intensity of events evolve across temporal intervals.
+## Overview
 
-::: {.chapter-link}
-[Open the course reference for Chapter 6](https://r4gdsa.netlify.app/chap06){.btn .btn-primary target="_blank"}
-:::
+This exercise follows [Chapter 6: Spatio-Temporal Point Patterns Analysis](https://r4gdsa.netlify.app/chap06) and studies 2023 satellite fire detections in Indonesia's Kepulauan Bangka Belitung province. It answers the guide's two research questions:
 
-## Learning focus
+1. Are the spatial locations and detection dates independent?
+2. Where and when do fire detections cluster?
 
-- Prepare a study area and event data with valid spatial and temporal fields.
-- Visualise point events across time.
-- Compute spatio-temporal kernel density estimates by month and day of year.
-- Compare alternative approaches to temporal grouping and KDE.
-- Apply spatio-temporal point-pattern methods and interpret their outputs.
+```{r}
+#| label: setup
+#| include: false
 
-## Analysis workflow
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(spatstat.geom)
+library(spatstat.explore)
 
-1. Import and validate the study-area boundary.
-2. Clean event coordinates, dates, and temporal attributes.
-3. Explore how event counts and locations change over time.
-4. Estimate and compare spatio-temporal density surfaces.
-5. Interpret persistent, emerging, and changing concentrations with appropriate caveats.
+theme_set(theme_minimal(base_size = 12))
+options(scipen = 999)
+data_path <- "../../data"
+```
 
-::: {.callout-note appearance="simple"}
-Temporal aggregation can change the apparent pattern, so the selected time unit should match the analytical question.
-:::
+## Data and study area
+
+The lecturer's project-local files are not published through the chapter URL, so this reproducible version uses a public snapshot of the same NASA FIRMS 2023 Indonesia feed and filters it spatially to Bangka Belitung. GADM level-1 and level-2 boundaries replace the course's union of subdistrict polygons; the province footprint has the same analytical role, while districts make the results easier to name.
+
+| Dataset | Source | Use |
+|---|---|---|
+| Indonesia active-fire detections, 2023 | [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) via the course-project [public snapshot](https://github.com/apkirana/project_forestfire/blob/main/assets/data/indonesia2023.csv) | Space-time events |
+| Indonesia administrative boundaries, GADM 4.1 | [GADM](https://gadm.org/data.html) | Province window and district labels |
+
+```{r}
+#| label: prepare-fire-data
+
+province <- st_read(
+  file.path(data_path, "temporal", "BangkaBelitung.geojson"),
+  quiet = TRUE
+) |>
+  st_make_valid() |>
+  st_transform(32748)
+
+districts <- st_read(
+  file.path(data_path, "temporal", "BangkaBelitung_Districts.geojson"),
+  quiet = TRUE
+) |>
+  st_make_valid() |>
+  st_transform(32748)
+
+fires <- read.csv(
+  file.path(data_path, "temporal", "forestfires_2023.csv"),
+  stringsAsFactors = FALSE
+) |>
+  mutate(
+    acq_date = as.Date(acq_date),
+    Month_num = as.integer(format(acq_date, "%m")),
+    Month = factor(month.abb[Month_num], levels = month.abb),
+    DayOfYear = as.integer(format(acq_date, "%j"))
+  )
+
+fire_sf <- st_as_sf(
+  fires,
+  coords = c("longitude", "latitude"),
+  crs = 4326,
+  remove = FALSE
+) |>
+  st_transform(32748)
+
+district_labels <- c(
+  Bangka = "Bangka",
+  BangkaBarat = "Bangka Barat",
+  BangkaSelatan = "Bangka Selatan",
+  BangkaTengah = "Bangka Tengah",
+  Belitung = "Belitung",
+  BelitungTimur = "Belitung Timur",
+  Pangkalpinang = "Pangkalpinang"
+)
+
+districts <- districts |>
+  mutate(District = recode(NAME_2, !!!district_labels))
+
+fire_sf <- st_join(
+  fire_sf,
+  districts["District"],
+  join = st_within,
+  left = TRUE
+)
+
+quality <- data.frame(
+  Measure = c("Fire detections", "Date range", "Detections assigned to a district", "Projected CRS"),
+  Value = c(
+    nrow(fire_sf),
+    paste(min(fires$acq_date), "to", max(fires$acq_date)),
+    sum(!is.na(fire_sf$District)),
+    st_crs(fire_sf)$epsg
+  )
+)
+kable(quality, caption = "Validated space-time data")
+```
+
+The analysis contains **`r format(nrow(fire_sf), big.mark = ",")` detections** between `r min(fires$acq_date)` and `r max(fires$acq_date)`. EPSG:32748 is UTM zone 48S, so spatial bandwidths and pair distances are measured in metres.
+
+## When did detections occur?
+
+```{r}
+#| label: monthly-counts
+#| fig-cap: "Monthly active-fire detections in Bangka Belitung, 2023"
+#| fig-width: 9
+#| fig-height: 4.8
+
+monthly_counts <- fires |>
+  count(Month, .drop = FALSE)
+
+ggplot(monthly_counts, aes(Month, n, fill = n)) +
+  geom_col(width = 0.75) +
+  geom_text(aes(label = n), vjust = -0.35, size = 3.4) +
+  scale_fill_viridis_c(option = "inferno", guide = "none") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  labs(
+    title = "Fire activity accelerates through the dry-season months",
+    x = NULL,
+    y = "Detections"
+  ) +
+  theme(panel.grid.major.x = element_blank())
+```
+
+October records the maximum with **`r max(monthly_counts$n)` detections**, followed by September and August. Together, July–November account for **`r round(100 * sum(monthly_counts$n[monthly_counts$Month %in% month.abb[7:11]]) / sum(monthly_counts$n), 1)`%** of the annual detections.
+
+```{r}
+#| label: day-of-year-kde
+#| fig-cap: "Fourteen-day temporal kernel density of detections"
+#| fig-width: 9
+#| fig-height: 4.5
+
+temporal_kde <- density(
+  fires$DayOfYear,
+  bw = 14,
+  from = 1,
+  to = 365,
+  n = 365
+)
+
+temporal_curve <- data.frame(
+  DayOfYear = temporal_kde$x,
+  Relative_density = temporal_kde$y / max(temporal_kde$y)
+)
+
+peak_day <- round(temporal_curve$DayOfYear[which.max(temporal_curve$Relative_density)])
+peak_date <- as.Date("2023-01-01") + peak_day - 1
+
+ggplot(temporal_curve, aes(DayOfYear, Relative_density)) +
+  geom_area(fill = "#ef8354", alpha = 0.35) +
+  geom_line(color = "#b23a2f", linewidth = 0.8) +
+  geom_vline(xintercept = peak_day, linetype = "dashed", color = "#5f0f40") +
+  annotate("text", x = peak_day + 8, y = 0.92, label = format(peak_date, "%d %b"), hjust = 0) +
+  scale_x_continuous(
+    breaks = c(1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335),
+    labels = month.abb
+  ) +
+  labs(
+    title = "The smoothed temporal peak occurs around mid-October",
+    x = "Day of year",
+    y = "Relative temporal density"
+  ) +
+  theme(panel.grid.minor = element_blank())
+```
+
+The day-of-year KDE peaks around **`r format(peak_date, "%d %B %Y")`**. Smoothing avoids treating a single satellite overpass as a meaningful daily spike.
+
+## Where did detections concentrate?
+
+```{r}
+#| label: district-summary
+
+district_summary <- fire_sf |>
+  st_drop_geometry() |>
+  count(District, sort = TRUE, name = "Detections") |>
+  filter(!is.na(District))
+
+district_month_peak <- fire_sf |>
+  st_drop_geometry() |>
+  count(District, Month) |>
+  group_by(District) |>
+  slice_max(n, n = 1, with_ties = FALSE) |>
+  ungroup() |>
+  select(District, `Peak month` = Month, `Peak-month detections` = n)
+
+district_summary <- left_join(district_summary, district_month_peak, by = "District")
+kable(district_summary, caption = "Detections and peak month by district")
+```
+
+**Bangka Selatan** contains the largest annual total, and its local maximum also occurs in October. Counts identify administrative concentration but do not reveal within-district hotspots, so the next step estimates a continuous surface.
+
+## Spatio-temporal kernel density
+
+The chapter uses `spattemp.density()`. The calculation below implements the same product-kernel idea directly: every monthly slice combines a 12 km Gaussian spatial kernel with a one-month Gaussian temporal kernel. Values are rescaled to 0–1 across all six slices to emphasise changes in the location and strength of concentrations.
+
+```{r}
+#| label: calculate-stkde
+
+province_window <- as.owin(st_union(province))
+fire_xy <- st_coordinates(fire_sf)
+
+fire_ppp <- ppp(
+  x = fire_xy[, 1],
+  y = fire_xy[, 2],
+  window = province_window,
+  checkdup = FALSE
+)
+
+target_months <- 7:12
+spatial_bandwidth <- 12000
+temporal_bandwidth <- 1
+
+monthly_surfaces <- lapply(target_months, function(target_month) {
+  temporal_weight <- dnorm(
+    (fires$Month_num - target_month) / temporal_bandwidth
+  )
+
+  surface <- density(
+    fire_ppp,
+    sigma = spatial_bandwidth,
+    weights = temporal_weight,
+    edge = TRUE,
+    dimyx = 110
+  )
+
+  as.data.frame(surface) |>
+    mutate(Month = factor(month.abb[target_month], levels = month.abb[target_months]))
+}) |>
+  bind_rows()
+
+monthly_surfaces <- monthly_surfaces |>
+  mutate(Relative_intensity = value / max(value, na.rm = TRUE))
+```
+
+```{r}
+#| label: stkde-map
+#| fig-cap: "Product-kernel space-time intensity slices, July–December 2023"
+#| fig-width: 11
+#| fig-height: 8
+
+ggplot(monthly_surfaces, aes(x, y, fill = Relative_intensity)) +
+  geom_raster() +
+  geom_sf(data = districts, fill = NA, color = "white", linewidth = 0.15, inherit.aes = FALSE) +
+  facet_wrap(~Month, ncol = 3) +
+  coord_sf(crs = st_crs(province), datum = NA) +
+  scale_fill_viridis_c(option = "inferno", limits = c(0, 1), na.value = NA) +
+  labs(fill = "Relative\nintensity", x = NULL, y = NULL) +
+  theme_void(base_size = 11) +
+  theme(
+    strip.text = element_text(face = "bold"),
+    legend.position = "right"
+  )
+```
+
+The surfaces show activity building on Bangka Island from July, strengthening across western and southern Bangka in August–September, and reaching its strongest and broadest concentration in **Bangka Selatan in October**. Intensity falls in November and contracts sharply by December.
+
+## Are space and time independent?
+
+Under space-time independence, randomly reassigning dates to the observed locations should leave the number of near-space/near-time pairs broadly unchanged. I use a transparent permutation test:
+
+- a spatial pair is “near” when locations are within 10 km;
+- a temporal pair is “near” when detections are within seven days;
+- dates are permuted among fixed locations 199 times.
+
+This tests the same independence question as a space-time K-function while keeping the result concise and directly interpretable.
+
+```{r}
+#| label: space-time-permutation
+
+spatial_distance <- as.matrix(dist(fire_xy))
+date_number <- as.integer(fires$acq_date)
+upper_pairs <- upper.tri(spatial_distance)
+near_in_space <- upper_pairs & spatial_distance <= 10000
+
+count_close_pairs <- function(dates) {
+  temporal_distance <- abs(outer(dates, dates, "-"))
+  sum(near_in_space & temporal_distance <= 7)
+}
+
+observed_pairs <- count_close_pairs(date_number)
+
+set.seed(608)
+permuted_pairs <- replicate(
+  199,
+  count_close_pairs(sample(date_number))
+)
+
+permutation_p <- (1 + sum(permuted_pairs >= observed_pairs)) / (length(permuted_pairs) + 1)
+pair_ratio <- observed_pairs / mean(permuted_pairs)
+
+test_result <- data.frame(
+  `Observed close pairs` = observed_pairs,
+  `Mean under permutation` = round(mean(permuted_pairs), 1),
+  `Observed / expected` = round(pair_ratio, 2),
+  `Monte Carlo p-value` = permutation_p,
+  check.names = FALSE
+)
+kable(test_result, caption = "Space-time permutation test: 10 km and 7 days")
+```
+
+```{r}
+#| label: permutation-plot
+#| fig-cap: "Observed close space-time pairs compared with permuted dates"
+#| fig-width: 8.5
+#| fig-height: 4.5
+
+ggplot(data.frame(Close_pairs = permuted_pairs), aes(Close_pairs)) +
+  geom_histogram(bins = 24, fill = "#8ecae6", color = "white") +
+  geom_vline(xintercept = observed_pairs, color = "#d00000", linewidth = 1) +
+  annotate(
+    "text",
+    x = observed_pairs,
+    y = Inf,
+    label = paste("Observed =", observed_pairs),
+    vjust = 1.5,
+    hjust = 1.05,
+    color = "#d00000"
+  ) +
+  labs(
+    title = "Observed space-time concentration is far above the independence baseline",
+    subtitle = "199 random reallocations of dates to fixed fire locations",
+    x = "Pairs within 10 km and 7 days",
+    y = "Simulations"
+  )
+```
+
+## Answers and limitations
+
+**1. Are location and time independent?** No. The observed data contain **`r observed_pairs`** close space-time pairs, **`r round(pair_ratio, 2)` times** the permutation expectation, with (p=) **`r format.pval(permutation_p, digits = 3)`**. Dates and locations therefore show significant interaction at the chosen 10 km / 7-day scale.
+
+**2. Where and when is clustering strongest?** The largest annual and monthly concentration occurs in **Bangka Selatan**, peaking in **October**. The temporal KDE peaks around `r format(peak_date, "%d %B")`, and the space-time density surfaces show the hotspot expanding from July through October before receding.
+
+NASA FIRMS records satellite detections, not verified fire incidents or burned area. Cloud cover, satellite revisit timing, duplicate detections of one fire, confidence, and the chosen bandwidths all affect the pattern. The analysis identifies space-time concentration; it does not establish ignition causes.

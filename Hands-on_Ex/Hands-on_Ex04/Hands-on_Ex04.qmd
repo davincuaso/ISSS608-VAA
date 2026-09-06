@@ -1,32 +1,274 @@
 ---
 title: "Hands-on Exercise 4"
 subtitle: "First-order Spatial Point Patterns Analysis"
+author: "Davin Cuaso"
+date: last-modified
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the R code"
+    code-tools: true
+    toc: true
+    toc-depth: 3
+execute:
+  echo: true
+  warning: false
+  message: false
 ---
 
-This exercise studies the intensity and broad spatial distribution of point events using nearest-neighbour methods and kernel density estimation (KDE).
+## Overview
 
-::: {.chapter-link}
-[Open the course reference for Chapter 4](https://r4gdsa.netlify.app/chap04.html){.btn .btn-primary target="_blank"}
-:::
+This exercise follows [Chapter 4: First-order Spatial Point Patterns Analysis](https://r4gdsa.netlify.app/chap04.html) and studies the distribution of childcare services in Singapore. It answers two questions:
 
-## Learning focus
+1. Are childcare centres consistent with complete spatial randomness (CSR)?
+2. Where is first-order intensity highest, and how sensitive is it to bandwidth choice?
 
-- Import, wrangle, and validate event and study-area data.
-- Prepare point-pattern objects for analysis.
-- Apply the Clark–Evans nearest-neighbour test.
-- Estimate spatial intensity with kernel density estimation.
-- Compare fixed and adaptive bandwidth approaches.
-- Produce a cartographically clear KDE map.
-- Summarise first-order patterns at planning-subzone level.
+```{r}
+#| label: setup
+#| include: false
 
-## Analysis workflow
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(spatstat.geom)
+library(spatstat.explore)
 
-1. Define the study area and clean the point-event data.
-2. Confirm that the coordinate system is suitable for distance-based analysis.
-3. Examine nearest-neighbour structure.
-4. Estimate and compare density surfaces.
-5. Interpret where event intensity is relatively high or low, with attention to boundary effects and bandwidth choice.
+theme_set(theme_minimal(base_size = 12))
+options(scipen = 999)
+data_path <- "../../data"
+```
 
-::: {.callout-note appearance="simple"}
-First-order methods describe intensity across space; they do not by themselves establish why a pattern occurs.
-:::
+## Data and point-pattern preparation
+
+| Dataset | Source | Use |
+|---|---|---|
+| Child Care Services | [ECDA via data.gov.sg](https://data.gov.sg/datasets/d_5d668e3f544335f8028f546827b773b4/view) | Point events |
+| Master Plan 2019 Planning Area Boundary (No Sea) | [URA via data.gov.sg](https://data.gov.sg/datasets/d_4765db0e87b9c86336792efe8a1f7a66/view) | Observation window and comparisons |
+
+Distance-based analysis requires metres, so both layers are transformed to **SVY21 / Singapore TM (EPSG:3414)**. The union of all planning areas becomes the polygonal observation window.
+
+```{r}
+#| label: prepare-point-pattern
+
+planning_area <- st_read(
+  file.path(data_path, "geospatial", "MP2019_PlanningArea.geojson"),
+  quiet = TRUE
+) |>
+  st_make_valid() |>
+  st_transform(3414)
+
+childcare <- st_read(
+  file.path(data_path, "geospatial", "ChildCareServices.geojson"),
+  quiet = TRUE
+) |>
+  st_transform(3414)
+
+singapore_window <- as.owin(st_union(planning_area))
+xy <- st_coordinates(childcare)
+
+childcare_ppp <- ppp(
+  x = xy[, 1],
+  y = xy[, 2],
+  window = singapore_window,
+  checkdup = FALSE
+)
+
+pattern_summary <- data.frame(
+  Measure = c("Childcare centres", "Planning areas", "Projected CRS", "Observation-window area (km²)"),
+  Value = c(
+    npoints(childcare_ppp),
+    nrow(planning_area),
+    st_crs(childcare)$epsg,
+    round(area.owin(singapore_window) / 1e6, 1)
+  )
+)
+kable(pattern_summary, caption = "Validated point-pattern inputs")
+```
+
+```{r}
+#| label: event-map
+#| fig-cap: "Childcare services inside the Singapore planning-area boundary"
+#| fig-width: 9
+#| fig-height: 6
+
+ggplot() +
+  geom_sf(data = planning_area, fill = "#f5f7fa", color = "white", linewidth = 0.2) +
+  geom_sf(data = childcare, color = "#c43c39", size = 0.35, alpha = 0.6) +
+  coord_sf(datum = NA) +
+  labs(
+    title = "Childcare centres follow Singapore's populated urban footprint",
+    subtitle = paste(format(nrow(childcare), big.mark = ","), "service locations")
+  ) +
+  theme_void() +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+## Clark–Evans nearest-neighbour test
+
+The null hypothesis is CSR. Values of the Clark–Evans ratio (R<1) indicate shorter nearest-neighbour distances than expected under CSR; (R>1) indicates a more regular pattern. The CDF edge correction is suitable for the non-rectangular Singapore window.
+
+```{r}
+#| label: clark-evans-test
+
+ce_sg <- clarkevans.test(
+  childcare_ppp,
+  correction = "cdf",
+  alternative = "clustered"
+)
+
+ce_result <- data.frame(
+  Area = "Singapore",
+  `Clark-Evans R` = round(unname(ce_sg$statistic), 3),
+  `p-value` = format.pval(ce_sg$p.value, digits = 3, eps = 0.001),
+  Decision = ifelse(ce_sg$p.value < 0.05, "Reject CSR", "Do not reject CSR"),
+  check.names = FALSE
+)
+kable(ce_result, caption = "Clark–Evans test with CDF edge correction")
+```
+
+**Answer.** (R=) **`r round(unname(ce_sg$statistic), 3)`** with **`r format.pval(ce_sg$p.value, eps = 0.001)`**, so the childcare pattern is significantly clustered relative to CSR. This is not evidence that centres attract one another; population, housing estates, zoning, and service demand are plausible spatially varying drivers.
+
+## Kernel density estimation
+
+`bw.diggle()` selects a data-driven fixed bandwidth. An adaptive KDE is also estimated: it uses narrower kernels where points are dense and wider kernels in sparse areas. Both surfaces are expressed as estimated centres per square kilometre.
+
+```{r}
+#| label: calculate-kde
+
+fixed_bandwidth <- bw.diggle(childcare_ppp)
+
+fixed_kde <- density(
+  childcare_ppp,
+  sigma = fixed_bandwidth,
+  edge = TRUE,
+  dimyx = 180
+)
+
+adaptive_kde <- adaptive.density(
+  childcare_ppp,
+  f = 0.15,
+  edge = TRUE,
+  dimyx = 180
+)
+
+fixed_grid <- as.data.frame(fixed_kde) |>
+  mutate(value = value * 1e6, Method = paste0("Fixed KDE (h = ", round(fixed_bandwidth), " m)"))
+
+adaptive_grid <- as.data.frame(adaptive_kde) |>
+  mutate(value = value * 1e6, Method = "Adaptive KDE")
+
+kde_grid <- bind_rows(fixed_grid, adaptive_grid)
+```
+
+```{r}
+#| label: kde-comparison
+#| fig-cap: "Fixed and adaptive estimates of childcare-centre intensity"
+#| fig-width: 11
+#| fig-height: 5.5
+
+ggplot(kde_grid, aes(x, y, fill = value)) +
+  geom_raster() +
+  geom_sf(data = planning_area, fill = NA, color = "white", linewidth = 0.08, inherit.aes = FALSE) +
+  facet_wrap(~Method) +
+  coord_sf(crs = st_crs(planning_area), datum = NA) +
+  scale_fill_viridis_c(option = "magma", trans = "sqrt", na.value = NA) +
+  labs(
+    fill = "Estimated centres\nper km²",
+    x = NULL,
+    y = NULL
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    strip.text = element_text(face = "bold"),
+    legend.position = "right"
+  )
+```
+
+```{r}
+#| label: kde-peak
+#| include: false
+
+peak_cell <- fixed_grid[which.max(fixed_grid$value), ]
+peak_point <- st_as_sf(peak_cell, coords = c("x", "y"), crs = 3414)
+peak_area <- st_join(peak_point, planning_area["PLN_AREA_N"], join = st_within)$PLN_AREA_N[1]
+```
+
+**Answer.** The fixed-bandwidth surface peaks in **`r tools::toTitleCase(tolower(peak_area))`**. The fixed surface is easier to compare across the island; the adaptive surface retains sharper local peaks in dense estates and smooths more aggressively in sparse peripheral areas. KDE measures concentration of facilities, not accessibility or demand satisfaction.
+
+## Planning-area comparison
+
+The course guide compares Punggol, Tampines, Choa Chu Kang, and Jurong West. Counts and area-standardised densities show why raw totals alone can mislead.
+
+```{r}
+#| label: planning-area-summary
+
+focus_names <- c("PUNGGOL", "TAMPINES", "CHOA CHU KANG", "JURONG WEST")
+
+childcare_with_area <- st_join(
+  childcare,
+  planning_area["PLN_AREA_N"],
+  join = st_within,
+  left = FALSE
+)
+
+focus_summary <- planning_area |>
+  filter(PLN_AREA_N %in% focus_names) |>
+  mutate(Area_km2 = as.numeric(st_area(geometry)) / 1e6) |>
+  st_drop_geometry() |>
+  select(PLN_AREA_N, Area_km2) |>
+  left_join(
+    childcare_with_area |>
+      st_drop_geometry() |>
+      count(PLN_AREA_N, name = "Centres"),
+    by = "PLN_AREA_N"
+  ) |>
+  mutate(
+    `Centres per km²` = Centres / Area_km2,
+    Area_km2 = round(Area_km2, 2),
+    `Centres per km²` = round(`Centres per km²`, 2)
+  ) |>
+  arrange(desc(`Centres per km²`))
+
+kable(
+  focus_summary,
+  col.names = c("Planning area", "Area (km²)", "Centres", "Centres per km²"),
+  caption = "Childcare provision in the four focus planning areas"
+)
+```
+
+```{r}
+#| label: local-clark-evans
+
+make_local_ppp <- function(area_name) {
+  boundary <- planning_area |> filter(PLN_AREA_N == area_name)
+  local_points <- childcare[lengths(st_within(childcare, boundary)) > 0, ]
+  local_xy <- st_coordinates(local_points)
+  ppp(
+    local_xy[, 1], local_xy[, 2],
+    window = as.owin(st_union(boundary)),
+    checkdup = FALSE
+  )
+}
+
+local_tests <- lapply(c("CHOA CHU KANG", "TAMPINES"), function(area_name) {
+  local_ppp <- make_local_ppp(area_name)
+  test <- clarkevans.test(local_ppp, correction = "cdf", alternative = "clustered")
+  data.frame(
+    `Planning area` = tools::toTitleCase(tolower(area_name)),
+    Centres = npoints(local_ppp),
+    `Clark-Evans R` = round(unname(test$statistic), 3),
+    `p-value` = format.pval(test$p.value, digits = 3, eps = 0.001),
+    check.names = FALSE
+  )
+}) |>
+  bind_rows()
+
+kable(local_tests, caption = "Local Clark–Evans tests")
+```
+
+Tampines has more centres, while Choa Chu Kang has greater centres-per-area density because its boundary is much smaller. Both local (R) values are below 1 and statistically significant, so clustering is present within each planning area rather than being only an island-wide effect.
+
+## Conclusion
+
+The nearest-neighbour and KDE results agree: childcare services are not distributed uniformly. The strongest fixed-KDE concentration is in Sengkang, and substantial local clustering remains in Choa Chu Kang and Tampines. These are descriptive first-order findings; a demand-adjusted study would add child population, capacity, transport access, and housing density.

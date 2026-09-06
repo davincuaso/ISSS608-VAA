@@ -6,6 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Davin Cuaso">
+<meta name="dcterms.date" content="2026-09-06">
 
 <title>Hands-on Exercise 5 – ISSS608 Visual Analytics</title>
 <style>
@@ -25,6 +27,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -154,8 +191,13 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#learning-focus" id="toc-learning-focus" class="nav-link active" data-scroll-target="#learning-focus">Learning focus</a></li>
-  <li><a href="#analysis-workflow" id="toc-analysis-workflow" class="nav-link" data-scroll-target="#analysis-workflow">Analysis workflow</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#data-and-observation-windows" id="toc-data-and-observation-windows" class="nav-link" data-scroll-target="#data-and-observation-windows">Data and observation windows</a></li>
+  <li><a href="#what-the-four-functions-test" id="toc-what-the-four-functions-test" class="nav-link" data-scroll-target="#what-the-four-functions-test">What the four functions test</a></li>
+  <li><a href="#choa-chu-kang" id="toc-choa-chu-kang" class="nav-link" data-scroll-target="#choa-chu-kang">Choa Chu Kang</a></li>
+  <li><a href="#tampines" id="toc-tampines" class="nav-link" data-scroll-target="#tampines">Tampines</a></li>
+  <li><a href="#compact-numerical-diagnostic" id="toc-compact-numerical-diagnostic" class="nav-link" data-scroll-target="#compact-numerical-diagnostic">Compact numerical diagnostic</a></li>
+  <li><a href="#answer-and-limitations" id="toc-answer-and-limitations" class="nav-link" data-scroll-target="#answer-and-limitations">Answer and limitations</a></li>
   </ul>
 </nav>
     </div>
@@ -164,7 +206,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Hands-on Exercise 5</h1>
+<div class="quarto-title-block"><div><h1 class="title">Hands-on Exercise 5</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
 <p class="subtitle lead">Second-order Spatial Point Patterns Analysis</p>
 </div>
 
@@ -172,7 +214,19 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Davin Cuaso </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 6, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -182,40 +236,312 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>This exercise examines whether point events interact across a range of distances and whether the observed pattern is more clustered or dispersed than an appropriate reference process.</p>
-<div class="chapter-link">
-<p><a href="https://r4gdsa.netlify.app/chap05.html" class="btn btn-primary" target="_blank">Open the course reference for Chapter 5</a></p>
-</div>
-<section id="learning-focus" class="level2">
-<h2 class="anchored" data-anchor-id="learning-focus">Learning focus</h2>
-<ul>
-<li>Prepare spatial point-pattern data and a valid observation window.</li>
-<li>Use the G-function to study nearest-event distances.</li>
-<li>Use the F-function to study empty-space distances.</li>
-<li>Use K- and L-functions to assess spatial dependence across distances.</li>
-<li>Compare observed statistics with simulation envelopes.</li>
-</ul>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>This exercise follows <a href="https://r4gdsa.netlify.app/chap05.html">Chapter 5: Second-order Spatial Point Patterns Analysis</a>. Exercise 4 established that childcare-centre intensity varies across Singapore. Here, G-, F-, K-, and L-functions test whether centres also depart from complete spatial randomness (CSR) across distance scales within <strong>Choa Chu Kang</strong> and <strong>Tampines</strong>.</p>
 </section>
-<section id="analysis-workflow" class="level2">
-<h2 class="anchored" data-anchor-id="analysis-workflow">Analysis workflow</h2>
-<ol type="1">
-<li>Import and validate the study-area and event data.</li>
-<li>Convert the data into the structures required for point-pattern analysis.</li>
-<li>Define a suitable null model and simulation settings.</li>
-<li>Compute G-, F-, K-, and L-function diagnostics.</li>
-<li>Interpret departures from the simulation envelope carefully and in context.</li>
-</ol>
-<div class="callout callout-style-simple callout-note">
-<div class="callout-body d-flex">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<section id="data-and-observation-windows" class="level2">
+<h2 class="anchored" data-anchor-id="data-and-observation-windows">Data and observation windows</h2>
+<p>The analysis reuses the <a href="https://data.gov.sg/datasets/d_5d668e3f544335f8028f546827b773b4/view">ECDA Child Care Services</a> points and <a href="https://data.gov.sg/datasets/d_4765db0e87b9c86336792efe8a1f7a66/view">URA Master Plan 2019 Planning Area Boundary</a> from Exercise 4. All coordinates are transformed to EPSG:3414 so distance is measured in metres.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>planning_area <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"geospatial"</span>, <span class="st">"MP2019_PlanningArea.geojson"</span>),</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_make_valid</span>() <span class="sc">|&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">3414</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>childcare <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"geospatial"</span>, <span class="st">"ChildCareServices.geojson"</span>),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">3414</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>make_local_ppp <span class="ot">&lt;-</span> <span class="cf">function</span>(area_name) {</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  boundary <span class="ot">&lt;-</span> planning_area <span class="sc">|&gt;</span> <span class="fu">filter</span>(PLN_AREA_N <span class="sc">==</span> area_name)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  local_points <span class="ot">&lt;-</span> childcare[<span class="fu">lengths</span>(<span class="fu">st_within</span>(childcare, boundary)) <span class="sc">&gt;</span> <span class="dv">0</span>, ]</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  xy <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(local_points)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ppp</span>(</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> xy[, <span class="dv">1</span>],</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> xy[, <span class="dv">2</span>],</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">window =</span> <span class="fu">as.owin</span>(<span class="fu">st_union</span>(boundary)),</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">checkdup =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>patterns <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Choa Chu Kang"</span> <span class="ot">=</span> <span class="fu">make_local_ppp</span>(<span class="st">"CHOA CHU KANG"</span>),</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Tampines"</span> <span class="ot">=</span> <span class="fu">make_local_ppp</span>(<span class="st">"TAMPINES"</span>)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>window_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Planning area</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">names</span>(patterns),</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">Centres =</span> <span class="fu">sapply</span>(patterns, npoints),</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Window area (km²)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">sapply</span>(patterns, <span class="cf">function</span>(x) <span class="fu">area.owin</span>(<span class="fu">Window</span>(x))) <span class="sc">/</span> <span class="fl">1e6</span>, <span class="dv">2</span>),</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(window_summary, <span class="at">caption =</span> <span class="st">"Local point-pattern objects"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Local point-pattern objects</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Planning area</th>
+<th style="text-align: right;">Centres</th>
+<th style="text-align: right;">Window area (km²)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Choa Chu Kang</td>
+<td style="text-align: left;">Choa Chu Kang</td>
+<td style="text-align: right;">74</td>
+<td style="text-align: right;">6.12</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Tampines</td>
+<td style="text-align: left;">Tampines</td>
+<td style="text-align: right;">117</td>
+<td style="text-align: right;">20.80</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="callout-body-container">
-<p>Conclusions depend on the observation window, edge correction, distance range, and reference process used.</p>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>focus_boundaries <span class="ot">&lt;-</span> planning_area <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PLN_AREA_N <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"CHOA CHU KANG"</span>, <span class="st">"TAMPINES"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Planning area</span><span class="st">`</span> <span class="ot">=</span> tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="fu">tolower</span>(PLN_AREA_N)))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>focus_points <span class="ot">&lt;-</span> <span class="fu">st_join</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  childcare,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  focus_boundaries[<span class="fu">c</span>(<span class="st">"Planning area"</span>)],</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">join =</span> st_within,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">left =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> focus_boundaries, <span class="at">fill =</span> <span class="st">"#edf2f7"</span>, <span class="at">color =</span> <span class="st">"#475569"</span>) <span class="sc">+</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> focus_points, <span class="at">color =</span> <span class="st">"#c2413b"</span>, <span class="at">size =</span> <span class="fl">1.1</span>, <span class="at">alpha =</span> <span class="fl">0.75</span>) <span class="sc">+</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span><span class="st">`</span><span class="at">Planning area</span><span class="st">`</span>) <span class="sc">+</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Hands-on_Ex05_files/figure-html/local-pattern-map-1.png" class="img-fluid figure-img" width="960"></p>
+<figcaption>Childcare locations in the two observation windows</figcaption>
+</figure>
 </div>
 </div>
 </div>
+</section>
+<section id="what-the-four-functions-test" class="level2">
+<h2 class="anchored" data-anchor-id="what-the-four-functions-test">What the four functions test</h2>
+<ul>
+<li><strong>G-function:</strong> nearest-neighbour distances from events; an observed curve above CSR suggests unusually short event-to-event distances.</li>
+<li><strong>F-function:</strong> distances from empty locations to the nearest event; an observed curve below CSR suggests larger gaps between clusters.</li>
+<li><strong>K-function:</strong> cumulative event interaction over distance; values above CSR suggest clustering.</li>
+<li><strong>L-function:</strong> a variance-stabilised transformation of K; values above CSR again suggest clustering.</li>
+</ul>
+<p>For each statistic, 99 CSR simulations create a pointwise simulation envelope. The seed makes the exercise reproducible. This is a concise exploratory test; a confirmatory analysis should use more simulations and a global envelope.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">608</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>nsim <span class="ot">&lt;-</span> <span class="dv">99</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>make_envelopes <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">G =</span> <span class="fu">envelope</span>(x, Gest, <span class="at">nsim =</span> nsim, <span class="at">correction =</span> <span class="st">"best"</span>, <span class="at">rank =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">F =</span> <span class="fu">envelope</span>(x, Fest, <span class="at">nsim =</span> nsim, <span class="at">correction =</span> <span class="st">"best"</span>, <span class="at">rank =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">K =</span> <span class="fu">envelope</span>(x, Kest, <span class="at">nsim =</span> nsim, <span class="at">correction =</span> <span class="st">"iso"</span>, <span class="at">rank =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">L =</span> <span class="fu">envelope</span>(x, Lest, <span class="at">nsim =</span> nsim, <span class="at">correction =</span> <span class="st">"iso"</span>, <span class="at">rank =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>envelopes <span class="ot">&lt;-</span> <span class="fu">lapply</span>(patterns, make_envelopes)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="choa-chu-kang" class="level2">
+<h2 class="anchored" data-anchor-id="choa-chu-kang">Choa Chu Kang</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">1</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Choa Chu Kang"</span>]]<span class="sc">$</span>G, <span class="at">main =</span> <span class="st">"G: nearest neighbour"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Choa Chu Kang"</span>]]<span class="sc">$</span>F, <span class="at">main =</span> <span class="st">"F: empty space"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Choa Chu Kang"</span>]]<span class="sc">$</span>K, <span class="at">main =</span> <span class="st">"K: cumulative interaction"</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Choa Chu Kang"</span>]]<span class="sc">$</span>L, <span class="at">main =</span> <span class="st">"L: variance-stabilised K"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Hands-on_Ex05_files/figure-html/cck-envelopes-1.png" class="img-fluid figure-img" width="960"></p>
+<figcaption>CSR envelopes for Choa Chu Kang; black is observed, grey is the simulated envelope</figcaption>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>The observed G curve rises above the envelope at short distances and F falls below it across part of the range. K is above the envelope for much of the evaluated distance range. Together these are consistent with clusters of nearby centres separated by relatively larger gaps.</p>
+</section>
+<section id="tampines" class="level2">
+<h2 class="anchored" data-anchor-id="tampines">Tampines</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">1</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Tampines"</span>]]<span class="sc">$</span>G, <span class="at">main =</span> <span class="st">"G: nearest neighbour"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Tampines"</span>]]<span class="sc">$</span>F, <span class="at">main =</span> <span class="st">"F: empty space"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Tampines"</span>]]<span class="sc">$</span>K, <span class="at">main =</span> <span class="st">"K: cumulative interaction"</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Tampines"</span>]]<span class="sc">$</span>L, <span class="at">main =</span> <span class="st">"L: variance-stabilised K"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Hands-on_Ex05_files/figure-html/tampines-envelopes-1.png" class="img-fluid figure-img" width="960"></p>
+<figcaption>CSR envelopes for Tampines; black is observed, grey is the simulated envelope</figcaption>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+<p>Tampines shows a stronger and more persistent departure: G is frequently above the upper envelope, F is below its lower envelope over most of the tested range, and both K and L remain above CSR. The result indicates multi-scale clustering rather than a pattern confined to only immediate neighbours.</p>
+</section>
+<section id="compact-numerical-diagnostic" class="level2">
+<h2 class="anchored" data-anchor-id="compact-numerical-diagnostic">Compact numerical diagnostic</h2>
+<p>The table summarises the share of evaluated radii in the clustering direction outside the pointwise CSR envelope. It is a descriptive aid, not a separate p-value.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>summarise_envelope <span class="ot">&lt;-</span> <span class="cf">function</span>(e, direction) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  valid <span class="ot">&lt;-</span> e<span class="sc">$</span>r <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> <span class="fu">is.finite</span>(e<span class="sc">$</span>obs) <span class="sc">&amp;</span> <span class="fu">is.finite</span>(e<span class="sc">$</span>lo) <span class="sc">&amp;</span> <span class="fu">is.finite</span>(e<span class="sc">$</span>hi)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  departure <span class="ot">&lt;-</span> <span class="cf">if</span> (direction <span class="sc">==</span> <span class="st">"above"</span>) e<span class="sc">$</span>obs[valid] <span class="sc">&gt;</span> e<span class="sc">$</span>hi[valid] <span class="cf">else</span> e<span class="sc">$</span>obs[valid] <span class="sc">&lt;</span> e<span class="sc">$</span>lo[valid]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Radii outside envelope (%)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">mean</span>(departure) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">First departure (m)</span><span class="st">`</span> <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">any</span>(departure)) <span class="fu">round</span>(<span class="fu">min</span>(e<span class="sc">$</span>r[valid][departure])) <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>diagnostic_rows <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (area_name <span class="cf">in</span> <span class="fu">names</span>(envelopes)) {</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (statistic <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"G"</span>, <span class="st">"F"</span>, <span class="st">"K"</span>, <span class="st">"L"</span>)) {</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    direction <span class="ot">&lt;-</span> <span class="cf">if</span> (statistic <span class="sc">==</span> <span class="st">"F"</span>) <span class="st">"below"</span> <span class="cf">else</span> <span class="st">"above"</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    diagnostic_rows[[<span class="fu">length</span>(diagnostic_rows) <span class="sc">+</span> <span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.frame</span>(<span class="st">`</span><span class="at">Planning area</span><span class="st">`</span> <span class="ot">=</span> area_name, <span class="at">Function =</span> statistic, <span class="at">Direction =</span> direction, <span class="at">check.names =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarise_envelope</span>(envelopes[[area_name]][[statistic]], direction)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>diagnostics <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(diagnostic_rows)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(diagnostics, <span class="at">caption =</span> <span class="st">"Observed departures in the direction associated with clustering"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Observed departures in the direction associated with clustering</caption>
+<colgroup>
+<col style="width: 17%">
+<col style="width: 11%">
+<col style="width: 12%">
+<col style="width: 33%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Planning area</th>
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Direction</th>
+<th style="text-align: right;">Radii outside envelope (%)</th>
+<th style="text-align: right;">First departure (m)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Choa Chu Kang</td>
+<td style="text-align: left;">G</td>
+<td style="text-align: left;">above</td>
+<td style="text-align: right;">8.4</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Choa Chu Kang</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">below</td>
+<td style="text-align: right;">34.8</td>
+<td style="text-align: right;">366</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Choa Chu Kang</td>
+<td style="text-align: left;">K</td>
+<td style="text-align: left;">above</td>
+<td style="text-align: right;">50.2</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Choa Chu Kang</td>
+<td style="text-align: left;">L</td>
+<td style="text-align: left;">above</td>
+<td style="text-align: right;">36.9</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tampines</td>
+<td style="text-align: left;">G</td>
+<td style="text-align: left;">above</td>
+<td style="text-align: right;">41.0</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Tampines</td>
+<td style="text-align: left;">F</td>
+<td style="text-align: left;">below</td>
+<td style="text-align: right;">81.0</td>
+<td style="text-align: right;">169</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tampines</td>
+<td style="text-align: left;">K</td>
+<td style="text-align: left;">above</td>
+<td style="text-align: right;">100.0</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Tampines</td>
+<td style="text-align: left;">L</td>
+<td style="text-align: left;">above</td>
+<td style="text-align: right;">100.0</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="answer-and-limitations" class="level2">
+<h2 class="anchored" data-anchor-id="answer-and-limitations">Answer and limitations</h2>
+<p><strong>Both planning areas reject the visual expectation of CSR over meaningful distance ranges, with markedly stronger and more consistent clustering in Tampines.</strong> G and F describe the nearest-event and empty-space components, while K and L show that the departure persists across broader distances.</p>
+<p>The reference process is deliberately simple. Childcare services respond to population and urban form, so CSR is a baseline rather than a realistic causal model. Results also depend on the planning-area boundary, edge correction, duplicate-location handling, and the number of simulations.</p>
 
+
+<!-- -->
 
 </section>
 
@@ -290,6 +616,57 @@ ul.task-list li input[type="checkbox"] {
         container: window.document.getElementById('quarto-embedded-source-code-modal')
       });
       clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
@@ -619,7 +996,218 @@ ul.task-list li input[type="checkbox"] {
       }
     }
   });
-  </script>
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Hands-on Exercise 5"</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Second-order Spatial Point Patterns Analysis"</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Davin Cuaso"</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> last-modified</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Show the R code"</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="fu">## Overview</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>This exercise follows <span class="co">[</span><span class="ot">Chapter 5: Second-order Spatial Point Patterns Analysis</span><span class="co">](https://r4gdsa.netlify.app/chap05.html)</span>. Exercise 4 established that childcare-centre intensity varies across Singapore. Here, G-, F-, K-, and L-functions test whether centres also depart from complete spatial randomness (CSR) across distance scales within **Choa Chu Kang** and **Tampines**.</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">#| include: false</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatstat.geom)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatstat.explore)</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="st">"../../data"</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data and observation windows</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>The analysis reuses the <span class="co">[</span><span class="ot">ECDA Child Care Services</span><span class="co">](https://data.gov.sg/datasets/d_5d668e3f544335f8028f546827b773b4/view)</span> points and <span class="co">[</span><span class="ot">URA Master Plan 2019 Planning Area Boundary</span><span class="co">](https://data.gov.sg/datasets/d_4765db0e87b9c86336792efe8a1f7a66/view)</span> from Exercise 4. All coordinates are transformed to EPSG:3414 so distance is measured in metres.</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: prepare-local-patterns</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>planning_area <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"geospatial"</span>, <span class="st">"MP2019_PlanningArea.geojson"</span>),</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_make_valid</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">3414</span>)</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>childcare <span class="ot">&lt;-</span> <span class="fu">st_read</span>(</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(data_path, <span class="st">"geospatial"</span>, <span class="st">"ChildCareServices.geojson"</span>),</span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span></span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="dv">3414</span>)</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>make_local_ppp <span class="ot">&lt;-</span> <span class="cf">function</span>(area_name) {</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>  boundary <span class="ot">&lt;-</span> planning_area <span class="sc">|&gt;</span> <span class="fu">filter</span>(PLN_AREA_N <span class="sc">==</span> area_name)</span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>  local_points <span class="ot">&lt;-</span> childcare[<span class="fu">lengths</span>(<span class="fu">st_within</span>(childcare, boundary)) <span class="sc">&gt;</span> <span class="dv">0</span>, ]</span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  xy <span class="ot">&lt;-</span> <span class="fu">st_coordinates</span>(local_points)</span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ppp</span>(</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> xy[, <span class="dv">1</span>],</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> xy[, <span class="dv">2</span>],</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>    <span class="at">window =</span> <span class="fu">as.owin</span>(<span class="fu">st_union</span>(boundary)),</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>    <span class="at">checkdup =</span> <span class="cn">FALSE</span></span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>patterns <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Choa Chu Kang"</span> <span class="ot">=</span> <span class="fu">make_local_ppp</span>(<span class="st">"CHOA CHU KANG"</span>),</span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Tampines"</span> <span class="ot">=</span> <span class="fu">make_local_ppp</span>(<span class="st">"TAMPINES"</span>)</span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>window_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Planning area</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">names</span>(patterns),</span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>  <span class="at">Centres =</span> <span class="fu">sapply</span>(patterns, npoints),</span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Window area (km²)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">sapply</span>(patterns, <span class="cf">function</span>(x) <span class="fu">area.owin</span>(<span class="fu">Window</span>(x))) <span class="sc">/</span> <span class="fl">1e6</span>, <span class="dv">2</span>),</span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(window_summary, <span class="at">caption =</span> <span class="st">"Local point-pattern objects"</span>)</span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: local-pattern-map</span></span>
+<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Childcare locations in the two observation windows"</span></span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5</span></span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a>focus_boundaries <span class="ot">&lt;-</span> planning_area <span class="sc">|&gt;</span></span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(PLN_AREA_N <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"CHOA CHU KANG"</span>, <span class="st">"TAMPINES"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Planning area</span><span class="st">`</span> <span class="ot">=</span> tools<span class="sc">::</span><span class="fu">toTitleCase</span>(<span class="fu">tolower</span>(PLN_AREA_N)))</span>
+<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a>focus_points <span class="ot">&lt;-</span> <span class="fu">st_join</span>(</span>
+<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a>  childcare,</span>
+<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a>  focus_boundaries[<span class="fu">c</span>(<span class="st">"Planning area"</span>)],</span>
+<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a>  <span class="at">join =</span> st_within,</span>
+<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a>  <span class="at">left =</span> <span class="cn">FALSE</span></span>
+<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> focus_boundaries, <span class="at">fill =</span> <span class="st">"#edf2f7"</span>, <span class="at">color =</span> <span class="st">"#475569"</span>) <span class="sc">+</span></span>
+<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> focus_points, <span class="at">color =</span> <span class="st">"#c2413b"</span>, <span class="at">size =</span> <span class="fl">1.1</span>, <span class="at">alpha =</span> <span class="fl">0.75</span>) <span class="sc">+</span></span>
+<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span><span class="st">`</span><span class="at">Planning area</span><span class="st">`</span>) <span class="sc">+</span></span>
+<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb9-112"><a href="#cb9-112" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
+<span id="cb9-113"><a href="#cb9-113" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>))</span>
+<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a><span class="fu">## What the four functions test</span></span>
+<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**G-function:** nearest-neighbour distances from events; an observed curve above CSR suggests unusually short event-to-event distances.</span>
+<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**F-function:** distances from empty locations to the nearest event; an observed curve below CSR suggests larger gaps between clusters.</span>
+<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**K-function:** cumulative event interaction over distance; values above CSR suggest clustering.</span>
+<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**L-function:** a variance-stabilised transformation of K; values above CSR again suggest clustering.</span>
+<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-123"><a href="#cb9-123" aria-hidden="true" tabindex="-1"></a>For each statistic, 99 CSR simulations create a pointwise simulation envelope. The seed makes the exercise reproducible. This is a concise exploratory test; a confirmatory analysis should use more simulations and a global envelope.</span>
+<span id="cb9-124"><a href="#cb9-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: simulate-envelopes</span></span>
+<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">608</span>)</span>
+<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a>nsim <span class="ot">&lt;-</span> <span class="dv">99</span></span>
+<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a>make_envelopes <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a>    <span class="at">G =</span> <span class="fu">envelope</span>(x, Gest, <span class="at">nsim =</span> nsim, <span class="at">correction =</span> <span class="st">"best"</span>, <span class="at">rank =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb9-136"><a href="#cb9-136" aria-hidden="true" tabindex="-1"></a>    <span class="at">F =</span> <span class="fu">envelope</span>(x, Fest, <span class="at">nsim =</span> nsim, <span class="at">correction =</span> <span class="st">"best"</span>, <span class="at">rank =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb9-137"><a href="#cb9-137" aria-hidden="true" tabindex="-1"></a>    <span class="at">K =</span> <span class="fu">envelope</span>(x, Kest, <span class="at">nsim =</span> nsim, <span class="at">correction =</span> <span class="st">"iso"</span>, <span class="at">rank =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb9-138"><a href="#cb9-138" aria-hidden="true" tabindex="-1"></a>    <span class="at">L =</span> <span class="fu">envelope</span>(x, Lest, <span class="at">nsim =</span> nsim, <span class="at">correction =</span> <span class="st">"iso"</span>, <span class="at">rank =</span> <span class="dv">1</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-142"><a href="#cb9-142" aria-hidden="true" tabindex="-1"></a>envelopes <span class="ot">&lt;-</span> <span class="fu">lapply</span>(patterns, make_envelopes)</span>
+<span id="cb9-143"><a href="#cb9-143" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-145"><a href="#cb9-145" aria-hidden="true" tabindex="-1"></a><span class="fu">## Choa Chu Kang</span></span>
+<span id="cb9-146"><a href="#cb9-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-149"><a href="#cb9-149" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb9-150"><a href="#cb9-150" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: cck-envelopes</span></span>
+<span id="cb9-151"><a href="#cb9-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "CSR envelopes for Choa Chu Kang; black is observed, grey is the simulated envelope"</span></span>
+<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb9-153"><a href="#cb9-153" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 8</span></span>
+<span id="cb9-154"><a href="#cb9-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-155"><a href="#cb9-155" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">1</span>))</span>
+<span id="cb9-156"><a href="#cb9-156" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Choa Chu Kang"</span>]]<span class="sc">$</span>G, <span class="at">main =</span> <span class="st">"G: nearest neighbour"</span>)</span>
+<span id="cb9-157"><a href="#cb9-157" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Choa Chu Kang"</span>]]<span class="sc">$</span>F, <span class="at">main =</span> <span class="st">"F: empty space"</span>)</span>
+<span id="cb9-158"><a href="#cb9-158" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Choa Chu Kang"</span>]]<span class="sc">$</span>K, <span class="at">main =</span> <span class="st">"K: cumulative interaction"</span>)</span>
+<span id="cb9-159"><a href="#cb9-159" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Choa Chu Kang"</span>]]<span class="sc">$</span>L, <span class="at">main =</span> <span class="st">"L: variance-stabilised K"</span>)</span>
+<span id="cb9-160"><a href="#cb9-160" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span>
+<span id="cb9-161"><a href="#cb9-161" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-162"><a href="#cb9-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-163"><a href="#cb9-163" aria-hidden="true" tabindex="-1"></a>The observed G curve rises above the envelope at short distances and F falls below it across part of the range. K is above the envelope for much of the evaluated distance range. Together these are consistent with clusters of nearby centres separated by relatively larger gaps.</span>
+<span id="cb9-164"><a href="#cb9-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-165"><a href="#cb9-165" aria-hidden="true" tabindex="-1"></a><span class="fu">## Tampines</span></span>
+<span id="cb9-166"><a href="#cb9-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-169"><a href="#cb9-169" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb9-170"><a href="#cb9-170" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: tampines-envelopes</span></span>
+<span id="cb9-171"><a href="#cb9-171" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "CSR envelopes for Tampines; black is observed, grey is the simulated envelope"</span></span>
+<span id="cb9-172"><a href="#cb9-172" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb9-173"><a href="#cb9-173" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 8</span></span>
+<span id="cb9-174"><a href="#cb9-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-175"><a href="#cb9-175" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">1</span>))</span>
+<span id="cb9-176"><a href="#cb9-176" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Tampines"</span>]]<span class="sc">$</span>G, <span class="at">main =</span> <span class="st">"G: nearest neighbour"</span>)</span>
+<span id="cb9-177"><a href="#cb9-177" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Tampines"</span>]]<span class="sc">$</span>F, <span class="at">main =</span> <span class="st">"F: empty space"</span>)</span>
+<span id="cb9-178"><a href="#cb9-178" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Tampines"</span>]]<span class="sc">$</span>K, <span class="at">main =</span> <span class="st">"K: cumulative interaction"</span>)</span>
+<span id="cb9-179"><a href="#cb9-179" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(envelopes[[<span class="st">"Tampines"</span>]]<span class="sc">$</span>L, <span class="at">main =</span> <span class="st">"L: variance-stabilised K"</span>)</span>
+<span id="cb9-180"><a href="#cb9-180" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(old_par)</span>
+<span id="cb9-181"><a href="#cb9-181" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-182"><a href="#cb9-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-183"><a href="#cb9-183" aria-hidden="true" tabindex="-1"></a>Tampines shows a stronger and more persistent departure: G is frequently above the upper envelope, F is below its lower envelope over most of the tested range, and both K and L remain above CSR. The result indicates multi-scale clustering rather than a pattern confined to only immediate neighbours.</span>
+<span id="cb9-184"><a href="#cb9-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-185"><a href="#cb9-185" aria-hidden="true" tabindex="-1"></a><span class="fu">## Compact numerical diagnostic</span></span>
+<span id="cb9-186"><a href="#cb9-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-187"><a href="#cb9-187" aria-hidden="true" tabindex="-1"></a>The table summarises the share of evaluated radii in the clustering direction outside the pointwise CSR envelope. It is a descriptive aid, not a separate p-value.</span>
+<span id="cb9-188"><a href="#cb9-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-191"><a href="#cb9-191" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb9-192"><a href="#cb9-192" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: envelope-summary</span></span>
+<span id="cb9-193"><a href="#cb9-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-194"><a href="#cb9-194" aria-hidden="true" tabindex="-1"></a>summarise_envelope <span class="ot">&lt;-</span> <span class="cf">function</span>(e, direction) {</span>
+<span id="cb9-195"><a href="#cb9-195" aria-hidden="true" tabindex="-1"></a>  valid <span class="ot">&lt;-</span> e<span class="sc">$</span>r <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> <span class="fu">is.finite</span>(e<span class="sc">$</span>obs) <span class="sc">&amp;</span> <span class="fu">is.finite</span>(e<span class="sc">$</span>lo) <span class="sc">&amp;</span> <span class="fu">is.finite</span>(e<span class="sc">$</span>hi)</span>
+<span id="cb9-196"><a href="#cb9-196" aria-hidden="true" tabindex="-1"></a>  departure <span class="ot">&lt;-</span> <span class="cf">if</span> (direction <span class="sc">==</span> <span class="st">"above"</span>) e<span class="sc">$</span>obs[valid] <span class="sc">&gt;</span> e<span class="sc">$</span>hi[valid] <span class="cf">else</span> e<span class="sc">$</span>obs[valid] <span class="sc">&lt;</span> e<span class="sc">$</span>lo[valid]</span>
+<span id="cb9-197"><a href="#cb9-197" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb9-198"><a href="#cb9-198" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Radii outside envelope (%)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">mean</span>(departure) <span class="sc">*</span> <span class="dv">100</span>, <span class="dv">1</span>),</span>
+<span id="cb9-199"><a href="#cb9-199" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">First departure (m)</span><span class="st">`</span> <span class="ot">=</span> <span class="cf">if</span> (<span class="fu">any</span>(departure)) <span class="fu">round</span>(<span class="fu">min</span>(e<span class="sc">$</span>r[valid][departure])) <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb9-200"><a href="#cb9-200" aria-hidden="true" tabindex="-1"></a>    <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb9-201"><a href="#cb9-201" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-202"><a href="#cb9-202" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-203"><a href="#cb9-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-204"><a href="#cb9-204" aria-hidden="true" tabindex="-1"></a>diagnostic_rows <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb9-205"><a href="#cb9-205" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (area_name <span class="cf">in</span> <span class="fu">names</span>(envelopes)) {</span>
+<span id="cb9-206"><a href="#cb9-206" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (statistic <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"G"</span>, <span class="st">"F"</span>, <span class="st">"K"</span>, <span class="st">"L"</span>)) {</span>
+<span id="cb9-207"><a href="#cb9-207" aria-hidden="true" tabindex="-1"></a>    direction <span class="ot">&lt;-</span> <span class="cf">if</span> (statistic <span class="sc">==</span> <span class="st">"F"</span>) <span class="st">"below"</span> <span class="cf">else</span> <span class="st">"above"</span></span>
+<span id="cb9-208"><a href="#cb9-208" aria-hidden="true" tabindex="-1"></a>    diagnostic_rows[[<span class="fu">length</span>(diagnostic_rows) <span class="sc">+</span> <span class="dv">1</span>]] <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
+<span id="cb9-209"><a href="#cb9-209" aria-hidden="true" tabindex="-1"></a>      <span class="fu">data.frame</span>(<span class="st">`</span><span class="at">Planning area</span><span class="st">`</span> <span class="ot">=</span> area_name, <span class="at">Function =</span> statistic, <span class="at">Direction =</span> direction, <span class="at">check.names =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb9-210"><a href="#cb9-210" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarise_envelope</span>(envelopes[[area_name]][[statistic]], direction)</span>
+<span id="cb9-211"><a href="#cb9-211" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-212"><a href="#cb9-212" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-213"><a href="#cb9-213" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-214"><a href="#cb9-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-215"><a href="#cb9-215" aria-hidden="true" tabindex="-1"></a>diagnostics <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(diagnostic_rows)</span>
+<span id="cb9-216"><a href="#cb9-216" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(diagnostics, <span class="at">caption =</span> <span class="st">"Observed departures in the direction associated with clustering"</span>)</span>
+<span id="cb9-217"><a href="#cb9-217" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-218"><a href="#cb9-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-219"><a href="#cb9-219" aria-hidden="true" tabindex="-1"></a><span class="fu">## Answer and limitations</span></span>
+<span id="cb9-220"><a href="#cb9-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-221"><a href="#cb9-221" aria-hidden="true" tabindex="-1"></a>**Both planning areas reject the visual expectation of CSR over meaningful distance ranges, with markedly stronger and more consistent clustering in Tampines.** G and F describe the nearest-event and empty-space components, while K and L show that the departure persists across broader distances.</span>
+<span id="cb9-222"><a href="#cb9-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-223"><a href="#cb9-223" aria-hidden="true" tabindex="-1"></a>The reference process is deliberately simple. Childcare services respond to population and urban form, so CSR is a baseline rather than a realistic causal model. Results also depend on the planning-area boundary, edge correction, duplicate-location handling, and the number of simulations.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
