@@ -1,0 +1,77 @@
+---
+title: "Take-home Exercise 1"
+subtitle: "Geospatial analytics for public safety"
+toc: true
+toc-depth: 2
+page-layout: full
+---
+
+::: {.hero-panel}
+This page is the submission hub for Take-home Exercise 1. The exercise uses spatial point-pattern analysis to study either forest-fire detections in Kalimantan or road accidents in the Bangkok Metropolitan Region.
+:::
+
+::: {.callout-warning title="Work in progress"}
+The report and slides are rubric-aligned frameworks. Analytical results, maps, interpretation, recommendations, and the final AI-use declaration must be completed and verified by the student before submission.
+:::
+
+## Submission outputs
+
+::: {.exercise-grid}
+::: {.exercise-card}
+### [Technical report](Take-home_Ex01-report.qmd)
+
+A Quarto HTML report organised around all six required tasks, the bonus analysis, reproducibility, limitations, and references.
+:::
+
+::: {.exercise-card}
+### [Executive summary](Take-home_Ex01-slides.qmd)
+
+A revealjs deck with a cover, contents page, and nine content slides. This stays within the brief's ten-slide limit, excluding the cover and contents.
+:::
+
+::: {.exercise-card}
+### [GitHub repository](https://github.com/davincuaso/ISSS608-VAA)
+
+The complete Quarto project, including source files and the project structure used to publish this site.
+:::
+:::
+
+## Brief at a glance
+
+The [official exercise brief](https://isss626-ay2026-27aug.netlify.app/take-home_ex01) requires six connected tasks:
+
+1. Acquire, inspect, clean, validate, transform, and document the spatial data.
+2. Analyse first-order spatial and temporal intensity with justified parameters.
+3. Test second-order spatial structure against a stated null model.
+4. Integrate the first- and second-order evidence, including uncertainty and alternative explanations.
+5. Present readable statistical graphics and maps, with no more than 150 words for each major visualisation.
+6. Write public-safety implications in no more than 500 words, separating evidence from recommendations that need more information.
+
+The bonus analysis must answer a useful geospatial question beyond the core requirements. A new package or decorative visualisation alone does not meet the bonus standard.
+
+## Data route under consideration
+
+The recommended starting point is **Option B: road accidents in 2022**. It uses a complete historical year, has English-language fields and recorded coordinates, and avoids the moving end date of the 2026 fire record. The student must still inspect the downloaded files and confirm that the event definition, coverage, missingness, duplicates, and coordinate quality support the intended analysis.
+
+For this route, the Bangkok Metropolitan Region is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon. This six-province definition is documented by Thailand's National Statistical Office.
+
+The private repository note [`_OPTION_COMPARISON.md`](https://github.com/davincuaso/ISSS608-VAA/blob/master/Take-home_Ex/Take-home_Ex01/_OPTION_COMPARISON.md) records the comparison of Options A and B. It is planning material, not part of the assessed findings.
+
+## Completion checklist
+
+- [ ] Confirm the option, research question, event definition, study boundary, and time window.
+- [ ] Download the original data from the named sources and record the access date and licence.
+- [ ] Preserve raw files unchanged; document every cleaning and exclusion rule.
+- [ ] Choose a projected CRS and justify all distance-based parameters in metres.
+- [ ] Complete and rerun the first-order analysis from a clean R session.
+- [ ] Complete the second-order test with a stated null model, edge correction, distance range, and simulation count.
+- [ ] Add sensitivity checks and the bonus analysis only where they answer a clear question.
+- [ ] Replace every student-work prompt in the report and slides with verified work.
+- [ ] Check each major visualisation's caption and interpretation against the 150-word limit.
+- [ ] Keep the planning and management section within 500 words.
+- [ ] Add complete references, data attributions, package versions, and a truthful AI-use declaration.
+- [ ] Render the full Quarto project and test every internal link before submission.
+
+## Deadline and delivery
+
+The brief gives a deadline of **27 September 2026 at 11:59 pm**. The final Vercel links for the executive summary and technical report, together with the GitHub repository link, must be submitted through the course channels described in the brief.

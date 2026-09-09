@@ -23,6 +23,16 @@ website:
             text: "Exercise 5: Second-order SPPA"
           - href: Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.qmd
             text: "Exercise 6: Spatio-temporal SPPA"
+      - text: Take-home Exercises
+        menu:
+          - href: Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd
+            text: "Take-home Exercise 1"
+          - href: Take-home_Ex/Take-home_Ex02/Take-home_Ex02.qmd
+            text: "Take-home Exercise 2"
+          - href: Take-home_Ex/Take-home_Ex03a/Take-home_Ex03a.qmd
+            text: "Take-home Exercise 3a"
+          - href: Take-home_Ex/Take-home_Ex03b/Take-home_Ex03b.qmd
+            text: "Take-home Exercise 3b"
       - href: about.qmd
         text: About
     right:

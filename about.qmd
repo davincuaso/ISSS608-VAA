@@ -14,4 +14,4 @@ The portfolio is created with **R** and **Quarto**, version-controlled on GitHub
 - First- and second-order spatial point-pattern analysis
 - Spatio-temporal point-pattern analysis
 
-The worked pages are organised under the **Hands-on Exercises** dropdown in the navigation bar.
+The worked pages are organised under the **Hands-on Exercises** and **Take-home Exercises** menus in the navigation bar.

@@ -1,0 +1,99 @@
+---
+title: "Geospatial Analytics for Public Safety"
+subtitle: "Take-home Exercise 1 — Executive Summary"
+author: "Davin Cuaso"
+date: last-modified
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    progress: true
+    transition: fade
+    footer: "ISSS608 Visual Analytics and Applications"
+    width: 1280
+    height: 720
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+## Contents
+
+1. Problem and research question
+2. Study area, data, and design
+3. First- and second-order evidence
+4. Integrated findings and bonus analysis
+5. Implications and limitations
+
+## 1. Public-safety problem
+
+**Student work required**
+
+- State the decision-relevant problem.
+- Give the main research question in one sentence.
+- Avoid causal or risk claims that the event data cannot support.
+
+## 2. Study area and event definition
+
+**Student work required**
+
+- Show one clean locator map.
+- Define the spatial and temporal windows.
+- Define one event and explain how duplicates or repeated reports were treated.
+
+## 3. Data quality and preparation
+
+**Student work required**
+
+- Name the event and boundary sources.
+- Show the initial and final event counts.
+- Summarise the material exclusions and coordinate checks.
+
+## 4. Analytical design
+
+**Student work required**
+
+- Name the first- and second-order methods.
+- State the key parameters, edge correction, null model, simulations, and assumptions.
+- Explain why the methods answer different parts of the research question.
+
+## 5. First-order evidence
+
+**Student work required**
+
+- Insert the clearest intensity map or statistical graphic.
+- State the main pattern, supporting evidence, and one caveat in no more than 150 words.
+- Use a common scale for comparisons.
+
+## 6. Second-order evidence
+
+**Student work required**
+
+- Insert the observed function and simulation envelope.
+- Identify the distance ranges consistent with clustering, inhibition, or the null model.
+- State how the result depends on the null model and parameters.
+
+## 7. Integrated findings and robustness
+
+**Student work required**
+
+- Combine the first- and second-order evidence.
+- Report the sensitivity result.
+- Separate stable findings from patterns that remain uncertain.
+
+## 8. Bonus analysis
+
+**Student work required**
+
+- State the added geospatial question.
+- Show only the result that provides new information.
+- Name the method's main assumption and limitation.
+
+## 9. Implications and limitations
+
+**Student work required**
+
+- Give actions supported by the analysis.
+- Mark recommendations that need exposure or contextual data as provisional.
+- Close with the most consequential data and method limitations.

@@ -1,5 +1,61 @@
 [
   {
+    "objectID": "Take-home_Ex/Take-home_Ex03a/Take-home_Ex03a.html",
+    "href": "Take-home_Ex/Take-home_Ex03a/Take-home_Ex03a.html",
+    "title": "Take-home Exercise 3a",
+    "section": "",
+    "text": "This page is reserved for Take-home Exercise 3a.\n\nThe exercise brief, data sources, technical report, executive summary, and repository links will be added when the assignment is released.\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03b/Take-home_Ex03b.html",
+    "href": "Take-home_Ex/Take-home_Ex03b/Take-home_Ex03b.html",
+    "title": "Take-home Exercise 3b",
+    "section": "",
+    "text": "This page is reserved for Take-home Exercise 3b.\n\nThe exercise brief, data sources, technical report, executive summary, and repository links will be added when the assignment is released.\n\n\n\n Back to top"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
+    "title": "Take-home Exercise 1",
+    "section": "",
+    "text": "This page is the submission hub for Take-home Exercise 1. The exercise uses spatial point-pattern analysis to study either forest-fire detections in Kalimantan or road accidents in the Bangkok Metropolitan Region."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#submission-outputs",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#submission-outputs",
+    "title": "Take-home Exercise 1",
+    "section": "Submission outputs",
+    "text": "Submission outputs\n\n\nTechnical report\nA Quarto HTML report organised around all six required tasks, the bonus analysis, reproducibility, limitations, and references.\n\n\nExecutive summary\nA revealjs deck with a cover, contents page, and nine content slides. This stays within the brief’s ten-slide limit, excluding the cover and contents.\n\n\nGitHub repository\nThe complete Quarto project, including source files and the project structure used to publish this site."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#brief-at-a-glance",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#brief-at-a-glance",
+    "title": "Take-home Exercise 1",
+    "section": "Brief at a glance",
+    "text": "Brief at a glance\nThe official exercise brief requires six connected tasks:\n\nAcquire, inspect, clean, validate, transform, and document the spatial data.\nAnalyse first-order spatial and temporal intensity with justified parameters.\nTest second-order spatial structure against a stated null model.\nIntegrate the first- and second-order evidence, including uncertainty and alternative explanations.\nPresent readable statistical graphics and maps, with no more than 150 words for each major visualisation.\nWrite public-safety implications in no more than 500 words, separating evidence from recommendations that need more information.\n\nThe bonus analysis must answer a useful geospatial question beyond the core requirements. A new package or decorative visualisation alone does not meet the bonus standard."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#data-route-under-consideration",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#data-route-under-consideration",
+    "title": "Take-home Exercise 1",
+    "section": "Data route under consideration",
+    "text": "Data route under consideration\nThe recommended starting point is Option B: road accidents in 2022. It uses a complete historical year, has English-language fields and recorded coordinates, and avoids the moving end date of the 2026 fire record. The student must still inspect the downloaded files and confirm that the event definition, coverage, missingness, duplicates, and coordinate quality support the intended analysis.\nFor this route, the Bangkok Metropolitan Region is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon. This six-province definition is documented by Thailand’s National Statistical Office.\nThe private repository note _OPTION_COMPARISON.md records the comparison of Options A and B. It is planning material, not part of the assessed findings."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#completion-checklist",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#completion-checklist",
+    "title": "Take-home Exercise 1",
+    "section": "Completion checklist",
+    "text": "Completion checklist\n\nConfirm the option, research question, event definition, study boundary, and time window.\nDownload the original data from the named sources and record the access date and licence.\nPreserve raw files unchanged; document every cleaning and exclusion rule.\nChoose a projected CRS and justify all distance-based parameters in metres.\nComplete and rerun the first-order analysis from a clean R session.\nComplete the second-order test with a stated null model, edge correction, distance range, and simulation count.\nAdd sensitivity checks and the bonus analysis only where they answer a clear question.\nReplace every student-work prompt in the report and slides with verified work.\nCheck each major visualisation’s caption and interpretation against the 150-word limit.\nKeep the planning and management section within 500 words.\nAdd complete references, data attributions, package versions, and a truthful AI-use declaration.\nRender the full Quarto project and test every internal link before submission."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#deadline-and-delivery",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#deadline-and-delivery",
+    "title": "Take-home Exercise 1",
+    "section": "Deadline and delivery",
+    "text": "Deadline and delivery\nThe brief gives a deadline of 27 September 2026 at 11:59 pm. The final Vercel links for the executive summary and technical report, together with the GitHub repository link, must be submitted through the course channels described in the brief."
+  },
+  {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About this portfolio",
@@ -11,7 +67,7 @@
     "href": "about.html#course-themes",
     "title": "About this portfolio",
     "section": "Course themes",
-    "text": "Course themes\n\nGeospatial data import, transformation, and geoprocessing\nThematic mapping and geovisualisation\nFirst- and second-order spatial point-pattern analysis\nSpatio-temporal point-pattern analysis\n\nThe worked pages are organised under the Hands-on Exercises dropdown in the navigation bar."
+    "text": "Course themes\n\nGeospatial data import, transformation, and geoprocessing\nThematic mapping and geovisualisation\nFirst- and second-order spatial point-pattern analysis\nSpatio-temporal point-pattern analysis\n\nThe worked pages are organised under the Hands-on Exercises and Take-home Exercises menus in the navigation bar."
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html",
@@ -305,7 +361,7 @@
     "href": "index.html",
     "title": "ISSS608 Visual Analytics and Applications",
     "section": "",
-    "text": "This portfolio documents my hands-on work for ISSS608 Visual Analytics and Applications. It brings together geospatial data handling, thematic mapping, spatial point-pattern analysis, and spatio-temporal analysis using R.\nUse the Hands-on Exercises dropdown in the navigation bar, or select an exercise below."
+    "text": "This portfolio documents my hands-on work for ISSS608 Visual Analytics and Applications. It brings together geospatial data handling, thematic mapping, spatial point-pattern analysis, and spatio-temporal analysis using R.\nUse the Hands-on Exercises and Take-home Exercises menus in the navigation bar, or select an exercise below."
   },
   {
     "objectID": "index.html#hands-on-exercises",
@@ -313,5 +369,215 @@
     "title": "ISSS608 Visual Analytics and Applications",
     "section": "Hands-on exercises",
     "text": "Hands-on exercises\n\n\nExercise 1\nGeospatial Data Science with R\nImport, inspect, project, wrangle, and analyse spatial data with sf and the tidyverse.\n\n\nExercise 2\nThematic Mapping and GeoVisualisation\nBuild static and interactive thematic maps and complement them with statistical graphics.\n\n\nExercise 4\nFirst-order Spatial Point Patterns\nExplore nearest-neighbour analysis and kernel density estimation for spatial events.\n\n\nExercise 5\nSecond-order Spatial Point Patterns\nStudy spatial interaction across distances with G-, F-, K-, and L-functions.\n\n\nExercise 6\nSpatio-temporal Point Patterns\nAnalyse how event intensity and spatial patterns change over time.\n\n\n\n\n\n\n\n\nEach exercise page follows the corresponding course chapter and provides a dedicated place for the worked analysis, interpretation, and outputs."
+  },
+  {
+    "objectID": "index.html#take-home-exercises",
+    "href": "index.html#take-home-exercises",
+    "title": "ISSS608 Visual Analytics and Applications",
+    "section": "Take-home exercises",
+    "text": "Take-home exercises\n\n\nTake-home Exercise 1\nGeospatial analytics for public safety\nSubmission hub for the executive summary, technical report, data record, and reproducibility checklist.\n\n\nTake-home Exercise 2\nReserved\nThe page is ready for the second exercise brief and submission links.\n\n\nTake-home Exercise 3a\nReserved\nThe page is ready for the Exercise 3a brief and submission links.\n\n\nTake-home Exercise 3b\nReserved\nThe page is ready for the Exercise 3b brief and submission links."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "",
+    "text": "WarningStudent completion required\n\n\n\nThis file supplies the report structure and assessment checks. Replace every prompt with analysis that you wrote, ran, interpreted, and verified. Do not submit the scaffold as a completed report."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#research-question-and-objectives",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#research-question-and-objectives",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "1.1 Research question and objectives",
+    "text": "1.1 Research question and objectives\nWrite one main research question and a short set of measurable objectives. The question should connect the event process, the study area, the time window, and the first- and second-order methods."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#selected-option",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#selected-option",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "2.1 Selected option",
+    "text": "2.1 Selected option\nRecord the selected option and explain why it is suitable. If Option B is retained, restrict the accident records to 2022 and define the Bangkok Metropolitan Region as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#point-event-definition",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#point-event-definition",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "2.2 Point-event definition",
+    "text": "2.2 Point-event definition\nDefine what one row and one point represent. Explain how duplicated records, repeated detections or reports, events with missing coordinates, impossible coordinates, invalid geometries, and records outside the study window are handled."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#spatial-study-window",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#spatial-study-window",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "2.3 Spatial study window",
+    "text": "2.3 Spatial study window\nDescribe the boundary source, boundary level, inclusion rule, projected coordinate reference system, and any effect that the boundary may have on the analysis. Explain why the boundary matches the public-safety question."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#temporal-study-window",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#temporal-study-window",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "2.4 Temporal study window",
+    "text": "2.4 Temporal study window\nState the start and end dates. Explain the temporal grouping used in plots or models and whether reporting practices or seasonal exposure could affect comparisons."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#data-sources",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#data-sources",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "2.5 Data sources",
+    "text": "2.5 Data sources\nComplete this record using the files actually downloaded.\n\n\n\n\n\n\n\nItem\nRecord to provide\n\n\n\n\nEvent data\nDataset title, owner or compiler, URL, file name, access date, licence, coverage\n\n\nBoundary data\nDataset title, provider, URL, administrative level, version, access date, licence\n\n\nAdded contextual data\nPurpose, source, licence, coverage, and reason it changes the analysis"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#acquisition-and-inspection",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#acquisition-and-inspection",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "3.1 Acquisition and inspection",
+    "text": "3.1 Acquisition and inspection\nShow the original dimensions, field names, data types, coordinate ranges, date coverage, and category levels needed for the analysis. Keep raw data unchanged and state where it is stored."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#quality-checks-and-cleaning-decisions",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#quality-checks-and-cleaning-decisions",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "3.2 Quality checks and cleaning decisions",
+    "text": "3.2 Quality checks and cleaning decisions\nProvide a compact audit trail with counts before and after each rule. At minimum, inspect missing coordinates, non-numeric coordinates, longitude-latitude order, duplicated event identifiers, repeated coordinates and timestamps, invalid dates, invalid geometries, points outside the boundary, and dates outside the selected year.\nDo not remove coincident points solely because they overlap. Decide whether they are duplicate records or separate events, and support the decision with the available identifiers and timestamps."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#spatial-conversion-and-integration",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#spatial-conversion-and-integration",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "3.3 Spatial conversion and integration",
+    "text": "3.3 Spatial conversion and integration\nDocument the source CRS, transformation to the projected CRS, spatial join or filter, derived temporal variables, and final analysis objects. Report the final event count and boundary area."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#reproducible-audit",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#reproducible-audit",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "3.4 Reproducible audit",
+    "text": "3.4 Reproducible audit\nAdd the code and output that reproduce the audit from the original files. A reader should be able to trace every exclusion rather than infer it from the final count."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#analytical-question",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#analytical-question",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "4.1 Analytical question",
+    "text": "4.1 Analytical question\nState what variation in intensity is being investigated. Separate event concentration from any claim about risk unless a suitable exposure denominator is available."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#method-and-assumptions",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#method-and-assumptions",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "4.2 Method and assumptions",
+    "text": "4.2 Method and assumptions\nJustify the selected first-order method, projected CRS, grid or evaluation resolution, kernel function, bandwidth, edge treatment, and any temporal grouping. Explain how the observation process and uneven exposure affect interpretation."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#results",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#results",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "4.3 Results",
+    "text": "4.3 Results\nInsert the statistical graphic and map that directly answer the question. Use comparable scales when presenting multiple periods or groups. For each major visualisation, write no more than 150 words covering the pattern, evidence, uncertainty, and one caveat."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#sensitivity-check",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#sensitivity-check",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "4.4 Sensitivity check",
+    "text": "4.4 Sensitivity check\nTest whether the main pattern persists under at least one defensible alternative bandwidth, resolution, classification, or time grouping. Explain what changes and what remains stable."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#analytical-question-and-null-model",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#analytical-question-and-null-model",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "5.1 Analytical question and null model",
+    "text": "5.1 Analytical question and null model\nState the second-order question and the null hypothesis. Explain why complete spatial randomness, an inhomogeneous null, a temporal permutation, or another model is appropriate for this event process."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#method-and-parameters",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#method-and-parameters",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "5.2 Method and parameters",
+    "text": "5.2 Method and parameters\nRecord the summary function, distance range, interval, edge correction, number of simulations, envelope type, and random seed. Explain the implications of each choice and the assumptions that may not hold."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#results-1",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#results-1",
+    "title": "Take-home Exercise 1: Technical Report",
+    "section": "5.3 Results",
+    "text": "5.3 Results\nAssess clustering, inhibition, or compatibility with the null model across distances. Base the conclusion on the observed function and simulation envelope rather than visual density alone. Report where the result is uncertain or sensitive to the null model."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#contents",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#contents",
+    "title": "Geospatial Analytics for Public Safety",
+    "section": "Contents",
+    "text": "Contents\n\nProblem and research question\nStudy area, data, and design\nFirst- and second-order evidence\nIntegrated findings and bonus analysis\nImplications and limitations"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#public-safety-problem",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#public-safety-problem",
+    "title": "Geospatial Analytics for Public Safety",
+    "section": "1. Public-safety problem",
+    "text": "1. Public-safety problem\nStudent work required\n\nState the decision-relevant problem.\nGive the main research question in one sentence.\nAvoid causal or risk claims that the event data cannot support."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#study-area-and-event-definition",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#study-area-and-event-definition",
+    "title": "Geospatial Analytics for Public Safety",
+    "section": "2. Study area and event definition",
+    "text": "2. Study area and event definition\nStudent work required\n\nShow one clean locator map.\nDefine the spatial and temporal windows.\nDefine one event and explain how duplicates or repeated reports were treated."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#data-quality-and-preparation",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#data-quality-and-preparation",
+    "title": "Geospatial Analytics for Public Safety",
+    "section": "3. Data quality and preparation",
+    "text": "3. Data quality and preparation\nStudent work required\n\nName the event and boundary sources.\nShow the initial and final event counts.\nSummarise the material exclusions and coordinate checks."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#analytical-design",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#analytical-design",
+    "title": "Geospatial Analytics for Public Safety",
+    "section": "4. Analytical design",
+    "text": "4. Analytical design\nStudent work required\n\nName the first- and second-order methods.\nState the key parameters, edge correction, null model, simulations, and assumptions.\nExplain why the methods answer different parts of the research question."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#first-order-evidence",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#first-order-evidence",
+    "title": "Geospatial Analytics for Public Safety",
+    "section": "5. First-order evidence",
+    "text": "5. First-order evidence\nStudent work required\n\nInsert the clearest intensity map or statistical graphic.\nState the main pattern, supporting evidence, and one caveat in no more than 150 words.\nUse a common scale for comparisons."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#second-order-evidence",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#second-order-evidence",
+    "title": "Geospatial Analytics for Public Safety",
+    "section": "6. Second-order evidence",
+    "text": "6. Second-order evidence\nStudent work required\n\nInsert the observed function and simulation envelope.\nIdentify the distance ranges consistent with clustering, inhibition, or the null model.\nState how the result depends on the null model and parameters."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#integrated-findings-and-robustness",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#integrated-findings-and-robustness",
+    "title": "Geospatial Analytics for Public Safety",
+    "section": "7. Integrated findings and robustness",
+    "text": "7. Integrated findings and robustness\nStudent work required\n\nCombine the first- and second-order evidence.\nReport the sensitivity result.\nSeparate stable findings from patterns that remain uncertain."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#bonus-analysis",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#bonus-analysis",
+    "title": "Geospatial Analytics for Public Safety",
+    "section": "8. Bonus analysis",
+    "text": "8. Bonus analysis\nStudent work required\n\nState the added geospatial question.\nShow only the result that provides new information.\nName the method’s main assumption and limitation."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#implications-and-limitations",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#implications-and-limitations",
+    "title": "Geospatial Analytics for Public Safety",
+    "section": "9. Implications and limitations",
+    "text": "9. Implications and limitations\nStudent work required\n\nGive actions supported by the analysis.\nMark recommendations that need exposure or contextual data as provisional.\nClose with the most consequential data and method limitations."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html",
+    "href": "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html",
+    "title": "Take-home Exercise 2",
+    "section": "",
+    "text": "This page is reserved for Take-home Exercise 2.\n\nThe exercise brief, data sources, technical report, executive summary, and repository links will be added when the assignment is released.\n\n\n\n Back to top"
   }
 ]

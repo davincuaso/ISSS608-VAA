@@ -1,0 +1,10 @@
+---
+title: "Take-home Exercise 2"
+toc: false
+---
+
+::: {.hero-panel}
+This page is reserved for Take-home Exercise 2.
+:::
+
+The exercise brief, data sources, technical report, executive summary, and repository links will be added when the assignment is released.

@@ -1,0 +1,155 @@
+---
+title: "Take-home Exercise 1: Technical Report"
+subtitle: "Geospatial analytics for public safety"
+author: "Davin Cuaso"
+date: last-modified
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    code-summary: "Show code"
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+::: {.callout-warning title="Student completion required"}
+This file supplies the report structure and assessment checks. Replace every prompt with analysis that you wrote, ran, interpreted, and verified. Do not submit the scaffold as a completed report.
+:::
+
+# Introduction and context
+
+State the public-safety problem without making claims that the data cannot support. Identify the people or agencies who could use the analysis and the decisions it may inform.
+
+## Research question and objectives
+
+Write one main research question and a short set of measurable objectives. The question should connect the event process, the study area, the time window, and the first- and second-order methods.
+
+# Data and study design
+
+## Selected option
+
+Record the selected option and explain why it is suitable. If Option B is retained, restrict the accident records to 2022 and define the Bangkok Metropolitan Region as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon.
+
+## Point-event definition
+
+Define what one row and one point represent. Explain how duplicated records, repeated detections or reports, events with missing coordinates, impossible coordinates, invalid geometries, and records outside the study window are handled.
+
+## Spatial study window
+
+Describe the boundary source, boundary level, inclusion rule, projected coordinate reference system, and any effect that the boundary may have on the analysis. Explain why the boundary matches the public-safety question.
+
+## Temporal study window
+
+State the start and end dates. Explain the temporal grouping used in plots or models and whether reporting practices or seasonal exposure could affect comparisons.
+
+## Data sources
+
+Complete this record using the files actually downloaded.
+
+| Item | Record to provide |
+|---|---|
+| Event data | Dataset title, owner or compiler, URL, file name, access date, licence, coverage |
+| Boundary data | Dataset title, provider, URL, administrative level, version, access date, licence |
+| Added contextual data | Purpose, source, licence, coverage, and reason it changes the analysis |
+
+# Task 1: Data preparation
+
+## Acquisition and inspection
+
+Show the original dimensions, field names, data types, coordinate ranges, date coverage, and category levels needed for the analysis. Keep raw data unchanged and state where it is stored.
+
+## Quality checks and cleaning decisions
+
+Provide a compact audit trail with counts before and after each rule. At minimum, inspect missing coordinates, non-numeric coordinates, longitude-latitude order, duplicated event identifiers, repeated coordinates and timestamps, invalid dates, invalid geometries, points outside the boundary, and dates outside the selected year.
+
+Do not remove coincident points solely because they overlap. Decide whether they are duplicate records or separate events, and support the decision with the available identifiers and timestamps.
+
+## Spatial conversion and integration
+
+Document the source CRS, transformation to the projected CRS, spatial join or filter, derived temporal variables, and final analysis objects. Report the final event count and boundary area.
+
+## Reproducible audit
+
+Add the code and output that reproduce the audit from the original files. A reader should be able to trace every exclusion rather than infer it from the final count.
+
+# Task 2: First-order point-pattern analysis
+
+## Analytical question
+
+State what variation in intensity is being investigated. Separate event concentration from any claim about risk unless a suitable exposure denominator is available.
+
+## Method and assumptions
+
+Justify the selected first-order method, projected CRS, grid or evaluation resolution, kernel function, bandwidth, edge treatment, and any temporal grouping. Explain how the observation process and uneven exposure affect interpretation.
+
+## Results
+
+Insert the statistical graphic and map that directly answer the question. Use comparable scales when presenting multiple periods or groups. For each major visualisation, write no more than 150 words covering the pattern, evidence, uncertainty, and one caveat.
+
+## Sensitivity check
+
+Test whether the main pattern persists under at least one defensible alternative bandwidth, resolution, classification, or time grouping. Explain what changes and what remains stable.
+
+# Task 3: Second-order point-pattern analysis
+
+## Analytical question and null model
+
+State the second-order question and the null hypothesis. Explain why complete spatial randomness, an inhomogeneous null, a temporal permutation, or another model is appropriate for this event process.
+
+## Method and parameters
+
+Record the summary function, distance range, interval, edge correction, number of simulations, envelope type, and random seed. Explain the implications of each choice and the assumptions that may not hold.
+
+## Results
+
+Assess clustering, inhibition, or compatibility with the null model across distances. Base the conclusion on the observed function and simulation envelope rather than visual density alone. Report where the result is uncertain or sensitive to the null model.
+
+# Task 4: Integrated interpretation
+
+Bring the first- and second-order findings together. Explain what each method contributes, where the results agree, and where they answer different questions. Discuss boundary effects, locational accuracy, reporting bias, exposure, aggregation, and plausible alternative explanations.
+
+Do not turn spatial association into a causal claim. State which explanations are consistent with the evidence and what additional data would be needed to test them.
+
+# Task 5: Geovisualisation and analytical interpretation
+
+Use this section to present the small set of visuals that carry the argument. Check that each map has a clear title, legend, units, scale information where useful, source note, readable labels, and a colour scheme suited to the data. Keep comparable maps on common scales.
+
+Each major visualisation should have one concise interpretation of no more than 150 words. Report an observable pattern, the evidence that supports it, an uncertainty or limitation, and its relevance to the research question.
+
+# Task 6: Public-safety planning and management implications
+
+Write no more than 500 words. Separate the section into:
+
+- actions supported by the analysis;
+- actions that remain provisional because exposure, enforcement, road use, weather, land cover, or other explanatory data are absent;
+- monitoring or data improvements needed before resource allocation.
+
+Avoid unsupported causal explanations and do not rank locations as high risk when the analysis measures event density without exposure.
+
+# Bonus analysis
+
+Frame one geospatial question that adds information not supplied by the core workflow. State why the method is suitable, document its assumptions and parameters, and explain the new insight. A sensitivity analysis, an inhomogeneous point-process comparison, a network-constrained analysis, or a defensible space-time test may qualify if it is necessary for the question and interpreted with care.
+
+# Limitations
+
+Connect each limitation to a specific consequence for the result. Cover data coverage, reporting or detection process, coordinate accuracy, duplicates, boundary choice, temporal completeness, exposure, method assumptions, and parameter sensitivity where applicable.
+
+# Reproducibility
+
+Record the repository URL, rendering instructions, software and package versions, random seed, data acquisition dates, file licences, and any files excluded from Git because of licensing or size. Confirm that the project renders from a clean R session.
+
+# Use of generative AI
+
+Write a declaration that matches the work actually completed. A declaration suitable only if it remains true after finalisation is:
+
+> Generative AI was used to organise the Quarto project, improve report structure and language, and provide general methodological explanations. I independently selected and justified the study design, wrote and verified the analysis code, interpreted the outputs, and formulated the findings and recommendations.
+
+Revise this statement if the actual use was broader. Keep any required prompts or interaction records according to the course instructions.
+
+# References
+
+Include the exercise brief, event dataset, boundary dataset, any added data, analytical references, software packages, and all external code or ideas materially used. Use one consistent citation style.

@@ -8,7 +8,7 @@ page-layout: full
 ::: {.hero-panel}
 This portfolio documents my hands-on work for **ISSS608 Visual Analytics and Applications**. It brings together geospatial data handling, thematic mapping, spatial point-pattern analysis, and spatio-temporal analysis using R.
 
-Use the **Hands-on Exercises** dropdown in the navigation bar, or select an exercise below.
+Use the **Hands-on Exercises** and **Take-home Exercises** menus in the navigation bar, or select an exercise below.
 :::
 
 ## Hands-on exercises
@@ -57,4 +57,40 @@ Analyse how event intensity and spatial patterns change over time.
 
 ::: {.callout-note appearance="simple"}
 Each exercise page follows the corresponding course chapter and provides a dedicated place for the worked analysis, interpretation, and outputs.
+:::
+
+## Take-home exercises
+
+::: {.exercise-grid}
+::: {.exercise-card}
+### [Take-home Exercise 1](Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd)
+
+**Geospatial analytics for public safety**
+
+Submission hub for the executive summary, technical report, data record, and reproducibility checklist.
+:::
+
+::: {.exercise-card}
+### [Take-home Exercise 2](Take-home_Ex/Take-home_Ex02/Take-home_Ex02.qmd)
+
+**Reserved**
+
+The page is ready for the second exercise brief and submission links.
+:::
+
+::: {.exercise-card}
+### [Take-home Exercise 3a](Take-home_Ex/Take-home_Ex03a/Take-home_Ex03a.qmd)
+
+**Reserved**
+
+The page is ready for the Exercise 3a brief and submission links.
+:::
+
+::: {.exercise-card}
+### [Take-home Exercise 3b](Take-home_Ex/Take-home_Ex03b/Take-home_Ex03b.qmd)
+
+**Reserved**
+
+The page is ready for the Exercise 3b brief and submission links.
+:::
 :::
