@@ -179,8 +179,8 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#submission-outputs" id="toc-submission-outputs" class="nav-link active" data-scroll-target="#submission-outputs">Submission outputs</a></li>
   <li><a href="#brief-at-a-glance" id="toc-brief-at-a-glance" class="nav-link" data-scroll-target="#brief-at-a-glance">Brief at a glance</a></li>
-  <li><a href="#data-route-under-consideration" id="toc-data-route-under-consideration" class="nav-link" data-scroll-target="#data-route-under-consideration">Data route under consideration</a></li>
-  <li><a href="#completion-checklist" id="toc-completion-checklist" class="nav-link" data-scroll-target="#completion-checklist">Completion checklist</a></li>
+  <li><a href="#selected-study-design" id="toc-selected-study-design" class="nav-link" data-scroll-target="#selected-study-design">Selected study design</a></li>
+  <li><a href="#analytical-coverage" id="toc-analytical-coverage" class="nav-link" data-scroll-target="#analytical-coverage">Analytical coverage</a></li>
   <li><a href="#deadline-and-delivery" id="toc-deadline-and-delivery" class="nav-link" data-scroll-target="#deadline-and-delivery">Deadline and delivery</a></li>
   </ul>
 </nav>
@@ -209,19 +209,19 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="hero-panel">
-<p>This page is the submission hub for Take-home Exercise 1. The exercise uses spatial point-pattern analysis to study either forest-fire detections in Kalimantan or road accidents in the Bangkok Metropolitan Region.</p>
+<p>This page is the submission hub for the Option B study of road traffic accidents in the Bangkok Metropolitan Region during 2022. The technical report completes the six required tasks and a value-added space-time analysis.</p>
 </div>
-<div class="callout callout-style-default callout-warning callout-titled" title="Work in progress">
+<div class="callout callout-style-default callout-note callout-titled" title="Main result">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Warning</span>Work in progress
+<span class="screen-reader-only">Note</span>Main result
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The report and slides are rubric-aligned frameworks. Analytical results, maps, interpretation, recommendations, and the final AI-use declaration must be completed and verified by the student before submission.</p>
+<p>The final pattern contains <strong>3,597 distinct recorded accidents</strong>. Broad concentration centres on Bangkok and extends towards Samut Prakan. An inhomogeneous L-function test still finds excess neighbouring events after the broad intensity trend is controlled, while the bonus Knox test finds more space-time-close pairs than expected under time permutation.</p>
 </div>
 </div>
 <section id="submission-outputs" class="level2">
@@ -229,11 +229,11 @@ ul.task-list li input[type="checkbox"] {
 <div class="exercise-grid">
 <section id="technical-report" class="level3 exercise-card">
 <h3 class="anchored" data-anchor-id="technical-report"><a href="../../Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html">Technical report</a></h3>
-<p>A Quarto HTML report organised around all six required tasks, the bonus analysis, reproducibility, limitations, and references.</p>
+<p>A reproducible Quarto HTML report covering all six tasks, data-quality decisions, first- and second-order analysis, sensitivity checks, the bonus test, limitations, and references.</p>
 </section>
 <section id="executive-summary" class="level3 exercise-card">
 <h3 class="anchored" data-anchor-id="executive-summary"><a href="../../Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html">Executive summary</a></h3>
-<p>A revealjs deck with a cover, contents page, and nine content slides. This stays within the brief’s ten-slide limit, excluding the cover and contents.</p>
+<p>A completed revealjs deck with a cover, contents page, and nine content slides. This stays within the ten-slide limit, excluding the cover and contents.</p>
 </section>
 <section id="github-repository" class="level3 exercise-card">
 <h3 class="anchored" data-anchor-id="github-repository"><a href="https://github.com/davincuaso/ISSS608-VAA">GitHub repository</a></h3>
@@ -254,32 +254,26 @@ ul.task-list li input[type="checkbox"] {
 </ol>
 <p>The bonus analysis must answer a useful geospatial question beyond the core requirements. A new package or decorative visualisation alone does not meet the bonus standard.</p>
 </section>
-<section id="data-route-under-consideration" class="level2">
-<h2 class="anchored" data-anchor-id="data-route-under-consideration">Data route under consideration</h2>
-<p>The recommended starting point is <strong>Option B: road accidents in 2022</strong>. It uses a complete historical year, has English-language fields and recorded coordinates, and avoids the moving end date of the 2026 fire record. The student must still inspect the downloaded files and confirm that the event definition, coverage, missingness, duplicates, and coordinate quality support the intended analysis.</p>
-<p>For this route, the Bangkok Metropolitan Region is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon. This six-province definition is documented by Thailand’s National Statistical Office.</p>
+<section id="selected-study-design" class="level2">
+<h2 class="anchored" data-anchor-id="selected-study-design">Selected study design</h2>
+<p>The analysis uses <strong>Option B: Thailand road accidents in 2022</strong>. The event file is the actual <a href="https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022">Thailand Road Accident 2019-2022 dataset</a>, and the study boundary is the actual <a href="https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/">geoBoundaries Thailand ADM1 dataset</a>.</p>
+<p>The Bangkok Metropolitan Region is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon. This six-province definition is documented by Thailand’s National Statistical Office. Distance and area calculations use WGS 84 / UTM zone 47N (EPSG:32647).</p>
 <p>The private repository note <a href="https://github.com/davincuaso/ISSS608-VAA/blob/master/Take-home_Ex/Take-home_Ex01/_OPTION_COMPARISON.md"><code>_OPTION_COMPARISON.md</code></a> records the comparison of Options A and B. It is planning material, not part of the assessed findings.</p>
 </section>
-<section id="completion-checklist" class="level2">
-<h2 class="anchored" data-anchor-id="completion-checklist">Completion checklist</h2>
-<ul class="task-list">
-<li><label><input type="checkbox">Confirm the option, research question, event definition, study boundary, and time window.</label></li>
-<li><label><input type="checkbox">Download the original data from the named sources and record the access date and licence.</label></li>
-<li><label><input type="checkbox">Preserve raw files unchanged; document every cleaning and exclusion rule.</label></li>
-<li><label><input type="checkbox">Choose a projected CRS and justify all distance-based parameters in metres.</label></li>
-<li><label><input type="checkbox">Complete and rerun the first-order analysis from a clean R session.</label></li>
-<li><label><input type="checkbox">Complete the second-order test with a stated null model, edge correction, distance range, and simulation count.</label></li>
-<li><label><input type="checkbox">Add sensitivity checks and the bonus analysis only where they answer a clear question.</label></li>
-<li><label><input type="checkbox">Replace every student-work prompt in the report and slides with verified work.</label></li>
-<li><label><input type="checkbox">Check each major visualisation’s caption and interpretation against the 150-word limit.</label></li>
-<li><label><input type="checkbox">Keep the planning and management section within 500 words.</label></li>
-<li><label><input type="checkbox">Add complete references, data attributions, package versions, and a truthful AI-use declaration.</label></li>
-<li><label><input type="checkbox">Render the full Quarto project and test every internal link before submission.</label></li>
+<section id="analytical-coverage" class="level2">
+<h2 class="anchored" data-anchor-id="analytical-coverage">Analytical coverage</h2>
+<ul>
+<li><strong>Data quality:</strong> 81,735 raw records were audited; 21,032 occurred in 2022; 189 lacked coordinates; spatial filtering and duplicate handling produced 3,597 events.</li>
+<li><strong>First order:</strong> daily monthly intensity, hourly distribution, province event density and edge-corrected KDE at 2 km, 3 km and 6 km bandwidths.</li>
+<li><strong>Second order:</strong> transformed L-functions under CSR and an inhomogeneous Poisson model, each using 99 conditional simulations and translation edge correction.</li>
+<li><strong>Robustness:</strong> common-scale bandwidth comparison and event-level intensity rank correlations.</li>
+<li><strong>Bonus:</strong> a 199-run Monte Carlo Knox test at three space-time thresholds.</li>
+<li><strong>Reproducibility:</strong> fixed data URLs, checksums, processing scripts, parameter documentation, a fixed random seed and session information.</li>
 </ul>
 </section>
 <section id="deadline-and-delivery" class="level2">
 <h2 class="anchored" data-anchor-id="deadline-and-delivery">Deadline and delivery</h2>
-<p>The brief gives a deadline of <strong>27 September 2026 at 11:59 pm</strong>. The final Vercel links for the executive summary and technical report, together with the GitHub repository link, must be submitted through the course channels described in the brief.</p>
+<p>The brief gives a deadline of <strong>27 September 2026 at 11:59 pm</strong>. Submit the Vercel links for the executive summary and technical report together with the GitHub repository link through the course channels described in the brief.</p>
 
 
 </section>

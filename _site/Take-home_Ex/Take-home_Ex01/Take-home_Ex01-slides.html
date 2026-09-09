@@ -11,7 +11,7 @@
 
   <meta name="author" content="Davin Cuaso">
   <meta name="dcterms.date" content="2026-09-09">
-  <title>ISSS608 Visual Analytics – Geospatial Analytics for Public Safety</title>
+  <title>ISSS608 Visual Analytics – Where and when did road accidents concentrate?</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -37,6 +37,7 @@
     }
   </style>
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
+  <link rel="stylesheet" href="slides.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -134,8 +135,8 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Geospatial Analytics for Public Safety</h1>
-  <p class="subtitle">Take-home Exercise 1 — Executive Summary</p>
+  <h1 class="title">Where and when did road accidents concentrate?</h1>
+  <p class="subtitle">Bangkok Metropolitan Region, 2022</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -150,100 +151,206 @@ Davin Cuaso
 <section id="contents" class="slide level2">
 <h2>Contents</h2>
 <ol type="1">
-<li>Problem and research question</li>
-<li>Study area, data, and design</li>
-<li>First- and second-order evidence</li>
-<li>Integrated findings and bonus analysis</li>
-<li>Implications and limitations</li>
+<li>Question and study design</li>
+<li>Data preparation</li>
+<li>First-order temporal and spatial intensity</li>
+<li>Second-order spatial interaction</li>
+<li>Value-added space-time test</li>
+<li>Planning implications and limits</li>
 </ol>
 </section>
-<section id="public-safety-problem" class="slide level2">
-<h2>1. Public-safety problem</h2>
-<p><strong>Student work required</strong></p>
-<ul>
-<li>State the decision-relevant problem.</li>
-<li>Give the main research question in one sentence.</li>
-<li>Avoid causal or risk claims that the event data cannot support.</li>
-</ul>
+<section id="decision-question" class="slide level2">
+<h2>1. Decision question</h2>
+<div class="kpi-grid">
+<div class="kpi">
+<strong>3,597</strong>distinct accident events
+</div>
+<div class="kpi">
+<strong>6</strong>BMR provinces
+</div>
+<div class="kpi">
+<strong>2022</strong>complete study year
+</div>
+</div>
+<p><strong>Where and when did recorded road accidents concentrate, and did events remain spatially dependent after broad intensity was controlled?</strong></p>
+<div class="evidence">
+<p>The analysis screens locations and periods for follow-up. It measures recorded events, not traffic-adjusted accident risk.</p>
+</div>
 </section>
 <section id="study-area-and-event-definition" class="slide level2">
 <h2>2. Study area and event definition</h2>
-<p><strong>Student work required</strong></p>
-<ul>
-<li>Show one clean locator map.</li>
-<li>Define the spatial and temporal windows.</li>
-<li>Define one event and explain how duplicates or repeated reports were treated.</li>
-</ul>
+<div class="columns">
+<div class="column" style="width:67%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="Take-home_Ex01-slides_files/figure-revealjs/slide-study-map-1.png" alt="Map of the six Bangkok Metropolitan Region provinces with retained accident locations." width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:33%;">
+<div class="small">
+<p><strong>Window</strong> Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom and Samut Sakhon.</p>
+<p><strong>Event</strong> One distinct accident occurrence with a valid incident time and coordinate inside the boundary.</p>
+<p><strong>Geometry</strong> EPSG:32647; 7,604 km².</p>
+</div>
+</div></div>
 </section>
-<section id="data-quality-and-preparation" class="slide level2">
-<h2>3. Data quality and preparation</h2>
-<p><strong>Student work required</strong></p>
+<section id="data-audit-before-analysis" class="slide level2">
+<h2>3. Data audit before analysis</h2>
+<div class="flow-grid">
+<div class="flow-step">
+<strong>81,735</strong>raw records
+</div>
+<div class="flow-step">
+<strong>21,032</strong>events in 2022
+</div>
+<div class="flow-step">
+<strong>20,843</strong>usable coordinates
+</div>
+<div class="flow-step">
+<strong>3,599</strong>inside BMR
+</div>
+<div class="flow-step">
+<strong>3,597</strong>distinct events
+</div>
+</div>
+<div class="small">
 <ul>
-<li>Name the event and boundary sources.</li>
-<li>Show the initial and final event counts.</li>
-<li>Summarise the material exclusions and coordinate checks.</li>
+<li>189 2022 records had no usable coordinate pair.</li>
+<li>Two probable duplicate rows were collapsed using time, coordinate, agency, route, accident type and casualties.</li>
+<li>Fourteen reported province labels disagreed with the containing polygon.</li>
+<li>319 events reused an exact coordinate at a different time and were retained as possible recurrent events.</li>
 </ul>
+</div>
+<div class="caveat">
+<p>Spatial membership, not the reported province label, defines the BMR sample.</p>
+</div>
 </section>
-<section id="analytical-design" class="slide level2">
-<h2>4. Analytical design</h2>
-<p><strong>Student work required</strong></p>
-<ul>
-<li>Name the first- and second-order methods.</li>
-<li>State the key parameters, edge correction, null model, simulations, and assumptions.</li>
-<li>Explain why the methods answer different parts of the research question.</li>
-</ul>
+<section id="when-did-events-concentrate" class="slide level2">
+<h2>4. When did events concentrate?</h2>
+<div class="columns">
+<div class="column" style="width:68%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="Take-home_Ex01-slides_files/figure-revealjs/slide-monthly-1.png" alt="Monthly daily accident rates, highest in October and lowest in February." width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:32%;">
+<div class="small">
+<p><strong>October:</strong> 12.7 events/day</p>
+<p><strong>February:</strong> 7.6 events/day <strong>Peak hour:</strong> 19:00, 198 events</p>
+<p>The three largest monthly counts occur in the final quarter.</p>
+</div>
+<div class="caveat">
+<p>Traffic exposure and enforcement activity are unavailable, so the chart does not estimate accident probability.</p>
+</div>
+</div></div>
 </section>
-<section id="first-order-evidence" class="slide level2">
-<h2>5. First-order evidence</h2>
-<p><strong>Student work required</strong></p>
+<section id="where-did-events-concentrate" class="slide level2">
+<h2>5. Where did events concentrate?</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="Take-home_Ex01-slides_files/figure-revealjs/slide-kde-1.png" alt="Kernel intensity map with the strongest concentration in Bangkok and towards Samut Prakan." width="787"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:30%;">
+<div class="small">
+<p><strong>3 km KDE</strong></p>
 <ul>
-<li>Insert the clearest intensity map or statistical graphic.</li>
-<li>State the main pattern, supporting evidence, and one caveat in no more than 150 words.</li>
-<li>Use a common scale for comparisons.</li>
+<li>Bangkok: 114.6 events/100 km²</li>
+<li>Samut Prakan: 70.4 events/100 km²</li>
+<li>Peak kernel intensity: 5.7 events/km²</li>
 </ul>
+<p>The primary concentration covers Bangkok and its eastern approaches.</p>
+</div>
+</div></div>
 </section>
-<section id="second-order-evidence" class="slide level2">
-<h2>6. Second-order evidence</h2>
-<p><strong>Student work required</strong></p>
-<ul>
-<li>Insert the observed function and simulation envelope.</li>
-<li>Identify the distance ranges consistent with clustering, inhibition, or the null model.</li>
-<li>State how the result depends on the null model and parameters.</li>
-</ul>
+<section id="is-the-first-order-pattern-robust" class="slide level2">
+<h2>6. Is the first-order pattern robust?</h2>
+
+<img data-src="Take-home_Ex01-slides_files/figure-revealjs/slide-kde-sensitivity-1.png" alt="Three kernel maps showing the BMR accident pattern at 2, 3 and 6 kilometre bandwidths." width="1056" class="r-stretch"><div class="small evidence">
+<p>Event-level intensity ranks correlate at 0.97 for 2-3 km and 0.87 for 3-6 km. The metropolitan core is stable; local peak boundaries are not.</p>
+</div>
 </section>
-<section id="integrated-findings-and-robustness" class="slide level2">
-<h2>7. Integrated findings and robustness</h2>
-<p><strong>Student work required</strong></p>
-<ul>
-<li>Combine the first- and second-order evidence.</li>
-<li>Report the sensitivity result.</li>
-<li>Separate stable findings from patterns that remain uncertain.</li>
-</ul>
+<section id="do-events-interact-beyond-broad-intensity" class="slide level2">
+<h2>7. Do events interact beyond broad intensity?</h2>
+
+<img data-src="Take-home_Ex01-slides_files/figure-revealjs/slide-second-order-1.png" alt="L-function simulation envelopes under complete spatial randomness and an inhomogeneous Poisson null." width="1056" class="r-stretch"><div class="small evidence">
+<p>CSR and the inhomogeneous null are both rejected by the global deviation test (<span class="math inline">\(p=0.01\)</span>). After a 6 km broad-intensity surface is controlled, excess neighbouring events remain from 0.25 to 14.5 km.</p>
+</div>
 </section>
-<section id="bonus-analysis" class="slide level2">
-<h2>8. Bonus analysis</h2>
-<p><strong>Student work required</strong></p>
-<ul>
-<li>State the added geospatial question.</li>
-<li>Show only the result that provides new information.</li>
-<li>Name the method’s main assumption and limitation.</li>
-</ul>
+<section id="bonus-are-nearby-events-also-close-in-time" class="slide level2">
+<h2>8. Bonus: are nearby events also close in time?</h2>
+<div class="columns">
+<div class="column" style="width:66%;">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="Take-home_Ex01-slides_files/figure-revealjs/slide-knox-1.png" alt="Permutation distribution of Knox pair counts with the observed value beyond all simulations." width="729"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column" style="width:34%;">
+<div class="small">
+<p><strong>Observed:</strong> 2,193 pairs</p>
+<p><strong>Permutation mean:</strong> 1,788.6</p>
+<p><strong>Excess:</strong> 22.6% <strong>Monte Carlo:</strong> <span class="math inline">\(p=0.005\)</span></p>
+<p>The positive result persists at 500 m / 1 day and 2 km / 14 days.</p>
+</div>
+<div class="caveat">
+<p>The time-permutation null cannot explain the cause of a local burst.</p>
+</div>
+</div></div>
 </section>
-<section id="implications-and-limitations" class="slide level2">
-<h2>9. Implications and limitations</h2>
-<p><strong>Student work required</strong></p>
+<section id="planning-implications-and-limits" class="slide level2">
+<h2>9. Planning implications and limits</h2>
+<div class="columns">
+<div class="column" style="width:55%;">
+<h3 id="what-the-evidence-supports">What the evidence supports</h3>
+<div class="small">
 <ul>
-<li>Give actions supported by the analysis.</li>
-<li>Mark recommendations that need exposure or contextual data as provisional.</li>
-<li>Close with the most consequential data and method limitations.</li>
+<li>Start detailed diagnostic review in Bangkok and towards Samut Prakan.</li>
+<li>Review staffing and monitoring during the October-December rise and evening hours.</li>
+<li>Use short-horizon cluster alerts to trigger local investigation.</li>
+<li>Follow with road-segment analysis and site inspection before selecting interventions.</li>
 </ul>
+</div>
+</div><div class="column" style="width:45%;">
+<h3 id="what-is-still-needed">What is still needed</h3>
+<div class="small">
+<ul>
+<li>Traffic volume or vehicle-kilometre exposure</li>
+<li>Verified road-segment locations and road design</li>
+<li>Weather, road works and enforcement activity</li>
+<li>Audit of shared coordinates and agency coverage</li>
+</ul>
+</div>
+</div></div>
+<div class="caveat">
+<p>These results identify concentrations of recorded events. They do not establish causation or rank exposure-adjusted road risk.</p>
+</div>
 
 
 </section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
-<p>ISSS608 Visual Analytics and Applications</p>
+<p>ISSS626 Take-home Exercise 1</p>
 </div>
 </div></div>
 
@@ -455,6 +562,44 @@ Davin Cuaso
         ]
       });
     </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")

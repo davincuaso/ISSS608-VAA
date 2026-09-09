@@ -7,11 +7,11 @@ page-layout: full
 ---
 
 ::: {.hero-panel}
-This page is the submission hub for Take-home Exercise 1. The exercise uses spatial point-pattern analysis to study either forest-fire detections in Kalimantan or road accidents in the Bangkok Metropolitan Region.
+This page is the submission hub for the Option B study of road traffic accidents in the Bangkok Metropolitan Region during 2022. The technical report completes the six required tasks and a value-added space-time analysis.
 :::
 
-::: {.callout-warning title="Work in progress"}
-The report and slides are rubric-aligned frameworks. Analytical results, maps, interpretation, recommendations, and the final AI-use declaration must be completed and verified by the student before submission.
+::: {.callout-note title="Main result"}
+The final pattern contains **3,597 distinct recorded accidents**. Broad concentration centres on Bangkok and extends towards Samut Prakan. An inhomogeneous L-function test still finds excess neighbouring events after the broad intensity trend is controlled, while the bonus Knox test finds more space-time-close pairs than expected under time permutation.
 :::
 
 ## Submission outputs
@@ -20,13 +20,13 @@ The report and slides are rubric-aligned frameworks. Analytical results, maps, i
 ::: {.exercise-card}
 ### [Technical report](Take-home_Ex01-report.qmd)
 
-A Quarto HTML report organised around all six required tasks, the bonus analysis, reproducibility, limitations, and references.
+A reproducible Quarto HTML report covering all six tasks, data-quality decisions, first- and second-order analysis, sensitivity checks, the bonus test, limitations, and references.
 :::
 
 ::: {.exercise-card}
 ### [Executive summary](Take-home_Ex01-slides.qmd)
 
-A revealjs deck with a cover, contents page, and nine content slides. This stays within the brief's ten-slide limit, excluding the cover and contents.
+A completed revealjs deck with a cover, contents page, and nine content slides. This stays within the ten-slide limit, excluding the cover and contents.
 :::
 
 ::: {.exercise-card}
@@ -49,29 +49,23 @@ The [official exercise brief](https://isss626-ay2026-27aug.netlify.app/take-home
 
 The bonus analysis must answer a useful geospatial question beyond the core requirements. A new package or decorative visualisation alone does not meet the bonus standard.
 
-## Data route under consideration
+## Selected study design
 
-The recommended starting point is **Option B: road accidents in 2022**. It uses a complete historical year, has English-language fields and recorded coordinates, and avoids the moving end date of the 2026 fire record. The student must still inspect the downloaded files and confirm that the event definition, coverage, missingness, duplicates, and coordinate quality support the intended analysis.
+The analysis uses **Option B: Thailand road accidents in 2022**. The event file is the actual [Thailand Road Accident 2019-2022 dataset](https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022), and the study boundary is the actual [geoBoundaries Thailand ADM1 dataset](https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/).
 
-For this route, the Bangkok Metropolitan Region is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon. This six-province definition is documented by Thailand's National Statistical Office.
+The Bangkok Metropolitan Region is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon. This six-province definition is documented by Thailand's National Statistical Office. Distance and area calculations use WGS 84 / UTM zone 47N (EPSG:32647).
 
 The private repository note [`_OPTION_COMPARISON.md`](https://github.com/davincuaso/ISSS608-VAA/blob/master/Take-home_Ex/Take-home_Ex01/_OPTION_COMPARISON.md) records the comparison of Options A and B. It is planning material, not part of the assessed findings.
 
-## Completion checklist
+## Analytical coverage
 
-- [ ] Confirm the option, research question, event definition, study boundary, and time window.
-- [ ] Download the original data from the named sources and record the access date and licence.
-- [ ] Preserve raw files unchanged; document every cleaning and exclusion rule.
-- [ ] Choose a projected CRS and justify all distance-based parameters in metres.
-- [ ] Complete and rerun the first-order analysis from a clean R session.
-- [ ] Complete the second-order test with a stated null model, edge correction, distance range, and simulation count.
-- [ ] Add sensitivity checks and the bonus analysis only where they answer a clear question.
-- [ ] Replace every student-work prompt in the report and slides with verified work.
-- [ ] Check each major visualisation's caption and interpretation against the 150-word limit.
-- [ ] Keep the planning and management section within 500 words.
-- [ ] Add complete references, data attributions, package versions, and a truthful AI-use declaration.
-- [ ] Render the full Quarto project and test every internal link before submission.
+- **Data quality:** 81,735 raw records were audited; 21,032 occurred in 2022; 189 lacked coordinates; spatial filtering and duplicate handling produced 3,597 events.
+- **First order:** daily monthly intensity, hourly distribution, province event density and edge-corrected KDE at 2 km, 3 km and 6 km bandwidths.
+- **Second order:** transformed L-functions under CSR and an inhomogeneous Poisson model, each using 99 conditional simulations and translation edge correction.
+- **Robustness:** common-scale bandwidth comparison and event-level intensity rank correlations.
+- **Bonus:** a 199-run Monte Carlo Knox test at three space-time thresholds.
+- **Reproducibility:** fixed data URLs, checksums, processing scripts, parameter documentation, a fixed random seed and session information.
 
 ## Deadline and delivery
 
-The brief gives a deadline of **27 September 2026 at 11:59 pm**. The final Vercel links for the executive summary and technical report, together with the GitHub repository link, must be submitted through the course channels described in the brief.
+The brief gives a deadline of **27 September 2026 at 11:59 pm**. Submit the Vercel links for the executive summary and technical report together with the GitHub repository link through the course channels described in the brief.

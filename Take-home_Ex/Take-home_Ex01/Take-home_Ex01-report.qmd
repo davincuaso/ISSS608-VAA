@@ -1,6 +1,6 @@
 ---
 title: "Take-home Exercise 1: Technical Report"
-subtitle: "Geospatial analytics for public safety"
+subtitle: "Road traffic accidents in the Bangkok Metropolitan Region, 2022"
 author: "Davin Cuaso"
 date: last-modified
 format:
@@ -8,7 +8,8 @@ format:
     toc: true
     toc-depth: 3
     code-fold: true
-    code-summary: "Show code"
+    code-summary: "Show R code"
+    code-tools: true
     number-sections: true
 execute:
   echo: true
@@ -16,140 +17,484 @@ execute:
   message: false
 ---
 
-::: {.callout-warning title="Student completion required"}
-This file supplies the report structure and assessment checks. Replace every prompt with analysis that you wrote, ran, interpreted, and verified. Do not submit the scaffold as a completed report.
-:::
+```{r}
+#| label: setup
+#| include: false
 
-# Introduction and context
+source("scripts/analysis.R")
 
-State the public-safety problem without making claims that the data cannot support. Identify the people or agencies who could use the analysis and the decisions it may inform.
+fmt_int <- function(x) format(round(x), big.mark = ",", scientific = FALSE)
+fmt_num <- function(x, digits = 1) format(
+  round(x, digits), nsmall = digits, big.mark = ",", scientific = FALSE
+)
 
-## Research question and objectives
+peak_month_row <- monthly_summary[which.max(monthly_summary$events_per_day), ]
+low_month_row <- monthly_summary[which.min(monthly_summary$events_per_day), ]
+peak_hour_row <- hourly_summary[which.max(hourly_summary$events), ]
 
-Write one main research question and a short set of measurable objectives. The question should connect the event process, the study area, the time window, and the first- and second-order methods.
+province_map <- bmr_provinces_utm |>
+  left_join(province_summary, by = c("province" = "spatial_province"))
+
+kde_sensitivity_df <- bind_rows(
+  transform(kde_2km_df, bandwidth = "2 km"),
+  transform(kde_3km_df, bandwidth = "3 km"),
+  transform(kde_6km_df, bandwidth = "6 km")
+)
+
+second_order_plot_df <- bind_rows(
+  transform(csr_envelope_df, model = "CSR"),
+  transform(inhomogeneous_envelope_df, model = "Inhomogeneous")
+)
+```
+
+# Introduction and study context
+
+Road accidents are recorded at specific places and times, so their distribution can be studied as a point pattern. This report examines `r fmt_int(nrow(events_wgs84))` distinct accident events recorded in 2022 within a six-province Bangkok Metropolitan Region (BMR). The analysis asks where and when reported events concentrate, and whether events remain spatially dependent after broad variation in intensity is taken into account.
+
+The result is an analysis of **recorded accident locations**, not a direct estimate of accident risk. Traffic volume, road length, vehicle kilometres travelled, road design and enforcement exposure are not available in the core dataset. Areas with many events may simply carry more traffic or contain more mapped roads.
+
+## Research questions
+
+1. How did the spatial and temporal intensity of recorded BMR road accidents vary during 2022?
+2. Does the point pattern show interaction beyond broad first-order intensity, and at what distances?
+3. As a value-added question, were spatially close accidents also unusually close in time after preserving the observed spatial and temporal margins?
+
+## Objectives
+
+The workflow audits the source data, constructs a reproducible study window, compares temporal and spatial intensity, tests complete spatial randomness (CSR) and an inhomogeneous null model, checks bandwidth sensitivity, and applies a Monte Carlo Knox test for space-time interaction.
 
 # Data and study design
 
-## Selected option
+## Event and boundary data
 
-Record the selected option and explain why it is suitable. If Option B is retained, restrict the accident records to 2022 and define the Bangkok Metropolitan Region as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon.
+The accident file was downloaded from the [Thailand Road Accident 2019-2022 dataset](https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022) on 9 September 2026. The Kaggle record describes 81,735 rows compiled from the Office of the Permanent Secretary, Thailand Ministry of Transport, and distributes the files under CC0. The analysis uses the incident timestamp, location, event identifier, agency, road description and casualty counts. It does not use the report timestamp as the event time.
 
-## Point-event definition
+The ADM1 boundary was downloaded through the [geoBoundaries API](https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/) on the same date. The returned metadata identifies a 2017 boundary representation, built on 12 December 2023 from OpenStreetMap/Wambacher material under the Open Database Licence 1.0. geoBoundaries documents its open boundary workflow in Runfola et al. (2020).
 
-Define what one row and one point represent. Explain how duplicated records, repeated detections or reports, events with missing coordinates, impossible coordinates, invalid geometries, and records outside the study window are handled.
+| Source | Coverage used | Local source file | SHA-256 |
+|---|---|---|---|
+| Thailand Road Accident 2019-2022 | Incident dates from 1 January to 31 December 2022 | `thai_road_accident_2019_2022.csv` | `40131c32ad417aa3a8b642cc366a3876ace4e86d8a858ee25a8c04bda9fb629c` |
+| geoBoundaries Thailand ADM1 | Six BMR provinces | `geoBoundaries-THA-ADM1.geojson` | `145beb11e52785a42e16997c92a65426b3df8d009941db6b012ec8e411f3e33c` |
 
 ## Spatial study window
 
-Describe the boundary source, boundary level, inclusion rule, projected coordinate reference system, and any effect that the boundary may have on the analysis. Explain why the boundary matches the public-safety question.
+The BMR is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom and Samut Sakhon. This matches the grouping used by Thailand's [National Statistical Office](https://www.nso.go.th/nsoweb/storage/survey_detail/2026/20241211125403_33653.pdf#page=16). The six ADM1 polygons form a `r fmt_num(bmr_area_km2, 1)` km² observation window.
 
-## Temporal study window
+The boundary and events are transformed from WGS 84 to WGS 84 / UTM zone 47N (EPSG:32647). All distance, area, kernel and second-order calculations therefore use metres. UTM zone 47N covers the complete BMR and avoids treating longitude-latitude degrees as planar distances.
 
-State the start and end dates. Explain the temporal grouping used in plots or models and whether reporting practices or seasonal exposure could affect comparisons.
+## Point-event definition
 
-## Data sources
+One point represents one reported accident occurrence. The temporal field is `incident_datetime`; the spatial fields are longitude and latitude. Two pairs of rows had different accident codes but the same incident time, coordinates, agency, route, accident type and casualty totals. Each pair was treated as one accident event and the earlier record was retained. Other events at identical coordinates were kept when their timestamps differed because they may represent recurrent accidents at the same recorded location.
 
-Complete this record using the files actually downloaded.
+Records enter the analysis when they have a valid 2022 incident time, complete coordinates within plausible Thailand bounds, and a point inside the union of the six BMR polygons. Spatial membership, rather than the province label, defines inclusion. This retains ten records labelled as Ayutthaya, Kanchanaburi or unknown whose coordinates fall inside the BMR boundary.
 
-| Item | Record to provide |
-|---|---|
-| Event data | Dataset title, owner or compiler, URL, file name, access date, licence, coverage |
-| Boundary data | Dataset title, provider, URL, administrative level, version, access date, licence |
-| Added contextual data | Purpose, source, licence, coverage, and reason it changes the analysis |
+```{r}
+#| label: study-area-map
+#| fig-cap: "Recorded road accidents retained within the six-province BMR study window."
+#| fig-alt: "Map of the Bangkok Metropolitan Region with accident points coloured by recorded casualty severity."
+#| fig-width: 9
+#| fig-height: 6.5
 
-# Task 1: Data preparation
+ggplot() +
+  geom_sf(data = bmr_provinces_utm, fill = "#f5f7fa", colour = "white", linewidth = 0.45) +
+  geom_sf(
+    data = events_utm,
+    aes(colour = severity),
+    size = 0.65,
+    alpha = 0.55
+  ) +
+  geom_sf_label(
+    data = bmr_provinces_utm,
+    aes(label = province),
+    size = 3,
+    colour = palette_main["navy"],
+    fill = scales::alpha("white", 0.82),
+    label.size = 0,
+    check_overlap = TRUE
+  ) +
+  scale_colour_manual(
+    values = c(
+      "Fatal" = palette_main["red"],
+      "Injury" = palette_main["amber"],
+      "No recorded casualty" = palette_main["blue"]
+    )
+  ) +
+  coord_sf(datum = NA) +
+  labs(
+    title = "The study window contains 3,597 distinct accident events",
+    subtitle = "Spatial inclusion is based on coordinates, not the reported province field",
+    colour = "Recorded outcome",
+    caption = "Sources: Thailand Ministry of Transport data compiled on Kaggle; geoBoundaries ADM1."
+  ) +
+  theme_void() +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", colour = palette_main["navy"]),
+    plot.subtitle = element_text(colour = "#5b677a")
+  )
+```
 
-## Acquisition and inspection
+The retained points span the metropolitan core and the five surrounding provinces. Dense overlap is visible in Bangkok and its eastern approaches, while the outer western portion of Nakhon Pathom is sparse. Point overlap alone cannot establish interaction; the second-order tests below compare the pattern with explicit null models. The outcome colours also describe recorded casualties only. They do not measure crash severity consistently if reporting completeness varies by agency.
 
-Show the original dimensions, field names, data types, coordinate ranges, date coverage, and category levels needed for the analysis. Keep raw data unchanged and state where it is stored.
+# Task 1: Data preparation and quality assessment
 
-## Quality checks and cleaning decisions
+The source files can be acquired with [`download_data.R`](scripts/download_data.R). The full preparation and analysis are in [`analysis.R`](scripts/analysis.R). Both scripts use relative project paths, fixed download URLs and a fixed simulation seed.
 
-Provide a compact audit trail with counts before and after each rule. At minimum, inspect missing coordinates, non-numeric coordinates, longitude-latitude order, duplicated event identifiers, repeated coordinates and timestamps, invalid dates, invalid geometries, points outside the boundary, and dates outside the selected year.
+## Reproducible processing sequence
 
-Do not remove coincident points solely because they overlap. Decide whether they are duplicate records or separate events, and support the decision with the available identifiers and timestamps.
+```{r}
+#| label: audit-table
 
-## Spatial conversion and integration
+audit_table |>
+  mutate(
+    retained = fmt_int(retained),
+    removed_at_step = ifelse(is.na(removed_at_step), "-", fmt_int(removed_at_step))
+  ) |>
+  kable(
+    col.names = c("Processing step", "Records retained", "Removed at step"),
+    align = c("l", "r", "r"),
+    caption = "Event-record audit trail"
+  )
+```
 
-Document the source CRS, transformation to the projected CRS, spatial join or filter, derived temporal variables, and final analysis objects. Report the final event count and boundary area.
+The raw file contained `r fmt_int(nrow(accidents_raw))` records. Filtering to 2022 left `r fmt_int(sum(in_2022))`; `r fmt_int(sum(in_2022 & !complete_coordinates))` had no usable coordinate pair. No complete 2022 coordinate lay outside the broad Thailand bounds. Spatial filtering retained 3,599 BMR points, and the probable duplicate-event rule removed two rows. The final pattern contains `r fmt_int(nrow(events_wgs84))` events.
 
-## Reproducible audit
+## Diagnostic checks
 
-Add the code and output that reproduce the audit from the original files. A reader should be able to trace every exclusion rather than infer it from the final count.
+```{r}
+#| label: quality-table
+
+quality_metrics |>
+  mutate(count = fmt_int(count)) |>
+  kable(
+    col.names = c("Diagnostic", "Count"),
+    align = c("l", "r"),
+    caption = "Quality checks affecting analysis or interpretation"
+  )
+```
+
+Fourteen records have a reported province that differs from the polygon containing the coordinates. This includes the ten records with a non-BMR label. Because boundary vintages and point precision can disagree near provincial borders, the workflow reports the mismatch rather than silently changing the source label.
+
+Another `r fmt_int(quality_metrics$count[quality_metrics$check == "Additional events at an already-used exact coordinate"])` events share a coordinate already used by an earlier event. These are retained when the event times differ. This decision preserves recurrent sites but can raise the short-distance second-order statistic if coordinates were snapped to common road locations. Report delays are not used analytically; the incident time is complete and defines the temporal pattern.
+
+## Derived fields and spatial objects
+
+The workflow derives month, weekday, hour, four daily periods, casualty outcome and report delay. It creates `sf` point and polygon objects in WGS 84 and EPSG:32647, then converts the projected points and union boundary to a `ppp` object. All boundary geometries pass `st_is_valid()` after validation.
 
 # Task 2: First-order point-pattern analysis
 
-## Analytical question
+First-order analysis describes variation in the expected event intensity. It does not test whether events interact after that intensity is specified.
 
-State what variation in intensity is being investigated. Separate event concentration from any claim about risk unless a suitable exposure denominator is available.
+## Temporal intensity
 
-## Method and assumptions
+Monthly counts are divided by the number of days in each month. This avoids making February appear low simply because it has fewer days.
 
-Justify the selected first-order method, projected CRS, grid or evaluation resolution, kernel function, bandwidth, edge treatment, and any temporal grouping. Explain how the observation process and uneven exposure affect interpretation.
+```{r}
+#| label: monthly-intensity
+#| fig-cap: "Average recorded accidents per day by month in 2022."
+#| fig-alt: "Line chart showing monthly average daily accident counts, highest in October and lowest in February."
+#| fig-width: 9
+#| fig-height: 4.8
 
-## Results
+ggplot(monthly_summary, aes(month_number, events_per_day)) +
+  geom_area(fill = palette_main["blue"], alpha = 0.15) +
+  geom_line(colour = palette_main["blue"], linewidth = 1) +
+  geom_point(colour = palette_main["navy"], size = 2.5) +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.08))) +
+  labs(
+    title = "Recorded accident intensity rose in the final quarter",
+    subtitle = "Counts are normalised by days in each month",
+    x = NULL,
+    y = "Events per day",
+    caption = "Source: Thailand Road Accident 2019-2022, restricted spatially to the BMR."
+  )
+```
 
-Insert the statistical graphic and map that directly answer the question. Use comparable scales when presenting multiple periods or groups. For each major visualisation, write no more than 150 words covering the pattern, evidence, uncertainty, and one caveat.
+`r as.character(peak_month_row$month)` recorded the highest daily rate at `r fmt_num(peak_month_row$events_per_day, 1)` events per day; `r as.character(low_month_row$month)` recorded the lowest at `r fmt_num(low_month_row$events_per_day, 1)`. The final quarter contains the three highest monthly counts, while April forms an earlier local peak. The dataset provides events but no monthly traffic exposure, so the pattern could reflect travel volume, reporting changes, weather or enforcement as well as a change in accident propensity.
 
-## Sensitivity check
+```{r}
+#| label: hourly-intensity
+#| fig-cap: "Recorded accident counts by incident hour."
+#| fig-alt: "Bar chart of accidents by hour, with the highest count at 7 pm."
+#| fig-width: 9
+#| fig-height: 4.5
 
-Test whether the main pattern persists under at least one defensible alternative bandwidth, resolution, classification, or time grouping. Explain what changes and what remains stable.
+ggplot(hourly_summary, aes(hour, events)) +
+  geom_col(fill = palette_main["teal"], width = 0.82) +
+  scale_x_continuous(breaks = seq(0, 23, by = 2)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.08))) +
+  labs(
+    title = "The recorded hourly maximum occurred at 19:00",
+    subtitle = paste0(
+      fmt_int(peak_hour_row$events),
+      " events were recorded during the 19:00 hour"
+    ),
+    x = "Hour of day",
+    y = "Recorded events"
+  )
+```
+
+The hourly series has a broad daytime and evening elevation rather than a single sharp commute peak. The largest count is `r fmt_int(peak_hour_row$events)` at `r sprintf("%02d:00", peak_hour_row$hour)`, while the overnight minimum is 89 at 04:00. These are event counts per clock hour across the year. Without hourly traffic volume, the chart cannot distinguish greater exposure from greater event probability.
+
+## Province-level event density
+
+```{r}
+#| label: province-density
+#| fig-cap: "Recorded accident events per 100 square kilometres by spatially assigned province."
+#| fig-alt: "Choropleth map showing the highest accident event density in Bangkok, followed by Samut Prakan."
+#| fig-width: 9
+#| fig-height: 6
+
+ggplot(province_map) +
+  geom_sf(aes(fill = events_per_100_km2), colour = "white", linewidth = 0.55) +
+  geom_sf_label(
+    aes(label = paste0(province, "\n", fmt_num(events_per_100_km2, 1))),
+    size = 3.1,
+    colour = palette_main["navy"],
+    fill = scales::alpha("white", 0.82),
+    label.size = 0,
+    check_overlap = TRUE
+  ) +
+  scale_fill_viridis_c(option = "C", direction = -1) +
+  coord_sf(datum = NA) +
+  labs(
+    title = "Bangkok has the highest event density by land area",
+    subtitle = "Labels show events per 100 km²; the measure is not traffic-adjusted risk",
+    fill = "Events per\n100 km²",
+    caption = "Spatial province is assigned from geoBoundaries ADM1 polygons."
+  ) +
+  theme_void() +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(face = "bold", colour = palette_main["navy"]),
+    plot.subtitle = element_text(colour = "#5b677a")
+  )
+```
+
+Bangkok records `r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Bangkok"], 1)` events per 100 km², followed by Samut Prakan at `r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Samut Prakan"], 1)`. Nakhon Pathom has `r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Nakhon Pathom"], 1)`. Dividing by land area controls only for polygon size. It does not control for road length, traffic volume or reporting coverage, so the map identifies where records are concentrated rather than where an individual journey is most dangerous.
+
+## Kernel intensity estimate
+
+Kernel density estimation (KDE) smooths event locations into an estimated intensity surface. A Gaussian kernel, 500 m output grid, edge correction and 3 km primary bandwidth are used. Likelihood cross-validation selected approximately `r fmt_int(coordinate_bandwidths["likelihood_cross_validation"])` m, but this produces a fragmented surface dominated by road-constrained points and repeated coordinates. The 3 km bandwidth instead answers a planning-scale question about broad concentrations. Results at 2 km and 6 km are compared below.
+
+```{r}
+#| label: kde-primary
+#| fig-cap: "Edge-corrected kernel intensity of recorded accidents using a 3 km Gaussian bandwidth."
+#| fig-alt: "Kernel density map with the highest accident intensity across central and eastern Bangkok."
+#| fig-width: 9
+#| fig-height: 6.5
+
+ggplot() +
+  geom_raster(
+    data = kde_3km_df,
+    aes(x, y, fill = events_per_km2)
+  ) +
+  geom_sf(data = bmr_provinces_utm, fill = NA, colour = "white", linewidth = 0.4) +
+  scale_fill_viridis_c(option = "C", direction = -1) +
+  coord_sf(datum = NA, expand = FALSE) +
+  labs(
+    title = "Broad accident concentration centres on Bangkok and its eastern approaches",
+    subtitle = "Gaussian KDE, 3 km bandwidth, 500 m grid and edge correction",
+    fill = "Estimated annual\nevents per km²",
+    caption = "Intensity is a smoothed count surface, not exposure-adjusted risk."
+  ) +
+  theme_void() +
+  theme(
+    legend.position = "right",
+    plot.title = element_text(face = "bold", colour = palette_main["navy"]),
+    plot.subtitle = element_text(colour = "#5b677a")
+  )
+```
+
+The 3 km surface reaches `r fmt_num(max(kde_3km_df$events_per_km2), 1)` estimated annual events per km² and places the broadest high-intensity zone across Bangkok, extending east towards Samut Prakan. Smaller concentrations follow developed corridors in the surrounding provinces. The kernel is evaluated in planar space even though crashes occur on roads. It therefore smooths across locations that may not be connected by the road network and should not be used to select an individual junction without finer road and exposure data.
+
+## Bandwidth sensitivity
+
+```{r}
+#| label: kde-sensitivity
+#| fig-cap: "KDE sensitivity at 2 km, 3 km and 6 km bandwidths on a common colour scale."
+#| fig-alt: "Three maps comparing accident intensity under increasingly broad kernel bandwidths."
+#| fig-width: 11
+#| fig-height: 4.5
+
+ggplot(kde_sensitivity_df, aes(x, y, fill = events_per_km2)) +
+  geom_raster() +
+  geom_sf(
+    data = bmr_provinces_utm,
+    fill = NA,
+    colour = "white",
+    linewidth = 0.2,
+    inherit.aes = FALSE
+  ) +
+  facet_wrap(~bandwidth, nrow = 1) +
+  scale_fill_viridis_c(option = "C", direction = -1) +
+  coord_sf(datum = NA, expand = FALSE) +
+  labs(
+    title = "The metropolitan core remains prominent under wider smoothing",
+    subtitle = "All panels use the same intensity scale",
+    fill = "Events per km²"
+  ) +
+  theme_void() +
+  theme(
+    legend.position = "right",
+    strip.text = element_text(face = "bold"),
+    plot.title = element_text(face = "bold", colour = palette_main["navy"]),
+    plot.subtitle = element_text(colour = "#5b677a")
+  )
+```
+
+The 2 km estimate resolves more local peaks, while 6 km merges neighbouring concentrations into a broad metropolitan gradient. Event-level intensity ranks correlate at `r fmt_num(intensity_rank_correlations$spearman_rho[1], 2)` between 2 km and 3 km and `r fmt_num(intensity_rank_correlations$spearman_rho[2], 2)` between 3 km and 6 km. The broad Bangkok-Samut Prakan concentration is stable, but the exact shape and height of local peaks are bandwidth-dependent.
 
 # Task 3: Second-order point-pattern analysis
 
-## Analytical question and null model
+Second-order analysis tests whether pairs of events occur closer together than expected after a null model is specified. The transformed L-function, $L(r)-r$, is used because zero is the theoretical reference under a Poisson process. Positive departures indicate more neighbours within distance $r$ than the null predicts; negative departures indicate fewer.
 
-State the second-order question and the null hypothesis. Explain why complete spatial randomness, an inhomogeneous null, a temporal permutation, or another model is appropriate for this event process.
+Two null models are compared:
 
-## Method and parameters
+- **CSR:** 99 simulations place the observed number of events uniformly within the BMR. This is a deliberately simple benchmark and is unlikely to be realistic because roads and activity are uneven.
+- **Inhomogeneous Poisson:** 99 simulations draw the observed number of events from a fixed 6 km pilot intensity. This preserves broad first-order variation while leaving events independent conditional on intensity.
 
-Record the summary function, distance range, interval, edge correction, number of simulations, envelope type, and random seed. Explain the implications of each choice and the assumptions that may not hold.
+Both tests use 0-15 km at 250 m intervals, translation edge correction, WGS 84 / UTM 47N and pointwise 95% simulation envelopes. A maximum-standardised-deviation statistic supplies a global Monte Carlo test. Conditioning on event count prevents total-count variation from dominating the comparison.
 
-## Results
+```{r}
+#| label: second-order-envelopes
+#| fig-cap: "Observed L(r)-r compared with pointwise 95% envelopes under CSR and an inhomogeneous Poisson null."
+#| fig-alt: "Two L-function envelope plots showing strong clustering under CSR and residual short-distance clustering under the inhomogeneous model."
+#| fig-width: 11
+#| fig-height: 5.2
 
-Assess clustering, inhibition, or compatibility with the null model across distances. Base the conclusion on the observed function and simulation envelope rather than visual density alone. Report where the result is uncertain or sensitive to the null model.
+ggplot(second_order_plot_df, aes(r / 1000)) +
+  geom_ribbon(
+    aes(ymin = low_minus_r / 1000, ymax = high_minus_r / 1000),
+    fill = palette_main["grey"],
+    alpha = 0.9
+  ) +
+  geom_hline(yintercept = 0, colour = "#6b7280", linetype = "dashed") +
+  geom_line(aes(y = observed_minus_r / 1000), colour = palette_main["red"], linewidth = 0.9) +
+  facet_wrap(~model, nrow = 1, scales = "free_y") +
+  scale_x_continuous(breaks = seq(0, 15, by = 3)) +
+  labs(
+    title = "Broad intensity explains part, but not all, of the spatial clustering",
+    subtitle = "Red: observed pattern; grey: pointwise 95% simulation envelope",
+    x = "Distance r (km)",
+    y = "L(r) - r (km)"
+  )
+```
 
-# Task 4: Integrated interpretation
+CSR is rejected by the global deviation test ($p$ = `r fmt_num(second_order_tests$global_deviation_p[1], 2)`), and the observed curve lies above the envelope from 0.25 km through 15 km. This shows why visual concentration should not be assessed against a uniform benchmark alone.
 
-Bring the first- and second-order findings together. Explain what each method contributes, where the results agree, and where they answer different questions. Discuss boundary effects, locational accuracy, reporting bias, exposure, aggregation, and plausible alternative explanations.
+The inhomogeneous null is also rejected ($p$ = `r fmt_num(second_order_tests$global_deviation_p[2], 2)`). The observed curve is above the envelope from `r fmt_num(inhomogeneous_ranges$min_m[inhomogeneous_ranges$relation == "above"] / 1000, 2)` to `r fmt_num(inhomogeneous_ranges$max_m[inhomogeneous_ranges$relation == "above"] / 1000, 2)` km. The broad first-order trend therefore does not account for all of the excess neighbouring events. The result may also reflect road-network support, shared coordinates or a pilot surface that is too smooth to represent every relevant component of intensity.
 
-Do not turn spatial association into a causal claim. State which explanations are consistent with the evidence and what additional data would be needed to test them.
+# Task 4: Integrated findings and interpretation
 
-# Task 5: Geovisualisation and analytical interpretation
+The first-order results show a strong metropolitan gradient. Bangkok has the highest event density per land area, the KDE extends the main concentration into Samut Prakan, and daily event counts are highest in the final quarter. These results describe where and when the expected number of recorded events is larger.
 
-Use this section to present the small set of visuals that carry the argument. Check that each map has a clear title, legend, units, scale information where useful, source note, readable labels, and a colour scheme suited to the data. Keep comparable maps on common scales.
+The second-order results answer a different question. Uniform CSR cannot account for the pattern at any tested scale. A broad 6 km intensity surface explains some of that departure, but pairs remain more numerous than expected from 0.25 km to 14.5 km. The remaining structure is consistent with recurrent locations and connected groups of roads or activity centres embedded within the larger metropolitan gradient.
 
-Each major visualisation should have one concise interpretation of no more than 150 words. Report an observable pattern, the evidence that supports it, an uncertainty or limitation, and its relevance to the research question.
+Three cautions limit the conclusion. First, 319 events reuse an exact coordinate, so shared or snapped locations contribute to short-range pairs. Second, accidents occur on a road network rather than anywhere in the polygon; a planar inhomogeneous model is an approximation. Third, the 6 km pilot bandwidth separates broad trend from local interaction by design. A narrower pilot could absorb some local clustering, while a wider pilot could leave more residual structure.
 
-# Task 6: Public-safety planning and management implications
+The bandwidth sensitivity maps retain the main Bangkok-Samut Prakan concentration, with high rank correlation across 2-6 km smoothing. This supports the broad first-order conclusion, not the exact boundary of an individual hotspot.
 
-Write no more than 500 words. Separate the section into:
+# Task 5: Geovisualisation and geocommunication
 
-- actions supported by the analysis;
-- actions that remain provisional because exposure, enforcement, road use, weather, land cover, or other explanatory data are absent;
-- monitoring or data improvements needed before resource allocation.
+The visual sequence moves from study design to temporal variation, areal density, continuous intensity and null-model testing. Province maps use spatially assigned boundaries rather than the reported label. KDE panels share a common scale when compared. Every distance-based graphic uses kilometres, while areal density and kernel intensity state their units explicitly.
 
-Avoid unsupported causal explanations and do not rank locations as high risk when the analysis measures event density without exposure.
+The maps avoid a road-risk label because the denominator is absent. The L-function figure pairs the observed curve with its reference envelope so that clustering is not inferred from appearance alone. The bonus plot below exposes the full permutation distribution rather than reporting a $p$-value without context.
 
-# Bonus analysis
+# Task 6: Public-safety planning and management
 
-Frame one geospatial question that adds information not supplied by the core workflow. State why the method is suitable, document its assumptions and parameters, and explain the new insight. A sensitivity analysis, an inhomogeneous point-process comparison, a network-constrained analysis, or a defensible space-time test may qualify if it is necessary for the question and interpreted with care.
+The analysis supports a staged approach to road-safety investigation. Bangkok and the routes extending towards Samut Prakan should receive the first detailed diagnostic review because their event concentration remains visible at 2 km, 3 km and 6 km bandwidths. This is a screening decision, not proof that these roads have the highest crash risk. Before resources are reassigned, agencies should attach road length, traffic volume, speed, junction design and enforcement data to the identified zones.
+
+The October-December rise and the evening maximum provide a basis for reviewing staffing and monitoring schedules. Agencies could compare those periods with traffic counts, rainfall, holidays and enforcement activity. If exposure-adjusted rates also rise, targeted patrols, public messaging or temporary engineering measures could be tested. The present data alone do not show which intervention would work.
+
+Residual clustering across 0.25-14.5 km suggests that province-wide averages hide structure at several operational scales. A follow-up network analysis should locate accidents on verified road segments, audit exact-coordinate reuse and calculate segment-level rates using vehicle kilometres or traffic counts. Sites should then be inspected for modifiable features such as geometry, visibility, crossing demand or speed environment.
+
+The space-time result below supports short-horizon monitoring. A cluster alert should trigger a review rather than an automatic causal conclusion. Repeated reporting practices, temporary works, weather and short-term traffic changes can all create local event bursts. A practical monitoring system would therefore combine event alerts with exposure and operational data, then record whether interventions reduce comparable exposure-adjusted outcomes.
+
+# Bonus: Monte Carlo Knox space-time interaction test
+
+The value-added question is whether spatially close accidents also occur closer in time than expected. The Knox statistic counts event pairs that satisfy a spatial and temporal threshold. A 199-run randomisation permutes complete incident times across fixed accident locations. This preserves the observed spatial pattern, seasonality and hourly distribution while breaking location-time association. The one-sided Monte Carlo $p$-value is $(1 + \text{simulations at least as large as observed}) / 200$.
+
+```{r}
+#| label: knox-results-table
+
+knox_results |>
+  transmute(
+    Threshold = label,
+    `Observed pairs` = fmt_int(observed_pairs),
+    `Mean under permutation` = fmt_num(expected_pairs, 1),
+    `Excess (%)` = fmt_num(excess_percent, 1),
+    `Monte Carlo p` = fmt_num(p_value, 3)
+  ) |>
+  kable(
+    align = c("l", "r", "r", "r", "r"),
+    caption = "Knox space-time interaction results across three scales"
+  )
+```
+
+```{r}
+#| label: knox-permutation
+#| fig-cap: "Permutation distribution for accident pairs within 1 km and 7 days."
+#| fig-alt: "Histogram of simulated Knox pair counts with the observed count shown to the right of all simulations."
+#| fig-width: 9
+#| fig-height: 4.8
+
+ggplot(knox_primary_simulation, aes(simulated_pairs)) +
+  geom_histogram(
+    bins = 24,
+    fill = palette_main["blue"],
+    colour = "white"
+  ) +
+  geom_vline(
+    xintercept = knox_results$observed_pairs[2],
+    colour = palette_main["red"],
+    linewidth = 1.1
+  ) +
+  annotate(
+    "text",
+    x = knox_results$observed_pairs[2],
+    y = Inf,
+    label = paste("Observed:", fmt_int(knox_results$observed_pairs[2])),
+    hjust = 1.05,
+    vjust = 1.5,
+    colour = palette_main["red"]
+  ) +
+  labs(
+    title = "Nearby accidents were also unusually close in time",
+    subtitle = "199 permutations of incident times across fixed locations",
+    x = "Pairs within 1 km and 7 days",
+    y = "Simulations"
+  )
+```
+
+At the primary 1 km / 7 day threshold, the observed pattern has `r fmt_int(knox_results$observed_pairs[2])` close pairs against a permutation mean of `r fmt_num(knox_results$expected_pairs[2], 1)`, an excess of `r fmt_num(knox_results$excess_percent[2], 1)`% ($p$ = `r fmt_num(knox_results$p_value[2], 3)`). The result is also positive at 500 m / 1 day and 2 km / 14 days, so it is not confined to one threshold. This supports short-term local recurrence beyond the separate spatial and temporal margins. The test assumes timestamps are exchangeable across sites; location-specific traffic cycles, road works or reporting systems could violate that assumption.
 
 # Limitations
 
-Connect each limitation to a specific consequence for the result. Cover data coverage, reporting or detection process, coordinate accuracy, duplicates, boundary choice, temporal completeness, exposure, method assumptions, and parameter sensitivity where applicable.
+The source is an administrative event register compiled on Kaggle rather than a purpose-built research sample. Reporting coverage may vary by road agency, event severity and province. Missing coordinates remove 189 of the 2022 records before spatial filtering. The boundary represents 2017 administrative geometry, so minor discrepancies with 2022 province labels are expected near borders.
+
+The study has no exposure denominator. Land-area density and planar KDE do not adjust for traffic volume or road length, and planar distances do not follow the road network. Exact-coordinate reuse may represent true recurrent sites, coordinate rounding or common reporting locations. The inhomogeneous result depends on the pilot bandwidth and chosen distance range. Pointwise envelopes involve repeated comparisons across distance; the separate global deviation statistic is therefore used for the overall test.
+
+The Knox result preserves the observed marginal patterns but assumes incident times can be exchanged among locations under the null. It does not identify a cause for local bursts. The findings should guide data linkage and site investigation before intervention.
 
 # Reproducibility
 
-Record the repository URL, rendering instructions, software and package versions, random seed, data acquisition dates, file licences, and any files excluded from Git because of licensing or size. Confirm that the project renders from a clean R session.
+The raw files are excluded from Git because the complete accident archive is unnecessary for publishing the rendered report. [`download_data.R`](scripts/download_data.R) retrieves the fixed public files; [`analysis.R`](scripts/analysis.R) reproduces filtering, derived variables, point-pattern objects, simulations and summary tables. A cached local RDS reduces repeated render time but is rebuilt when the source files or analysis script change. Set `ISSS626_REBUILD=1` to force a fresh analytical run.
 
-# Use of generative AI
+The point-pattern simulations use seed `6262022`. The second-order analysis uses 99 conditional simulations, and the Knox test uses 199 time permutations.
 
-Write a declaration that matches the work actually completed. A declaration suitable only if it remains true after finalisation is:
+```{r}
+#| label: session-information
 
-> Generative AI was used to organise the Quarto project, improve report structure and language, and provide general methodological explanations. I independently selected and justified the study design, wrote and verified the analysis code, interpreted the outputs, and formulated the findings and recommendations.
-
-Revise this statement if the actual use was broader. Keep any required prompts or interaction records according to the course instructions.
+sessionInfo()
+```
 
 # References
 
-Include the exercise brief, event dataset, boundary dataset, any added data, analytical references, software packages, and all external code or ideas materially used. Use one consistent citation style.
+- Baddeley, A., Rubak, E. and Turner, R. (2015). *Spatial Point Patterns: Methodology and Applications with R*. Chapman and Hall/CRC. <https://book.spatstat.org/>
+- geoBoundaries. Thailand ADM1 boundary and metadata API. Accessed 9 September 2026. <https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/>
+- Knox, E. G. (1964). The detection of space-time interactions. *Journal of the Royal Statistical Society: Series C*, 13(1), 25-29. <https://doi.org/10.2307/2985220>
+- Runfola, D., Anderson, A., Baier, H., et al. (2020). geoBoundaries: A global database of political administrative boundaries. *PLOS ONE*, 15(4), e0231866. <https://doi.org/10.1371/journal.pone.0231866>
+- Thailand National Statistical Office. Definition of Bangkok and Metropolitan. Accessed 9 September 2026. <https://www.nso.go.th/nsoweb/storage/survey_detail/2026/20241211125403_33653.pdf#page=16>
+- Thaweewat R. Thailand Road Accident 2019-2022. Kaggle, based on Office of the Permanent Secretary, Thailand Ministry of Transport data. Accessed 9 September 2026. <https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022>

@@ -1,15 +1,16 @@
 ---
-title: "Geospatial Analytics for Public Safety"
-subtitle: "Take-home Exercise 1 — Executive Summary"
+title: "Where and when did road accidents concentrate?"
+subtitle: "Bangkok Metropolitan Region, 2022"
 author: "Davin Cuaso"
 date: last-modified
 format:
   revealjs:
     theme: simple
+    css: slides.css
     slide-number: true
     progress: true
     transition: fade
-    footer: "ISSS608 Visual Analytics and Applications"
+    footer: "ISSS626 Take-home Exercise 1"
     width: 1280
     height: 720
 execute:
@@ -18,82 +19,316 @@ execute:
   message: false
 ---
 
+```{r}
+#| label: slide-setup
+#| include: false
+
+source("scripts/analysis.R")
+
+fmt_int <- function(x) format(round(x), big.mark = ",", scientific = FALSE)
+fmt_num <- function(x, digits = 1) format(
+  round(x, digits), nsmall = digits, big.mark = ",", scientific = FALSE
+)
+
+province_map <- bmr_provinces_utm |>
+  left_join(province_summary, by = c("province" = "spatial_province"))
+
+second_order_plot_df <- bind_rows(
+  transform(csr_envelope_df, model = "CSR"),
+  transform(inhomogeneous_envelope_df, model = "Inhomogeneous")
+)
+```
+
 ## Contents
 
-1. Problem and research question
-2. Study area, data, and design
-3. First- and second-order evidence
-4. Integrated findings and bonus analysis
-5. Implications and limitations
+1. Question and study design
+2. Data preparation
+3. First-order temporal and spatial intensity
+4. Second-order spatial interaction
+5. Value-added space-time test
+6. Planning implications and limits
 
-## 1. Public-safety problem
+## 1. Decision question
 
-**Student work required**
+<div class="kpi-grid">
+<div class="kpi"><strong>3,597</strong>distinct accident events</div>
+<div class="kpi"><strong>6</strong>BMR provinces</div>
+<div class="kpi"><strong>2022</strong>complete study year</div>
+</div>
 
-- State the decision-relevant problem.
-- Give the main research question in one sentence.
-- Avoid causal or risk claims that the event data cannot support.
+**Where and when did recorded road accidents concentrate, and did events remain spatially dependent after broad intensity was controlled?**
+
+::: {.evidence}
+The analysis screens locations and periods for follow-up. It measures recorded events, not traffic-adjusted accident risk.
+:::
 
 ## 2. Study area and event definition
 
-**Student work required**
+::: {.columns}
+::: {.column width="67%"}
+```{r}
+#| label: slide-study-map
+#| fig-alt: "Map of the six Bangkok Metropolitan Region provinces with retained accident locations."
+#| fig-width: 8
+#| fig-height: 5.2
 
-- Show one clean locator map.
-- Define the spatial and temporal windows.
-- Define one event and explain how duplicates or repeated reports were treated.
+ggplot() +
+  geom_sf(data = bmr_provinces_utm, fill = "#f3f6fa", colour = "white", linewidth = 0.4) +
+  geom_sf(data = events_utm, colour = palette_main["blue"], size = 0.35, alpha = 0.45) +
+  geom_sf_text(
+    data = bmr_provinces_utm,
+    aes(label = province),
+    size = 3,
+    colour = palette_main["navy"],
+    check_overlap = TRUE
+  ) +
+  coord_sf(datum = NA) +
+  theme_void()
+```
+:::
 
-## 3. Data quality and preparation
+::: {.column width="33%"}
+<div class="small">
 
-**Student work required**
+**Window**
+Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom and Samut Sakhon.
 
-- Name the event and boundary sources.
-- Show the initial and final event counts.
-- Summarise the material exclusions and coordinate checks.
+**Event**
+One distinct accident occurrence with a valid incident time and coordinate inside the boundary.
 
-## 4. Analytical design
+**Geometry**
+EPSG:32647; `r fmt_num(bmr_area_km2, 0)` km².
 
-**Student work required**
+</div>
+:::
+:::
 
-- Name the first- and second-order methods.
-- State the key parameters, edge correction, null model, simulations, and assumptions.
-- Explain why the methods answer different parts of the research question.
+## 3. Data audit before analysis
 
-## 5. First-order evidence
+<div class="flow-grid">
+<div class="flow-step"><strong>81,735</strong>raw records</div>
+<div class="flow-step"><strong>21,032</strong>events in 2022</div>
+<div class="flow-step"><strong>20,843</strong>usable coordinates</div>
+<div class="flow-step"><strong>3,599</strong>inside BMR</div>
+<div class="flow-step"><strong>3,597</strong>distinct events</div>
+</div>
 
-**Student work required**
+<div class="small">
 
-- Insert the clearest intensity map or statistical graphic.
-- State the main pattern, supporting evidence, and one caveat in no more than 150 words.
-- Use a common scale for comparisons.
+- 189 2022 records had no usable coordinate pair.
+- Two probable duplicate rows were collapsed using time, coordinate, agency, route, accident type and casualties.
+- Fourteen reported province labels disagreed with the containing polygon.
+- 319 events reused an exact coordinate at a different time and were retained as possible recurrent events.
 
-## 6. Second-order evidence
+</div>
 
-**Student work required**
+::: {.caveat}
+Spatial membership, not the reported province label, defines the BMR sample.
+:::
 
-- Insert the observed function and simulation envelope.
-- Identify the distance ranges consistent with clustering, inhibition, or the null model.
-- State how the result depends on the null model and parameters.
+## 4. When did events concentrate?
 
-## 7. Integrated findings and robustness
+::: {.columns}
+::: {.column width="68%"}
+```{r}
+#| label: slide-monthly
+#| fig-alt: "Monthly daily accident rates, highest in October and lowest in February."
+#| fig-width: 8
+#| fig-height: 4.8
 
-**Student work required**
+ggplot(monthly_summary, aes(month_number, events_per_day)) +
+  geom_area(fill = palette_main["blue"], alpha = 0.16) +
+  geom_line(colour = palette_main["blue"], linewidth = 1.1) +
+  geom_point(colour = palette_main["navy"], size = 2.6) +
+  scale_x_continuous(breaks = 1:12, labels = month.abb) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.08))) +
+  labs(x = NULL, y = "Events per day")
+```
+:::
 
-- Combine the first- and second-order evidence.
-- Report the sensitivity result.
-- Separate stable findings from patterns that remain uncertain.
+::: {.column width="32%"}
+<div class="small">
 
-## 8. Bonus analysis
+**October:** `r fmt_num(max(monthly_summary$events_per_day), 1)` events/day
 
-**Student work required**
+**February:** `r fmt_num(min(monthly_summary$events_per_day), 1)` events/day
+**Peak hour:** 19:00, `r fmt_int(max(hourly_summary$events))` events
 
-- State the added geospatial question.
-- Show only the result that provides new information.
-- Name the method's main assumption and limitation.
+The three largest monthly counts occur in the final quarter.
 
-## 9. Implications and limitations
+</div>
 
-**Student work required**
+::: {.caveat}
+Traffic exposure and enforcement activity are unavailable, so the chart does not estimate accident probability.
+:::
+:::
+:::
 
-- Give actions supported by the analysis.
-- Mark recommendations that need exposure or contextual data as provisional.
-- Close with the most consequential data and method limitations.
+## 5. Where did events concentrate?
+
+::: {.columns}
+::: {.column width="70%"}
+```{r}
+#| label: slide-kde
+#| fig-alt: "Kernel intensity map with the strongest concentration in Bangkok and towards Samut Prakan."
+#| fig-width: 8.2
+#| fig-height: 5.2
+
+ggplot() +
+  geom_raster(data = kde_3km_df, aes(x, y, fill = events_per_km2)) +
+  geom_sf(data = bmr_provinces_utm, fill = NA, colour = "white", linewidth = 0.35) +
+  scale_fill_viridis_c(option = "C", direction = -1) +
+  coord_sf(datum = NA, expand = FALSE) +
+  labs(fill = "Annual events\nper km²") +
+  theme_void() +
+  theme(legend.position = "right")
+```
+:::
+
+::: {.column width="30%"}
+<div class="small">
+
+**3 km KDE**
+
+- Bangkok: `r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Bangkok"], 1)` events/100 km²
+- Samut Prakan: `r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Samut Prakan"], 1)` events/100 km²
+- Peak kernel intensity: `r fmt_num(max(kde_3km_df$events_per_km2), 1)` events/km²
+
+The primary concentration covers Bangkok and its eastern approaches.
+
+</div>
+:::
+:::
+
+## 6. Is the first-order pattern robust?
+
+```{r}
+#| label: slide-kde-sensitivity
+#| fig-alt: "Three kernel maps showing the BMR accident pattern at 2, 3 and 6 kilometre bandwidths."
+#| fig-width: 11
+#| fig-height: 4.5
+
+kde_slide_df <- bind_rows(
+  transform(kde_2km_df, bandwidth = "2 km"),
+  transform(kde_3km_df, bandwidth = "3 km"),
+  transform(kde_6km_df, bandwidth = "6 km")
+)
+
+ggplot(kde_slide_df, aes(x, y, fill = events_per_km2)) +
+  geom_raster() +
+  geom_sf(
+    data = bmr_provinces_utm,
+    fill = NA,
+    colour = "white",
+    linewidth = 0.2,
+    inherit.aes = FALSE
+  ) +
+  facet_wrap(~bandwidth, nrow = 1) +
+  scale_fill_viridis_c(option = "C", direction = -1) +
+  coord_sf(datum = NA, expand = FALSE) +
+  labs(fill = "Events/km²") +
+  theme_void() +
+  theme(strip.text = element_text(face = "bold"), legend.position = "right")
+```
+
+<div class="small evidence">
+Event-level intensity ranks correlate at `r fmt_num(intensity_rank_correlations$spearman_rho[1], 2)` for 2-3 km and `r fmt_num(intensity_rank_correlations$spearman_rho[2], 2)` for 3-6 km. The metropolitan core is stable; local peak boundaries are not.
+</div>
+
+## 7. Do events interact beyond broad intensity?
+
+```{r}
+#| label: slide-second-order
+#| fig-alt: "L-function simulation envelopes under complete spatial randomness and an inhomogeneous Poisson null."
+#| fig-width: 11
+#| fig-height: 4.6
+
+ggplot(second_order_plot_df, aes(r / 1000)) +
+  geom_ribbon(
+    aes(ymin = low_minus_r / 1000, ymax = high_minus_r / 1000),
+    fill = palette_main["grey"]
+  ) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "#6b7280") +
+  geom_line(aes(y = observed_minus_r / 1000), colour = palette_main["red"], linewidth = 0.9) +
+  facet_wrap(~model, nrow = 1, scales = "free_y") +
+  labs(x = "Distance (km)", y = "L(r) - r (km)")
+```
+
+<div class="small evidence">
+CSR and the inhomogeneous null are both rejected by the global deviation test ($p=0.01$). After a 6 km broad-intensity surface is controlled, excess neighbouring events remain from 0.25 to 14.5 km.
+</div>
+
+## 8. Bonus: are nearby events also close in time?
+
+::: {.columns}
+::: {.column width="66%"}
+```{r}
+#| label: slide-knox
+#| fig-alt: "Permutation distribution of Knox pair counts with the observed value beyond all simulations."
+#| fig-width: 7.6
+#| fig-height: 4.8
+
+ggplot(knox_primary_simulation, aes(simulated_pairs)) +
+  geom_histogram(bins = 24, fill = palette_main["blue"], colour = "white") +
+  geom_vline(
+    xintercept = knox_results$observed_pairs[2],
+    colour = palette_main["red"],
+    linewidth = 1.1
+  ) +
+  labs(x = "Pairs within 1 km and 7 days", y = "Permutations")
+```
+:::
+
+::: {.column width="34%"}
+<div class="small">
+
+**Observed:** `r fmt_int(knox_results$observed_pairs[2])` pairs
+
+**Permutation mean:** `r fmt_num(knox_results$expected_pairs[2], 1)`
+
+**Excess:** `r fmt_num(knox_results$excess_percent[2], 1)`%
+**Monte Carlo:** $p=`r fmt_num(knox_results$p_value[2], 3)`$
+
+The positive result persists at 500 m / 1 day and 2 km / 14 days.
+
+</div>
+
+::: {.caveat}
+The time-permutation null cannot explain the cause of a local burst.
+:::
+:::
+:::
+
+## 9. Planning implications and limits
+
+::: {.columns}
+::: {.column width="55%"}
+### What the evidence supports
+
+<div class="small">
+
+- Start detailed diagnostic review in Bangkok and towards Samut Prakan.
+- Review staffing and monitoring during the October-December rise and evening hours.
+- Use short-horizon cluster alerts to trigger local investigation.
+- Follow with road-segment analysis and site inspection before selecting interventions.
+
+</div>
+:::
+
+::: {.column width="45%"}
+### What is still needed
+
+<div class="small">
+
+- Traffic volume or vehicle-kilometre exposure
+- Verified road-segment locations and road design
+- Weather, road works and enforcement activity
+- Audit of shared coordinates and agency coverage
+
+</div>
+:::
+:::
+
+::: {.caveat}
+These results identify concentrations of recorded events. They do not establish causation or rank exposure-adjusted road risk.
+:::

@@ -18,14 +18,14 @@
     "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
     "title": "Take-home Exercise 1",
     "section": "",
-    "text": "This page is the submission hub for Take-home Exercise 1. The exercise uses spatial point-pattern analysis to study either forest-fire detections in Kalimantan or road accidents in the Bangkok Metropolitan Region."
+    "text": "This page is the submission hub for the Option B study of road traffic accidents in the Bangkok Metropolitan Region during 2022. The technical report completes the six required tasks and a value-added space-time analysis."
   },
   {
     "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#submission-outputs",
     "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#submission-outputs",
     "title": "Take-home Exercise 1",
     "section": "Submission outputs",
-    "text": "Submission outputs\n\n\nTechnical report\nA Quarto HTML report organised around all six required tasks, the bonus analysis, reproducibility, limitations, and references.\n\n\nExecutive summary\nA revealjs deck with a cover, contents page, and nine content slides. This stays within the brief’s ten-slide limit, excluding the cover and contents.\n\n\nGitHub repository\nThe complete Quarto project, including source files and the project structure used to publish this site."
+    "text": "Submission outputs\n\n\nTechnical report\nA reproducible Quarto HTML report covering all six tasks, data-quality decisions, first- and second-order analysis, sensitivity checks, the bonus test, limitations, and references.\n\n\nExecutive summary\nA completed revealjs deck with a cover, contents page, and nine content slides. This stays within the ten-slide limit, excluding the cover and contents.\n\n\nGitHub repository\nThe complete Quarto project, including source files and the project structure used to publish this site."
   },
   {
     "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#brief-at-a-glance",
@@ -35,25 +35,25 @@
     "text": "Brief at a glance\nThe official exercise brief requires six connected tasks:\n\nAcquire, inspect, clean, validate, transform, and document the spatial data.\nAnalyse first-order spatial and temporal intensity with justified parameters.\nTest second-order spatial structure against a stated null model.\nIntegrate the first- and second-order evidence, including uncertainty and alternative explanations.\nPresent readable statistical graphics and maps, with no more than 150 words for each major visualisation.\nWrite public-safety implications in no more than 500 words, separating evidence from recommendations that need more information.\n\nThe bonus analysis must answer a useful geospatial question beyond the core requirements. A new package or decorative visualisation alone does not meet the bonus standard."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#data-route-under-consideration",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#data-route-under-consideration",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#selected-study-design",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#selected-study-design",
     "title": "Take-home Exercise 1",
-    "section": "Data route under consideration",
-    "text": "Data route under consideration\nThe recommended starting point is Option B: road accidents in 2022. It uses a complete historical year, has English-language fields and recorded coordinates, and avoids the moving end date of the 2026 fire record. The student must still inspect the downloaded files and confirm that the event definition, coverage, missingness, duplicates, and coordinate quality support the intended analysis.\nFor this route, the Bangkok Metropolitan Region is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon. This six-province definition is documented by Thailand’s National Statistical Office.\nThe private repository note _OPTION_COMPARISON.md records the comparison of Options A and B. It is planning material, not part of the assessed findings."
+    "section": "Selected study design",
+    "text": "Selected study design\nThe analysis uses Option B: Thailand road accidents in 2022. The event file is the actual Thailand Road Accident 2019-2022 dataset, and the study boundary is the actual geoBoundaries Thailand ADM1 dataset.\nThe Bangkok Metropolitan Region is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon. This six-province definition is documented by Thailand’s National Statistical Office. Distance and area calculations use WGS 84 / UTM zone 47N (EPSG:32647).\nThe private repository note _OPTION_COMPARISON.md records the comparison of Options A and B. It is planning material, not part of the assessed findings."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#completion-checklist",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#completion-checklist",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#analytical-coverage",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#analytical-coverage",
     "title": "Take-home Exercise 1",
-    "section": "Completion checklist",
-    "text": "Completion checklist\n\nConfirm the option, research question, event definition, study boundary, and time window.\nDownload the original data from the named sources and record the access date and licence.\nPreserve raw files unchanged; document every cleaning and exclusion rule.\nChoose a projected CRS and justify all distance-based parameters in metres.\nComplete and rerun the first-order analysis from a clean R session.\nComplete the second-order test with a stated null model, edge correction, distance range, and simulation count.\nAdd sensitivity checks and the bonus analysis only where they answer a clear question.\nReplace every student-work prompt in the report and slides with verified work.\nCheck each major visualisation’s caption and interpretation against the 150-word limit.\nKeep the planning and management section within 500 words.\nAdd complete references, data attributions, package versions, and a truthful AI-use declaration.\nRender the full Quarto project and test every internal link before submission."
+    "section": "Analytical coverage",
+    "text": "Analytical coverage\n\nData quality: 81,735 raw records were audited; 21,032 occurred in 2022; 189 lacked coordinates; spatial filtering and duplicate handling produced 3,597 events.\nFirst order: daily monthly intensity, hourly distribution, province event density and edge-corrected KDE at 2 km, 3 km and 6 km bandwidths.\nSecond order: transformed L-functions under CSR and an inhomogeneous Poisson model, each using 99 conditional simulations and translation edge correction.\nRobustness: common-scale bandwidth comparison and event-level intensity rank correlations.\nBonus: a 199-run Monte Carlo Knox test at three space-time thresholds.\nReproducibility: fixed data URLs, checksums, processing scripts, parameter documentation, a fixed random seed and session information."
   },
   {
     "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#deadline-and-delivery",
     "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#deadline-and-delivery",
     "title": "Take-home Exercise 1",
     "section": "Deadline and delivery",
-    "text": "Deadline and delivery\nThe brief gives a deadline of 27 September 2026 at 11:59 pm. The final Vercel links for the executive summary and technical report, together with the GitHub repository link, must be submitted through the course channels described in the brief."
+    "text": "Deadline and delivery\nThe brief gives a deadline of 27 September 2026 at 11:59 pm. Submit the Vercel links for the executive summary and technical report together with the GitHub repository link through the course channels described in the brief."
   },
   {
     "objectID": "about.html",
@@ -382,196 +382,161 @@
     "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html",
     "title": "Take-home Exercise 1: Technical Report",
     "section": "",
-    "text": "WarningStudent completion required\n\n\n\nThis file supplies the report structure and assessment checks. Replace every prompt with analysis that you wrote, ran, interpreted, and verified. Do not submit the scaffold as a completed report."
+    "text": "Road accidents are recorded at specific places and times, so their distribution can be studied as a point pattern. This report examines 3,597 distinct accident events recorded in 2022 within a six-province Bangkok Metropolitan Region (BMR). The analysis asks where and when reported events concentrate, and whether events remain spatially dependent after broad variation in intensity is taken into account.\nThe result is an analysis of recorded accident locations, not a direct estimate of accident risk. Traffic volume, road length, vehicle kilometres travelled, road design and enforcement exposure are not available in the core dataset. Areas with many events may simply carry more traffic or contain more mapped roads.\n\n\n\nHow did the spatial and temporal intensity of recorded BMR road accidents vary during 2022?\nDoes the point pattern show interaction beyond broad first-order intensity, and at what distances?\nAs a value-added question, were spatially close accidents also unusually close in time after preserving the observed spatial and temporal margins?\n\n\n\n\nThe workflow audits the source data, constructs a reproducible study window, compares temporal and spatial intensity, tests complete spatial randomness (CSR) and an inhomogeneous null model, checks bandwidth sensitivity, and applies a Monte Carlo Knox test for space-time interaction."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#research-question-and-objectives",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#research-question-and-objectives",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#research-questions",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#research-questions",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "1.1 Research question and objectives",
-    "text": "1.1 Research question and objectives\nWrite one main research question and a short set of measurable objectives. The question should connect the event process, the study area, the time window, and the first- and second-order methods."
+    "section": "",
+    "text": "How did the spatial and temporal intensity of recorded BMR road accidents vary during 2022?\nDoes the point pattern show interaction beyond broad first-order intensity, and at what distances?\nAs a value-added question, were spatially close accidents also unusually close in time after preserving the observed spatial and temporal margins?"
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#selected-option",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#selected-option",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#objectives",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#objectives",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "2.1 Selected option",
-    "text": "2.1 Selected option\nRecord the selected option and explain why it is suitable. If Option B is retained, restrict the accident records to 2022 and define the Bangkok Metropolitan Region as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon."
+    "section": "",
+    "text": "The workflow audits the source data, constructs a reproducible study window, compares temporal and spatial intensity, tests complete spatial randomness (CSR) and an inhomogeneous null model, checks bandwidth sensitivity, and applies a Monte Carlo Knox test for space-time interaction."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#point-event-definition",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#point-event-definition",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#event-and-boundary-data",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#event-and-boundary-data",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "2.2 Point-event definition",
-    "text": "2.2 Point-event definition\nDefine what one row and one point represent. Explain how duplicated records, repeated detections or reports, events with missing coordinates, impossible coordinates, invalid geometries, and records outside the study window are handled."
+    "section": "2.1 Event and boundary data",
+    "text": "2.1 Event and boundary data\nThe accident file was downloaded from the Thailand Road Accident 2019-2022 dataset on 9 September 2026. The Kaggle record describes 81,735 rows compiled from the Office of the Permanent Secretary, Thailand Ministry of Transport, and distributes the files under CC0. The analysis uses the incident timestamp, location, event identifier, agency, road description and casualty counts. It does not use the report timestamp as the event time.\nThe ADM1 boundary was downloaded through the geoBoundaries API on the same date. The returned metadata identifies a 2017 boundary representation, built on 12 December 2023 from OpenStreetMap/Wambacher material under the Open Database Licence 1.0. geoBoundaries documents its open boundary workflow in Runfola et al. (2020).\n\n\n\n\n\n\n\n\n\nSource\nCoverage used\nLocal source file\nSHA-256\n\n\n\n\nThailand Road Accident 2019-2022\nIncident dates from 1 January to 31 December 2022\nthai_road_accident_2019_2022.csv\n40131c32ad417aa3a8b642cc366a3876ace4e86d8a858ee25a8c04bda9fb629c\n\n\ngeoBoundaries Thailand ADM1\nSix BMR provinces\ngeoBoundaries-THA-ADM1.geojson\n145beb11e52785a42e16997c92a65426b3df8d009941db6b012ec8e411f3e33c"
   },
   {
     "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#spatial-study-window",
     "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#spatial-study-window",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "2.3 Spatial study window",
-    "text": "2.3 Spatial study window\nDescribe the boundary source, boundary level, inclusion rule, projected coordinate reference system, and any effect that the boundary may have on the analysis. Explain why the boundary matches the public-safety question."
+    "section": "2.2 Spatial study window",
+    "text": "2.2 Spatial study window\nThe BMR is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom and Samut Sakhon. This matches the grouping used by Thailand’s National Statistical Office. The six ADM1 polygons form a 7,604.1 km² observation window.\nThe boundary and events are transformed from WGS 84 to WGS 84 / UTM zone 47N (EPSG:32647). All distance, area, kernel and second-order calculations therefore use metres. UTM zone 47N covers the complete BMR and avoids treating longitude-latitude degrees as planar distances."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#temporal-study-window",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#temporal-study-window",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#point-event-definition",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#point-event-definition",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "2.4 Temporal study window",
-    "text": "2.4 Temporal study window\nState the start and end dates. Explain the temporal grouping used in plots or models and whether reporting practices or seasonal exposure could affect comparisons."
+    "section": "2.3 Point-event definition",
+    "text": "2.3 Point-event definition\nOne point represents one reported accident occurrence. The temporal field is incident_datetime; the spatial fields are longitude and latitude. Two pairs of rows had different accident codes but the same incident time, coordinates, agency, route, accident type and casualty totals. Each pair was treated as one accident event and the earlier record was retained. Other events at identical coordinates were kept when their timestamps differed because they may represent recurrent accidents at the same recorded location.\nRecords enter the analysis when they have a valid 2022 incident time, complete coordinates within plausible Thailand bounds, and a point inside the union of the six BMR polygons. Spatial membership, rather than the province label, defines inclusion. This retains ten records labelled as Ayutthaya, Kanchanaburi or unknown whose coordinates fall inside the BMR boundary.\n\n\nShow R code\nggplot() +\n  geom_sf(data = bmr_provinces_utm, fill = \"#f5f7fa\", colour = \"white\", linewidth = 0.45) +\n  geom_sf(\n    data = events_utm,\n    aes(colour = severity),\n    size = 0.65,\n    alpha = 0.55\n  ) +\n  geom_sf_label(\n    data = bmr_provinces_utm,\n    aes(label = province),\n    size = 3,\n    colour = palette_main[\"navy\"],\n    fill = scales::alpha(\"white\", 0.82),\n    label.size = 0,\n    check_overlap = TRUE\n  ) +\n  scale_colour_manual(\n    values = c(\n      \"Fatal\" = palette_main[\"red\"],\n      \"Injury\" = palette_main[\"amber\"],\n      \"No recorded casualty\" = palette_main[\"blue\"]\n    )\n  ) +\n  coord_sf(datum = NA) +\n  labs(\n    title = \"The study window contains 3,597 distinct accident events\",\n    subtitle = \"Spatial inclusion is based on coordinates, not the reported province field\",\n    colour = \"Recorded outcome\",\n    caption = \"Sources: Thailand Ministry of Transport data compiled on Kaggle; geoBoundaries ADM1.\"\n  ) +\n  theme_void() +\n  theme(\n    legend.position = \"bottom\",\n    plot.title = element_text(face = \"bold\", colour = palette_main[\"navy\"]),\n    plot.subtitle = element_text(colour = \"#5b677a\")\n  )\n\n\n\n\n\nRecorded road accidents retained within the six-province BMR study window.\n\n\n\n\nThe retained points span the metropolitan core and the five surrounding provinces. Dense overlap is visible in Bangkok and its eastern approaches, while the outer western portion of Nakhon Pathom is sparse. Point overlap alone cannot establish interaction; the second-order tests below compare the pattern with explicit null models. The outcome colours also describe recorded casualties only. They do not measure crash severity consistently if reporting completeness varies by agency."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#data-sources",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#data-sources",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#reproducible-processing-sequence",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#reproducible-processing-sequence",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "2.5 Data sources",
-    "text": "2.5 Data sources\nComplete this record using the files actually downloaded.\n\n\n\n\n\n\n\nItem\nRecord to provide\n\n\n\n\nEvent data\nDataset title, owner or compiler, URL, file name, access date, licence, coverage\n\n\nBoundary data\nDataset title, provider, URL, administrative level, version, access date, licence\n\n\nAdded contextual data\nPurpose, source, licence, coverage, and reason it changes the analysis"
+    "section": "3.1 Reproducible processing sequence",
+    "text": "3.1 Reproducible processing sequence\n\n\nShow R code\naudit_table |&gt;\n  mutate(\n    retained = fmt_int(retained),\n    removed_at_step = ifelse(is.na(removed_at_step), \"-\", fmt_int(removed_at_step))\n  ) |&gt;\n  kable(\n    col.names = c(\"Processing step\", \"Records retained\", \"Removed at step\"),\n    align = c(\"l\", \"r\", \"r\"),\n    caption = \"Event-record audit trail\"\n  )\n\n\n\nEvent-record audit trail\n\n\n\n\n\n\n\nProcessing step\nRecords retained\nRemoved at step\n\n\n\n\nRaw records, 2019-2022\n81,735\n-\n\n\nRecords with a valid 2022 incident time\n21,032\n60,703\n\n\n2022 records with complete coordinates\n20,843\n189\n\n\n2022 records with plausible Thailand coordinates\n20,843\n0\n\n\nPoints inside the six-province BMR boundary\n3,599\n17,244\n\n\nDistinct accident events used in analysis\n3,597\n2\n\n\n\n\n\nThe raw file contained 81,735 records. Filtering to 2022 left 21,032; 189 had no usable coordinate pair. No complete 2022 coordinate lay outside the broad Thailand bounds. Spatial filtering retained 3,599 BMR points, and the probable duplicate-event rule removed two rows. The final pattern contains 3,597 events."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#acquisition-and-inspection",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#acquisition-and-inspection",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#diagnostic-checks",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#diagnostic-checks",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "3.1 Acquisition and inspection",
-    "text": "3.1 Acquisition and inspection\nShow the original dimensions, field names, data types, coordinate ranges, date coverage, and category levels needed for the analysis. Keep raw data unchanged and state where it is stored."
+    "section": "3.2 Diagnostic checks",
+    "text": "3.2 Diagnostic checks\n\n\nShow R code\nquality_metrics |&gt;\n  mutate(count = fmt_int(count)) |&gt;\n  kable(\n    col.names = c(\"Diagnostic\", \"Count\"),\n    align = c(\"l\", \"r\"),\n    caption = \"Quality checks affecting analysis or interpretation\"\n  )\n\n\n\nQuality checks affecting analysis or interpretation\n\n\nDiagnostic\nCount\n\n\n\n\nUnparseable incident times in the full file\n0\n\n\nMissing coordinate pairs among 2022 records\n189\n\n\nImplausible coordinate pairs among complete 2022 records\n0\n\n\nExact duplicate accident codes in the full file\n0\n\n\nProbable duplicate event rows inside the BMR\n2\n\n\nSpatially included records with a non-BMR province label\n10\n\n\nReported province differs from spatial province\n14\n\n\nAdditional events at an already-used exact coordinate\n319\n\n\nEvents reported more than 30 days after occurrence\n1,397\n\n\nEvents with zero recorded vehicles\n5\n\n\n\n\n\nFourteen records have a reported province that differs from the polygon containing the coordinates. This includes the ten records with a non-BMR label. Because boundary vintages and point precision can disagree near provincial borders, the workflow reports the mismatch rather than silently changing the source label.\nAnother 319 events share a coordinate already used by an earlier event. These are retained when the event times differ. This decision preserves recurrent sites but can raise the short-distance second-order statistic if coordinates were snapped to common road locations. Report delays are not used analytically; the incident time is complete and defines the temporal pattern."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#quality-checks-and-cleaning-decisions",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#quality-checks-and-cleaning-decisions",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#derived-fields-and-spatial-objects",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#derived-fields-and-spatial-objects",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "3.2 Quality checks and cleaning decisions",
-    "text": "3.2 Quality checks and cleaning decisions\nProvide a compact audit trail with counts before and after each rule. At minimum, inspect missing coordinates, non-numeric coordinates, longitude-latitude order, duplicated event identifiers, repeated coordinates and timestamps, invalid dates, invalid geometries, points outside the boundary, and dates outside the selected year.\nDo not remove coincident points solely because they overlap. Decide whether they are duplicate records or separate events, and support the decision with the available identifiers and timestamps."
+    "section": "3.3 Derived fields and spatial objects",
+    "text": "3.3 Derived fields and spatial objects\nThe workflow derives month, weekday, hour, four daily periods, casualty outcome and report delay. It creates sf point and polygon objects in WGS 84 and EPSG:32647, then converts the projected points and union boundary to a ppp object. All boundary geometries pass st_is_valid() after validation."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#spatial-conversion-and-integration",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#spatial-conversion-and-integration",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#temporal-intensity",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#temporal-intensity",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "3.3 Spatial conversion and integration",
-    "text": "3.3 Spatial conversion and integration\nDocument the source CRS, transformation to the projected CRS, spatial join or filter, derived temporal variables, and final analysis objects. Report the final event count and boundary area."
+    "section": "4.1 Temporal intensity",
+    "text": "4.1 Temporal intensity\nMonthly counts are divided by the number of days in each month. This avoids making February appear low simply because it has fewer days.\n\n\nShow R code\nggplot(monthly_summary, aes(month_number, events_per_day)) +\n  geom_area(fill = palette_main[\"blue\"], alpha = 0.15) +\n  geom_line(colour = palette_main[\"blue\"], linewidth = 1) +\n  geom_point(colour = palette_main[\"navy\"], size = 2.5) +\n  scale_x_continuous(breaks = 1:12, labels = month.abb) +\n  scale_y_continuous(expand = expansion(mult = c(0, 0.08))) +\n  labs(\n    title = \"Recorded accident intensity rose in the final quarter\",\n    subtitle = \"Counts are normalised by days in each month\",\n    x = NULL,\n    y = \"Events per day\",\n    caption = \"Source: Thailand Road Accident 2019-2022, restricted spatially to the BMR.\"\n  )\n\n\n\n\n\nAverage recorded accidents per day by month in 2022.\n\n\n\n\nOct recorded the highest daily rate at 12.7 events per day; Feb recorded the lowest at 7.6. The final quarter contains the three highest monthly counts, while April forms an earlier local peak. The dataset provides events but no monthly traffic exposure, so the pattern could reflect travel volume, reporting changes, weather or enforcement as well as a change in accident propensity.\n\n\nShow R code\nggplot(hourly_summary, aes(hour, events)) +\n  geom_col(fill = palette_main[\"teal\"], width = 0.82) +\n  scale_x_continuous(breaks = seq(0, 23, by = 2)) +\n  scale_y_continuous(expand = expansion(mult = c(0, 0.08))) +\n  labs(\n    title = \"The recorded hourly maximum occurred at 19:00\",\n    subtitle = paste0(\n      fmt_int(peak_hour_row$events),\n      \" events were recorded during the 19:00 hour\"\n    ),\n    x = \"Hour of day\",\n    y = \"Recorded events\"\n  )\n\n\n\n\n\nRecorded accident counts by incident hour.\n\n\n\n\nThe hourly series has a broad daytime and evening elevation rather than a single sharp commute peak. The largest count is 198 at 19:00, while the overnight minimum is 89 at 04:00. These are event counts per clock hour across the year. Without hourly traffic volume, the chart cannot distinguish greater exposure from greater event probability."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#reproducible-audit",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#reproducible-audit",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#province-level-event-density",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#province-level-event-density",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "3.4 Reproducible audit",
-    "text": "3.4 Reproducible audit\nAdd the code and output that reproduce the audit from the original files. A reader should be able to trace every exclusion rather than infer it from the final count."
+    "section": "4.2 Province-level event density",
+    "text": "4.2 Province-level event density\n\n\nShow R code\nggplot(province_map) +\n  geom_sf(aes(fill = events_per_100_km2), colour = \"white\", linewidth = 0.55) +\n  geom_sf_label(\n    aes(label = paste0(province, \"\\n\", fmt_num(events_per_100_km2, 1))),\n    size = 3.1,\n    colour = palette_main[\"navy\"],\n    fill = scales::alpha(\"white\", 0.82),\n    label.size = 0,\n    check_overlap = TRUE\n  ) +\n  scale_fill_viridis_c(option = \"C\", direction = -1) +\n  coord_sf(datum = NA) +\n  labs(\n    title = \"Bangkok has the highest event density by land area\",\n    subtitle = \"Labels show events per 100 km²; the measure is not traffic-adjusted risk\",\n    fill = \"Events per\\n100 km²\",\n    caption = \"Spatial province is assigned from geoBoundaries ADM1 polygons.\"\n  ) +\n  theme_void() +\n  theme(\n    legend.position = \"right\",\n    plot.title = element_text(face = \"bold\", colour = palette_main[\"navy\"]),\n    plot.subtitle = element_text(colour = \"#5b677a\")\n  )\n\n\n\n\n\nRecorded accident events per 100 square kilometres by spatially assigned province.\n\n\n\n\nBangkok records 114.6 events per 100 km², followed by Samut Prakan at 70.4. Nakhon Pathom has 6.6. Dividing by land area controls only for polygon size. It does not control for road length, traffic volume or reporting coverage, so the map identifies where records are concentrated rather than where an individual journey is most dangerous."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#analytical-question",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#analytical-question",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#kernel-intensity-estimate",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#kernel-intensity-estimate",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "4.1 Analytical question",
-    "text": "4.1 Analytical question\nState what variation in intensity is being investigated. Separate event concentration from any claim about risk unless a suitable exposure denominator is available."
+    "section": "4.3 Kernel intensity estimate",
+    "text": "4.3 Kernel intensity estimate\nKernel density estimation (KDE) smooths event locations into an estimated intensity surface. A Gaussian kernel, 500 m output grid, edge correction and 3 km primary bandwidth are used. Likelihood cross-validation selected approximately 751 m, but this produces a fragmented surface dominated by road-constrained points and repeated coordinates. The 3 km bandwidth instead answers a planning-scale question about broad concentrations. Results at 2 km and 6 km are compared below.\n\n\nShow R code\nggplot() +\n  geom_raster(\n    data = kde_3km_df,\n    aes(x, y, fill = events_per_km2)\n  ) +\n  geom_sf(data = bmr_provinces_utm, fill = NA, colour = \"white\", linewidth = 0.4) +\n  scale_fill_viridis_c(option = \"C\", direction = -1) +\n  coord_sf(datum = NA, expand = FALSE) +\n  labs(\n    title = \"Broad accident concentration centres on Bangkok and its eastern approaches\",\n    subtitle = \"Gaussian KDE, 3 km bandwidth, 500 m grid and edge correction\",\n    fill = \"Estimated annual\\nevents per km²\",\n    caption = \"Intensity is a smoothed count surface, not exposure-adjusted risk.\"\n  ) +\n  theme_void() +\n  theme(\n    legend.position = \"right\",\n    plot.title = element_text(face = \"bold\", colour = palette_main[\"navy\"]),\n    plot.subtitle = element_text(colour = \"#5b677a\")\n  )\n\n\n\n\n\nEdge-corrected kernel intensity of recorded accidents using a 3 km Gaussian bandwidth.\n\n\n\n\nThe 3 km surface reaches 5.7 estimated annual events per km² and places the broadest high-intensity zone across Bangkok, extending east towards Samut Prakan. Smaller concentrations follow developed corridors in the surrounding provinces. The kernel is evaluated in planar space even though crashes occur on roads. It therefore smooths across locations that may not be connected by the road network and should not be used to select an individual junction without finer road and exposure data."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#method-and-assumptions",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#method-and-assumptions",
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#bandwidth-sensitivity",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#bandwidth-sensitivity",
     "title": "Take-home Exercise 1: Technical Report",
-    "section": "4.2 Method and assumptions",
-    "text": "4.2 Method and assumptions\nJustify the selected first-order method, projected CRS, grid or evaluation resolution, kernel function, bandwidth, edge treatment, and any temporal grouping. Explain how the observation process and uneven exposure affect interpretation."
-  },
-  {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#results",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#results",
-    "title": "Take-home Exercise 1: Technical Report",
-    "section": "4.3 Results",
-    "text": "4.3 Results\nInsert the statistical graphic and map that directly answer the question. Use comparable scales when presenting multiple periods or groups. For each major visualisation, write no more than 150 words covering the pattern, evidence, uncertainty, and one caveat."
-  },
-  {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#sensitivity-check",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#sensitivity-check",
-    "title": "Take-home Exercise 1: Technical Report",
-    "section": "4.4 Sensitivity check",
-    "text": "4.4 Sensitivity check\nTest whether the main pattern persists under at least one defensible alternative bandwidth, resolution, classification, or time grouping. Explain what changes and what remains stable."
-  },
-  {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#analytical-question-and-null-model",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#analytical-question-and-null-model",
-    "title": "Take-home Exercise 1: Technical Report",
-    "section": "5.1 Analytical question and null model",
-    "text": "5.1 Analytical question and null model\nState the second-order question and the null hypothesis. Explain why complete spatial randomness, an inhomogeneous null, a temporal permutation, or another model is appropriate for this event process."
-  },
-  {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#method-and-parameters",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#method-and-parameters",
-    "title": "Take-home Exercise 1: Technical Report",
-    "section": "5.2 Method and parameters",
-    "text": "5.2 Method and parameters\nRecord the summary function, distance range, interval, edge correction, number of simulations, envelope type, and random seed. Explain the implications of each choice and the assumptions that may not hold."
-  },
-  {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#results-1",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-report.html#results-1",
-    "title": "Take-home Exercise 1: Technical Report",
-    "section": "5.3 Results",
-    "text": "5.3 Results\nAssess clustering, inhibition, or compatibility with the null model across distances. Base the conclusion on the observed function and simulation envelope rather than visual density alone. Report where the result is uncertain or sensitive to the null model."
+    "section": "4.4 Bandwidth sensitivity",
+    "text": "4.4 Bandwidth sensitivity\n\n\nShow R code\nggplot(kde_sensitivity_df, aes(x, y, fill = events_per_km2)) +\n  geom_raster() +\n  geom_sf(\n    data = bmr_provinces_utm,\n    fill = NA,\n    colour = \"white\",\n    linewidth = 0.2,\n    inherit.aes = FALSE\n  ) +\n  facet_wrap(~bandwidth, nrow = 1) +\n  scale_fill_viridis_c(option = \"C\", direction = -1) +\n  coord_sf(datum = NA, expand = FALSE) +\n  labs(\n    title = \"The metropolitan core remains prominent under wider smoothing\",\n    subtitle = \"All panels use the same intensity scale\",\n    fill = \"Events per km²\"\n  ) +\n  theme_void() +\n  theme(\n    legend.position = \"right\",\n    strip.text = element_text(face = \"bold\"),\n    plot.title = element_text(face = \"bold\", colour = palette_main[\"navy\"]),\n    plot.subtitle = element_text(colour = \"#5b677a\")\n  )\n\n\n\n\n\nKDE sensitivity at 2 km, 3 km and 6 km bandwidths on a common colour scale.\n\n\n\n\nThe 2 km estimate resolves more local peaks, while 6 km merges neighbouring concentrations into a broad metropolitan gradient. Event-level intensity ranks correlate at 0.97 between 2 km and 3 km and 0.87 between 3 km and 6 km. The broad Bangkok-Samut Prakan concentration is stable, but the exact shape and height of local peaks are bandwidth-dependent."
   },
   {
     "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#contents",
     "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#contents",
-    "title": "Geospatial Analytics for Public Safety",
+    "title": "Where and when did road accidents concentrate?",
     "section": "Contents",
-    "text": "Contents\n\nProblem and research question\nStudy area, data, and design\nFirst- and second-order evidence\nIntegrated findings and bonus analysis\nImplications and limitations"
+    "text": "Contents\n\nQuestion and study design\nData preparation\nFirst-order temporal and spatial intensity\nSecond-order spatial interaction\nValue-added space-time test\nPlanning implications and limits"
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#public-safety-problem",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#public-safety-problem",
-    "title": "Geospatial Analytics for Public Safety",
-    "section": "1. Public-safety problem",
-    "text": "1. Public-safety problem\nStudent work required\n\nState the decision-relevant problem.\nGive the main research question in one sentence.\nAvoid causal or risk claims that the event data cannot support."
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#decision-question",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#decision-question",
+    "title": "Where and when did road accidents concentrate?",
+    "section": "1. Decision question",
+    "text": "1. Decision question\n\n\n3,597distinct accident events\n\n\n6BMR provinces\n\n\n2022complete study year\n\n\nWhere and when did recorded road accidents concentrate, and did events remain spatially dependent after broad intensity was controlled?\n\nThe analysis screens locations and periods for follow-up. It measures recorded events, not traffic-adjusted accident risk."
   },
   {
     "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#study-area-and-event-definition",
     "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#study-area-and-event-definition",
-    "title": "Geospatial Analytics for Public Safety",
+    "title": "Where and when did road accidents concentrate?",
     "section": "2. Study area and event definition",
-    "text": "2. Study area and event definition\nStudent work required\n\nShow one clean locator map.\nDefine the spatial and temporal windows.\nDefine one event and explain how duplicates or repeated reports were treated."
+    "text": "2. Study area and event definition\n\n\n\n\n\n\n\n\n\n\n\n\n\nWindow Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom and Samut Sakhon.\nEvent One distinct accident occurrence with a valid incident time and coordinate inside the boundary.\nGeometry EPSG:32647; 7,604 km²."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#data-quality-and-preparation",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#data-quality-and-preparation",
-    "title": "Geospatial Analytics for Public Safety",
-    "section": "3. Data quality and preparation",
-    "text": "3. Data quality and preparation\nStudent work required\n\nName the event and boundary sources.\nShow the initial and final event counts.\nSummarise the material exclusions and coordinate checks."
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#data-audit-before-analysis",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#data-audit-before-analysis",
+    "title": "Where and when did road accidents concentrate?",
+    "section": "3. Data audit before analysis",
+    "text": "3. Data audit before analysis\n\n\n81,735raw records\n\n\n21,032events in 2022\n\n\n20,843usable coordinates\n\n\n3,599inside BMR\n\n\n3,597distinct events\n\n\n\n\n189 2022 records had no usable coordinate pair.\nTwo probable duplicate rows were collapsed using time, coordinate, agency, route, accident type and casualties.\nFourteen reported province labels disagreed with the containing polygon.\n319 events reused an exact coordinate at a different time and were retained as possible recurrent events.\n\n\n\nSpatial membership, not the reported province label, defines the BMR sample."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#analytical-design",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#analytical-design",
-    "title": "Geospatial Analytics for Public Safety",
-    "section": "4. Analytical design",
-    "text": "4. Analytical design\nStudent work required\n\nName the first- and second-order methods.\nState the key parameters, edge correction, null model, simulations, and assumptions.\nExplain why the methods answer different parts of the research question."
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#when-did-events-concentrate",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#when-did-events-concentrate",
+    "title": "Where and when did road accidents concentrate?",
+    "section": "4. When did events concentrate?",
+    "text": "4. When did events concentrate?\n\n\n\n\n\n\n\n\n\n\n\n\n\nOctober: 12.7 events/day\nFebruary: 7.6 events/day Peak hour: 19:00, 198 events\nThe three largest monthly counts occur in the final quarter.\n\n\nTraffic exposure and enforcement activity are unavailable, so the chart does not estimate accident probability."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#first-order-evidence",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#first-order-evidence",
-    "title": "Geospatial Analytics for Public Safety",
-    "section": "5. First-order evidence",
-    "text": "5. First-order evidence\nStudent work required\n\nInsert the clearest intensity map or statistical graphic.\nState the main pattern, supporting evidence, and one caveat in no more than 150 words.\nUse a common scale for comparisons."
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#where-did-events-concentrate",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#where-did-events-concentrate",
+    "title": "Where and when did road accidents concentrate?",
+    "section": "5. Where did events concentrate?",
+    "text": "5. Where did events concentrate?\n\n\n\n\n\n\n\n\n\n\n\n\n\n3 km KDE\n\nBangkok: 114.6 events/100 km²\nSamut Prakan: 70.4 events/100 km²\nPeak kernel intensity: 5.7 events/km²\n\nThe primary concentration covers Bangkok and its eastern approaches."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#second-order-evidence",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#second-order-evidence",
-    "title": "Geospatial Analytics for Public Safety",
-    "section": "6. Second-order evidence",
-    "text": "6. Second-order evidence\nStudent work required\n\nInsert the observed function and simulation envelope.\nIdentify the distance ranges consistent with clustering, inhibition, or the null model.\nState how the result depends on the null model and parameters."
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#is-the-first-order-pattern-robust",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#is-the-first-order-pattern-robust",
+    "title": "Where and when did road accidents concentrate?",
+    "section": "6. Is the first-order pattern robust?",
+    "text": "6. Is the first-order pattern robust?\n\n\nEvent-level intensity ranks correlate at 0.97 for 2-3 km and 0.87 for 3-6 km. The metropolitan core is stable; local peak boundaries are not."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#integrated-findings-and-robustness",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#integrated-findings-and-robustness",
-    "title": "Geospatial Analytics for Public Safety",
-    "section": "7. Integrated findings and robustness",
-    "text": "7. Integrated findings and robustness\nStudent work required\n\nCombine the first- and second-order evidence.\nReport the sensitivity result.\nSeparate stable findings from patterns that remain uncertain."
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#do-events-interact-beyond-broad-intensity",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#do-events-interact-beyond-broad-intensity",
+    "title": "Where and when did road accidents concentrate?",
+    "section": "7. Do events interact beyond broad intensity?",
+    "text": "7. Do events interact beyond broad intensity?\n\n\nCSR and the inhomogeneous null are both rejected by the global deviation test (\\(p=0.01\\)). After a 6 km broad-intensity surface is controlled, excess neighbouring events remain from 0.25 to 14.5 km."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#bonus-analysis",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#bonus-analysis",
-    "title": "Geospatial Analytics for Public Safety",
-    "section": "8. Bonus analysis",
-    "text": "8. Bonus analysis\nStudent work required\n\nState the added geospatial question.\nShow only the result that provides new information.\nName the method’s main assumption and limitation."
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#bonus-are-nearby-events-also-close-in-time",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#bonus-are-nearby-events-also-close-in-time",
+    "title": "Where and when did road accidents concentrate?",
+    "section": "8. Bonus: are nearby events also close in time?",
+    "text": "8. Bonus: are nearby events also close in time?\n\n\n\n\n\n\n\n\n\n\n\n\n\nObserved: 2,193 pairs\nPermutation mean: 1,788.6\nExcess: 22.6% Monte Carlo: \\(p=0.005\\)\nThe positive result persists at 500 m / 1 day and 2 km / 14 days.\n\n\nThe time-permutation null cannot explain the cause of a local burst."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#implications-and-limitations",
-    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#implications-and-limitations",
-    "title": "Geospatial Analytics for Public Safety",
-    "section": "9. Implications and limitations",
-    "text": "9. Implications and limitations\nStudent work required\n\nGive actions supported by the analysis.\nMark recommendations that need exposure or contextual data as provisional.\nClose with the most consequential data and method limitations."
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#planning-implications-and-limits",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01-slides.html#planning-implications-and-limits",
+    "title": "Where and when did road accidents concentrate?",
+    "section": "9. Planning implications and limits",
+    "text": "9. Planning implications and limits\n\n\nWhat the evidence supports\n\n\nStart detailed diagnostic review in Bangkok and towards Samut Prakan.\nReview staffing and monitoring during the October-December rise and evening hours.\nUse short-horizon cluster alerts to trigger local investigation.\nFollow with road-segment analysis and site inspection before selecting interventions.\n\n\n\nWhat is still needed\n\n\nTraffic volume or vehicle-kilometre exposure\nVerified road-segment locations and road design\nWeather, road works and enforcement activity\nAudit of shared coordinates and agency coverage\n\n\n\n\nThese results identify concentrations of recorded events. They do not establish causation or rank exposure-adjusted road risk."
   },
   {
     "objectID": "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html",

@@ -1,5 +1,7 @@
 project:
   type: website
+  resources:
+    - "Take-home_Ex/Take-home_Ex01/scripts/**"
 
 website:
   title: "ISSS608 Visual Analytics"

@@ -1,0 +1,98 @@
+.reveal {
+  color: #17233b;
+}
+
+.reveal .slides {
+  text-align: left;
+}
+
+.reveal h1,
+.reveal h2,
+.reveal h3 {
+  color: #173f5f;
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+.reveal h2 {
+  border-bottom: 3px solid #2f6f9f;
+  padding-bottom: 0.2em;
+}
+
+.reveal p,
+.reveal li {
+  line-height: 1.35;
+}
+
+.reveal .small {
+  font-size: 0.68em;
+}
+
+.reveal .tiny {
+  font-size: 0.52em;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+  margin: 0.8rem 0 1.2rem;
+}
+
+.kpi {
+  border: 1px solid #dce4ef;
+  border-top: 5px solid #2f6f9f;
+  border-radius: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: #f7f9fc;
+}
+
+.kpi strong {
+  display: block;
+  color: #173f5f;
+  font-size: 1.45em;
+  line-height: 1.05;
+}
+
+.flow-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: stretch;
+  gap: 0.55rem;
+  margin: 1.2rem 0;
+}
+
+.flow-step {
+  border: 1px solid #dce4ef;
+  border-radius: 0.35rem;
+  padding: 0.65rem;
+  background: #f7f9fc;
+  text-align: center;
+}
+
+.flow-step strong {
+  display: block;
+  color: #173f5f;
+  font-size: 1.25em;
+}
+
+.evidence {
+  border-left: 5px solid #238a8d;
+  padding: 0.45rem 0.8rem;
+  background: #edf7f6;
+}
+
+.caveat {
+  border-left: 5px solid #f2a541;
+  padding: 0.45rem 0.8rem;
+  background: #fff8eb;
+}
+
+.reveal figcaption {
+  font-size: 0.45em;
+  color: #5b677a;
+}
+
+.reveal .footer {
+  color: #5b677a;
+}
