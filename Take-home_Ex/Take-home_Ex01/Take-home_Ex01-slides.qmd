@@ -200,7 +200,7 @@ The primary concentration covers Bangkok and its eastern approaches.
 :::
 :::
 
-## 6. Is the first-order pattern robust?
+## 6. Does the pattern change with bandwidth?
 
 ```{r}
 #| label: slide-kde-sensitivity
@@ -256,6 +256,8 @@ ggplot(second_order_plot_df, aes(r / 1000)) +
 
 <div class="small evidence">
 CSR and the inhomogeneous null are both rejected by the global deviation test ($p=0.01$). After a 6 km broad-intensity surface is controlled, excess neighbouring events remain from 0.25 to 14.5 km.
+
+Keeping one event per exact coordinate gives the same global result ($p=0.01$); repeated coordinates do not explain the remaining structure.
 </div>
 
 ## 8. Bonus: are nearby events also close in time?

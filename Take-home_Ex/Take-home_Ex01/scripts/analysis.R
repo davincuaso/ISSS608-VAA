@@ -448,6 +448,89 @@ if (cache_is_current) {
   csr_ranges <- outside_envelope_ranges(csr_envelope_df)
   inhomogeneous_ranges <- outside_envelope_ranges(inhomogeneous_envelope_df)
 
+  # Sensitivity check: repeated coordinates can inflate short-distance pairs.
+  # Retain one event at each exact coordinate and repeat the inhomogeneous test.
+  unique_coordinate_index <- !duplicated(data.frame(
+    x = event_xy[, 1],
+    y = event_xy[, 2]
+  ))
+  unique_coordinate_ppp <- ppp(
+    event_xy[unique_coordinate_index, 1],
+    event_xy[unique_coordinate_index, 2],
+    window = analysis_window,
+    checkdup = FALSE
+  )
+  unique_coordinate_intensity <- density.ppp(
+    unique_coordinate_ppp,
+    sigma = 6000,
+    edge = TRUE,
+    eps = 500,
+    positive = TRUE
+  )
+  unique_coordinate_observed_l <- Linhom(
+    unique_coordinate_ppp,
+    lambda = unique_coordinate_intensity,
+    r = second_order_r,
+    correction = "translation",
+    update = FALSE,
+    normpower = 2
+  )$trans
+
+  set.seed(6262023)
+  unique_coordinate_simulations <- replicate(second_order_nsim, {
+    simulated_pattern <- rpoint(
+      npoints(unique_coordinate_ppp),
+      f = unique_coordinate_intensity,
+      win = analysis_window,
+      forcewin = TRUE
+    )
+    Linhom(
+      simulated_pattern,
+      lambda = unique_coordinate_intensity,
+      r = second_order_r,
+      correction = "translation",
+      update = FALSE,
+      normpower = 2
+    )$trans
+  })
+
+  unique_coordinate_envelope_result <- build_envelope_data(
+    unique_coordinate_observed_l,
+    unique_coordinate_simulations
+  )
+  unique_coordinate_envelope_df <- unique_coordinate_envelope_result$data
+  unique_coordinate_ranges <- outside_envelope_ranges(
+    unique_coordinate_envelope_df
+  )
+
+  above_range_value <- function(range_data, field) {
+    value <- range_data[range_data$relation == "above", field]
+    if (length(value) == 0) NA_real_ else value[[1]]
+  }
+
+  coordinate_reuse_sensitivity <- data.frame(
+    sample = c(
+      "All distinct accident events",
+      "One event per exact coordinate"
+    ),
+    events = c(
+      npoints(accidents_ppp),
+      npoints(unique_coordinate_ppp)
+    ),
+    global_deviation_p = c(
+      inhomogeneous_envelope_result$global_p_value,
+      unique_coordinate_envelope_result$global_p_value
+    ),
+    above_from_m = c(
+      above_range_value(inhomogeneous_ranges, "min_m"),
+      above_range_value(unique_coordinate_ranges, "min_m")
+    ),
+    above_to_m = c(
+      above_range_value(inhomogeneous_ranges, "max_m"),
+      above_range_value(unique_coordinate_ranges, "max_m")
+    )
+  )
+
   event_days <- as.numeric(difftime(
     events_wgs84$incident_time,
     as.POSIXct("2022-01-01", tz = "Asia/Bangkok"),
@@ -523,6 +606,9 @@ if (cache_is_current) {
     second_order_nsim = second_order_nsim,
     csr_ranges = csr_ranges,
     inhomogeneous_ranges = inhomogeneous_ranges,
+    coordinate_reuse_sensitivity = coordinate_reuse_sensitivity,
+    unique_coordinate_envelope_df = unique_coordinate_envelope_df,
+    unique_coordinate_ranges = unique_coordinate_ranges,
     knox_design = knox_design,
     knox_results = knox_results,
     knox_primary_simulation = knox_primary_simulation,

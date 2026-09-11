@@ -7,11 +7,11 @@ page-layout: full
 ---
 
 ::: {.hero-panel}
-This page is the submission hub for the Option B study of road traffic accidents in the Bangkok Metropolitan Region during 2022. The technical report completes the six required tasks and a value-added space-time analysis.
+Option B examines road accidents recorded across the Bangkok Metropolitan Region in 2022. The report covers the six required tasks and adds a space-time analysis; the slide deck condenses the evidence for an executive audience.
 :::
 
 ::: {.callout-note title="Main result"}
-The final pattern contains **3,597 distinct recorded accidents**. Broad concentration centres on Bangkok and extends towards Samut Prakan. An inhomogeneous L-function test still finds excess neighbouring events after the broad intensity trend is controlled, while the bonus Knox test finds more space-time-close pairs than expected under time permutation.
+The final pattern contains **3,597 distinct recorded accidents**. Broad concentration centres on Bangkok and extends towards Samut Prakan. The inhomogeneous L-function test still finds excess neighbouring events after the 319 repeated-coordinate events are removed. The bonus Knox test finds more space-time-close pairs than expected under time permutation.
 :::
 
 ## Submission outputs
@@ -20,19 +20,19 @@ The final pattern contains **3,597 distinct recorded accidents**. Broad concentr
 ::: {.exercise-card}
 ### [Technical report](Take-home_Ex01-report.qmd)
 
-A reproducible Quarto HTML report covering all six tasks, data-quality decisions, first- and second-order analysis, sensitivity checks, the bonus test, limitations, and references.
+The Quarto HTML report documents all six tasks, the data-quality decisions, first- and second-order analyses, sensitivity checks, bonus test, limitations and references.
 :::
 
 ::: {.exercise-card}
 ### [Executive summary](Take-home_Ex01-slides.qmd)
 
-A completed revealjs deck with a cover, contents page, and nine content slides. This stays within the ten-slide limit, excluding the cover and contents.
+The revealjs deck has a cover, contents page and nine content slides, within the stated limit.
 :::
 
 ::: {.exercise-card}
 ### [GitHub repository](https://github.com/davincuaso/ISSS608-VAA)
 
-The complete Quarto project, including source files and the project structure used to publish this site.
+The repository contains the Quarto sources, analysis scripts and rendered website files.
 :::
 :::
 
@@ -51,21 +51,15 @@ The bonus analysis must answer a useful geospatial question beyond the core requ
 
 ## Selected study design
 
-The analysis uses **Option B: Thailand road accidents in 2022**. The event file is the actual [Thailand Road Accident 2019-2022 dataset](https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022), and the study boundary is the actual [geoBoundaries Thailand ADM1 dataset](https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/).
+The analysis uses **Option B: Thailand road accidents in 2022**. Event records come from the [Thailand Road Accident 2019-2022 dataset](https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022), while provincial boundaries come from [geoBoundaries Thailand ADM1](https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/).
 
 The Bangkok Metropolitan Region is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon. This six-province definition is documented by Thailand's National Statistical Office. Distance and area calculations use WGS 84 / UTM zone 47N (EPSG:32647).
 
-The private repository note [`_OPTION_COMPARISON.md`](https://github.com/davincuaso/ISSS608-VAA/blob/master/Take-home_Ex/Take-home_Ex01/_OPTION_COMPARISON.md) records the comparison of Options A and B. It is planning material, not part of the assessed findings.
-
 ## Analytical coverage
 
-- **Data quality:** 81,735 raw records were audited; 21,032 occurred in 2022; 189 lacked coordinates; spatial filtering and duplicate handling produced 3,597 events.
-- **First order:** daily monthly intensity, hourly distribution, province event density and edge-corrected KDE at 2 km, 3 km and 6 km bandwidths.
-- **Second order:** transformed L-functions under CSR and an inhomogeneous Poisson model, each using 99 conditional simulations and translation edge correction.
-- **Robustness:** common-scale bandwidth comparison and event-level intensity rank correlations.
-- **Bonus:** a 199-run Monte Carlo Knox test at three space-time thresholds.
-- **Reproducibility:** fixed data URLs, checksums, processing scripts, parameter documentation, a fixed random seed and session information.
-
-## Deadline and delivery
-
-The brief gives a deadline of **27 September 2026 at 11:59 pm**. Submit the Vercel links for the executive summary and technical report together with the GitHub repository link through the course channels described in the brief.
+- The data audit traces 81,735 raw records to 3,597 analysed events and documents missing coordinates, spatial filtering, province mismatches and duplicate handling.
+- First-order analysis compares monthly and hourly patterns, provincial event density and edge-corrected KDE at 2 km, 3 km and 6 km bandwidths.
+- Second-order analysis uses transformed L-functions, translation edge correction and 99 conditional simulations under CSR and an inhomogeneous Poisson model.
+- Sensitivity checks compare KDE bandwidths and repeat the inhomogeneous test after removing repeated coordinates.
+- The bonus applies a 199-run Monte Carlo Knox test at three space-time thresholds.
+- Fixed URLs, source-file checksums, scripts, parameters, a simulation seed and session information document the workflow.
