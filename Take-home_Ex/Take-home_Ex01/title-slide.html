@@ -1,0 +1,17 @@
+<section id="$idprefix$title-slide"$for(title-slide-attributes/pairs)$ $it.key$="$it.value$"$endfor$ class="quarto-title-block center">
+  <h1 class="title">$title$</h1>
+$if(subtitle)$
+  <p class="subtitle">$subtitle$</p>
+$endif$
+$for(by-author)$
+  <p class="author">$by-author.name.literal$</p>
+$endfor$
+  <div class="slide-date-meta">
+$if(date)$
+    <p><strong>Published</strong><br><span class="date">$date$</span></p>
+$endif$
+$if(date-modified)$
+    <p><strong>Modified</strong><br><span class="date-modified">$date-modified$</span></p>
+$endif$
+  </div>
+</section>

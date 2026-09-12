@@ -1,6 +1,8 @@
 ---
 title: "Take-home Exercise 1"
 subtitle: "Geospatial analytics for public safety"
+date: 2026-09-09
+date-modified: last-modified
 toc: true
 toc-depth: 2
 page-layout: full

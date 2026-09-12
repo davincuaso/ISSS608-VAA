@@ -51,6 +51,7 @@ format:
       - cosmo
       - brand
     css: styles.css
+    date-format: "D MMMM YYYY"
     toc: true
     toc-depth: 3
     smooth-scroll: true

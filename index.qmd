@@ -1,6 +1,8 @@
 ---
 title: "ISSS608 Visual Analytics and Applications"
 subtitle: "A learning portfolio for geospatial data science with R"
+date: 2026-08-28
+date-modified: last-modified
 toc: false
 page-layout: full
 ---

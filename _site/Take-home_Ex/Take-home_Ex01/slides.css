@@ -96,3 +96,15 @@
 .reveal .footer {
   color: #5b677a;
 }
+
+.reveal .slide-date-meta {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  margin-top: 1.25rem;
+  font-size: 0.58em;
+}
+
+.reveal .slide-date-meta p {
+  margin: 0;
+}

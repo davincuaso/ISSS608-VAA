@@ -2,7 +2,8 @@
 title: "Hands-on Exercise 2"
 subtitle: "Thematic Mapping and GeoVisualisation with R"
 author: "Davin Cuaso"
-date: last-modified
+date: 2026-09-06
+date-modified: last-modified
 format:
   html:
     code-fold: true

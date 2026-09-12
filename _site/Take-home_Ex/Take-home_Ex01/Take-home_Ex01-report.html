@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Davin Cuaso">
-<meta name="dcterms.date" content="2026-09-11">
+<meta name="dcterms.date" content="2026-09-09">
 
 <title>Take-home Exercise 1: Technical Report – ISSS608 Visual Analytics</title>
 <style>
@@ -308,10 +308,16 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 11, 2026</p>
+      <p class="date">9 September 2026</p>
     </div>
   </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">12 September 2026</p>
+    </div>
+  </div>
     
   </div>
   
@@ -1526,529 +1532,530 @@ loaded via a namespace (and not attached):
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Take-home Exercise 1: Technical Report"</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Road traffic accidents in the Bangkok Metropolitan Region, 2022"</span></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Davin Cuaso"</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> last-modified</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Show R code"</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
-<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
-<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
-<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
-<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
-<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="co">#| include: false</span></span>
-<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"scripts/analysis.R"</span>)</span>
-<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>fmt_int <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">format</span>(<span class="fu">round</span>(x), <span class="at">big.mark =</span> <span class="st">","</span>, <span class="at">scientific =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>fmt_num <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">1</span>) <span class="fu">format</span>(</span>
-<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(x, digits), <span class="at">nsmall =</span> digits, <span class="at">big.mark =</span> <span class="st">","</span>, <span class="at">scientific =</span> <span class="cn">FALSE</span></span>
-<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>peak_month_row <span class="ot">&lt;-</span> monthly_summary[<span class="fu">which.max</span>(monthly_summary<span class="sc">$</span>events_per_day), ]</span>
-<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>low_month_row <span class="ot">&lt;-</span> monthly_summary[<span class="fu">which.min</span>(monthly_summary<span class="sc">$</span>events_per_day), ]</span>
-<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>peak_hour_row <span class="ot">&lt;-</span> hourly_summary[<span class="fu">which.max</span>(hourly_summary<span class="sc">$</span>events), ]</span>
-<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>province_map <span class="ot">&lt;-</span> bmr_provinces_utm <span class="sc">|&gt;</span></span>
-<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(province_summary, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"province"</span> <span class="ot">=</span> <span class="st">"spatial_province"</span>))</span>
-<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>kde_sensitivity_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(kde_2km_df, <span class="at">bandwidth =</span> <span class="st">"2 km"</span>),</span>
-<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(kde_3km_df, <span class="at">bandwidth =</span> <span class="st">"3 km"</span>),</span>
-<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(kde_6km_df, <span class="at">bandwidth =</span> <span class="st">"6 km"</span>)</span>
-<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>second_order_plot_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(csr_envelope_df, <span class="at">model =</span> <span class="st">"CSR"</span>),</span>
-<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(inhomogeneous_envelope_df, <span class="at">model =</span> <span class="st">"Inhomogeneous"</span>)</span>
-<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a><span class="fu"># Introduction and study context</span></span>
-<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>Road accidents occur at specific places and times, making point-pattern methods suitable for studying their distribution. The dataset contains <span class="in">`r fmt_int(nrow(events_wgs84))`</span> distinct accident events recorded in 2022 within a six-province Bangkok Metropolitan Region (BMR). I examine where and when those records concentrate and whether nearby events remain unusually common after allowing for broad variation in intensity.</span>
-<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>The unit of analysis is a **recorded accident location**. Traffic volume, road length, vehicle kilometres travelled, road design and enforcement exposure are unavailable, so the results cannot estimate exposure-adjusted accident risk. Areas with many records may simply carry more traffic or contain more mapped roads.</span>
-<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research questions</span></span>
-<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>How did the spatial and temporal intensity of recorded BMR road accidents vary during 2022?</span>
-<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Does the point pattern show interaction beyond broad first-order intensity, and at what distances?</span>
-<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>For the bonus analysis, were spatially close accidents also unusually close in time after preserving the observed spatial and temporal margins?</span>
-<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a><span class="fu">## Objectives</span></span>
-<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a>I first audit the source data and construct the study window. I then compare temporal and spatial intensity, test complete spatial randomness (CSR) and an inhomogeneous null model, examine bandwidth sensitivity, and apply a Monte Carlo Knox test for space-time interaction.</span>
-<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data and study design</span></span>
-<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a><span class="fu">## Event and boundary data</span></span>
-<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a>The accident file was downloaded from the <span class="co">[</span><span class="ot">Thailand Road Accident 2019-2022 dataset</span><span class="co">](https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022)</span> on 9 September 2026. The Kaggle record describes 81,735 rows compiled from the Office of the Permanent Secretary, Thailand Ministry of Transport, and distributes the files under CC0. I use the incident timestamp, location, event identifier, agency, road description and casualty counts. The report timestamp is retained only for a delay diagnostic.</span>
-<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a>The ADM1 boundary was downloaded through the <span class="co">[</span><span class="ot">geoBoundaries API</span><span class="co">](https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/)</span> on the same date. The returned metadata identifies a 2017 boundary representation, built on 12 December 2023 from OpenStreetMap/Wambacher material under the Open Database Licence 1.0. geoBoundaries documents its open boundary workflow in Runfola et al. (2020).</span>
-<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Source <span class="pp">|</span> Coverage used <span class="pp">|</span> Local source file <span class="pp">|</span> SHA-256 <span class="pp">|</span></span>
-<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|---|---|</span></span>
-<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Thailand Road Accident 2019-2022 <span class="pp">|</span> Incident dates from 1 January to 31 December 2022 <span class="pp">|</span> <span class="in">`thai_road_accident_2019_2022.csv`</span> <span class="pp">|</span> <span class="in">`40131c32ad417aa3a8b642cc366a3876ace4e86d8a858ee25a8c04bda9fb629c`</span> <span class="pp">|</span></span>
-<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> geoBoundaries Thailand ADM1 <span class="pp">|</span> Six BMR provinces <span class="pp">|</span> <span class="in">`geoBoundaries-THA-ADM1.geojson`</span> <span class="pp">|</span> <span class="in">`145beb11e52785a42e16997c92a65426b3df8d009941db6b012ec8e411f3e33c`</span> <span class="pp">|</span></span>
-<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a><span class="fu">## Spatial study window</span></span>
-<span id="cb15-82"><a href="#cb15-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a>The BMR is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom and Samut Sakhon. This matches the grouping used by Thailand's <span class="co">[</span><span class="ot">National Statistical Office</span><span class="co">](https://www.nso.go.th/nsoweb/storage/survey_detail/2026/20241211125403_33653.pdf#page=16)</span>. The six ADM1 polygons form a <span class="in">`r fmt_num(bmr_area_km2, 1)`</span> km² observation window.</span>
-<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a>I transform the boundary and events from WGS 84 to WGS 84 / UTM zone 47N (EPSG:32647). This projection covers the complete BMR; distance, area, kernel and second-order calculations are consequently made in metres instead of longitude-latitude degrees.</span>
-<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a><span class="fu">## Point-event definition</span></span>
-<span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a>One point represents one reported accident occurrence. The temporal field is <span class="in">`incident_datetime`</span>; the spatial fields are longitude and latitude. Two pairs of rows had different accident codes but the same incident time, coordinates, agency, route, accident type and casualty totals. I treat each pair as one event and retain the earlier record. Events at identical coordinates remain separate when their timestamps differ because they may represent recurrent accidents at the same recorded location.</span>
-<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a>Records enter the analysis when they have a valid 2022 incident time, complete coordinates within plausible Thailand bounds, and a point inside the union of the six BMR polygons. Coordinates determine inclusion. Ten records labelled as Ayutthaya, Kanchanaburi or unknown fall inside the BMR boundary and are retained.</span>
-<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-95"><a href="#cb15-95" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-96"><a href="#cb15-96" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: study-area-map</span></span>
-<span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Recorded road accidents retained within the six-province BMR study window."</span></span>
-<span id="cb15-98"><a href="#cb15-98" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Map of the Bangkok Metropolitan Region with accident points coloured by recorded casualty severity."</span></span>
-<span id="cb15-99"><a href="#cb15-99" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb15-100"><a href="#cb15-100" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6.5</span></span>
-<span id="cb15-101"><a href="#cb15-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-102"><a href="#cb15-102" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb15-103"><a href="#cb15-103" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> bmr_provinces_utm, <span class="at">fill =</span> <span class="st">"#f5f7fa"</span>, <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.45</span>) <span class="sc">+</span></span>
-<span id="cb15-104"><a href="#cb15-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
-<span id="cb15-105"><a href="#cb15-105" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> events_utm,</span>
-<span id="cb15-106"><a href="#cb15-106" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">colour =</span> severity),</span>
-<span id="cb15-107"><a href="#cb15-107" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">0.65</span>,</span>
-<span id="cb15-108"><a href="#cb15-108" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.55</span></span>
-<span id="cb15-109"><a href="#cb15-109" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-110"><a href="#cb15-110" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(</span>
-<span id="cb15-111"><a href="#cb15-111" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> bmr_provinces_utm,</span>
-<span id="cb15-112"><a href="#cb15-112" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">label =</span> province),</span>
-<span id="cb15-113"><a href="#cb15-113" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">3</span>,</span>
-<span id="cb15-114"><a href="#cb15-114" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>],</span>
-<span id="cb15-115"><a href="#cb15-115" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> scales<span class="sc">::</span><span class="fu">alpha</span>(<span class="st">"white"</span>, <span class="fl">0.82</span>),</span>
-<span id="cb15-116"><a href="#cb15-116" aria-hidden="true" tabindex="-1"></a>    <span class="at">label.size =</span> <span class="dv">0</span>,</span>
-<span id="cb15-117"><a href="#cb15-117" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">TRUE</span></span>
-<span id="cb15-118"><a href="#cb15-118" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-119"><a href="#cb15-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
-<span id="cb15-120"><a href="#cb15-120" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
-<span id="cb15-121"><a href="#cb15-121" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Fatal"</span> <span class="ot">=</span> palette_main[<span class="st">"red"</span>],</span>
-<span id="cb15-122"><a href="#cb15-122" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Injury"</span> <span class="ot">=</span> palette_main[<span class="st">"amber"</span>],</span>
-<span id="cb15-123"><a href="#cb15-123" aria-hidden="true" tabindex="-1"></a>      <span class="st">"No recorded casualty"</span> <span class="ot">=</span> palette_main[<span class="st">"blue"</span>]</span>
-<span id="cb15-124"><a href="#cb15-124" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb15-125"><a href="#cb15-125" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-126"><a href="#cb15-126" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
-<span id="cb15-127"><a href="#cb15-127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb15-128"><a href="#cb15-128" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"The study window contains 3,597 distinct accident events"</span>,</span>
-<span id="cb15-129"><a href="#cb15-129" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Spatial inclusion is based on coordinates, not the reported province field"</span>,</span>
-<span id="cb15-130"><a href="#cb15-130" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"Recorded outcome"</span>,</span>
-<span id="cb15-131"><a href="#cb15-131" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Sources: Thailand Ministry of Transport data compiled on Kaggle; geoBoundaries ADM1."</span></span>
-<span id="cb15-132"><a href="#cb15-132" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-133"><a href="#cb15-133" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
-<span id="cb15-134"><a href="#cb15-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb15-135"><a href="#cb15-135" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
-<span id="cb15-136"><a href="#cb15-136" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>]),</span>
-<span id="cb15-137"><a href="#cb15-137" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">colour =</span> <span class="st">"#5b677a"</span>)</span>
-<span id="cb15-138"><a href="#cb15-138" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-139"><a href="#cb15-139" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-140"><a href="#cb15-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-141"><a href="#cb15-141" aria-hidden="true" tabindex="-1"></a>The retained points span the metropolitan core and the five surrounding provinces. Dense overlap is visible in Bangkok and its eastern approaches, while the outer western portion of Nakhon Pathom is sparse. Point overlap alone cannot establish interaction; the second-order tests below compare the pattern with explicit null models. The outcome colours also describe recorded casualties only. They do not measure crash severity consistently if reporting completeness varies by agency.</span>
-<span id="cb15-142"><a href="#cb15-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-143"><a href="#cb15-143" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 1: Data preparation and quality assessment</span></span>
-<span id="cb15-144"><a href="#cb15-144" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-145"><a href="#cb15-145" aria-hidden="true" tabindex="-1"></a>The source files can be acquired with <span class="co">[</span><span class="ot">`download_data.R`</span><span class="co">](scripts/download_data.R)</span>. The full preparation and analysis are in <span class="co">[</span><span class="ot">`analysis.R`</span><span class="co">](scripts/analysis.R)</span>. Both scripts use relative project paths, fixed download URLs and a fixed simulation seed.</span>
-<span id="cb15-146"><a href="#cb15-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-147"><a href="#cb15-147" aria-hidden="true" tabindex="-1"></a><span class="fu">## Reproducible processing sequence</span></span>
-<span id="cb15-148"><a href="#cb15-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-151"><a href="#cb15-151" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-152"><a href="#cb15-152" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: audit-table</span></span>
-<span id="cb15-153"><a href="#cb15-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-154"><a href="#cb15-154" aria-hidden="true" tabindex="-1"></a>audit_table <span class="sc">|&gt;</span></span>
-<span id="cb15-155"><a href="#cb15-155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb15-156"><a href="#cb15-156" aria-hidden="true" tabindex="-1"></a>    <span class="at">retained =</span> <span class="fu">fmt_int</span>(retained),</span>
-<span id="cb15-157"><a href="#cb15-157" aria-hidden="true" tabindex="-1"></a>    <span class="at">removed_at_step =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(removed_at_step), <span class="st">"-"</span>, <span class="fu">fmt_int</span>(removed_at_step))</span>
-<span id="cb15-158"><a href="#cb15-158" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb15-159"><a href="#cb15-159" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
-<span id="cb15-160"><a href="#cb15-160" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Processing step"</span>, <span class="st">"Records retained"</span>, <span class="st">"Removed at step"</span>),</span>
-<span id="cb15-161"><a href="#cb15-161" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="fu">c</span>(<span class="st">"l"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>),</span>
-<span id="cb15-162"><a href="#cb15-162" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Event-record audit trail"</span></span>
-<span id="cb15-163"><a href="#cb15-163" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-164"><a href="#cb15-164" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-165"><a href="#cb15-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-166"><a href="#cb15-166" aria-hidden="true" tabindex="-1"></a>The raw file contained <span class="in">`r fmt_int(nrow(accidents_raw))`</span> records. Filtering to 2022 left <span class="in">`r fmt_int(sum(in_2022))`</span>; <span class="in">`r fmt_int(sum(in_2022 &amp; !complete_coordinates))`</span> had no usable coordinate pair. No complete 2022 coordinate lay outside the broad Thailand bounds. Spatial filtering retained 3,599 BMR points, and the probable duplicate-event rule removed two rows. The final pattern contains <span class="in">`r fmt_int(nrow(events_wgs84))`</span> events.</span>
-<span id="cb15-167"><a href="#cb15-167" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-168"><a href="#cb15-168" aria-hidden="true" tabindex="-1"></a><span class="fu">## Diagnostic checks</span></span>
-<span id="cb15-169"><a href="#cb15-169" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-172"><a href="#cb15-172" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-173"><a href="#cb15-173" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: quality-table</span></span>
-<span id="cb15-174"><a href="#cb15-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-175"><a href="#cb15-175" aria-hidden="true" tabindex="-1"></a>quality_metrics <span class="sc">|&gt;</span></span>
-<span id="cb15-176"><a href="#cb15-176" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">count =</span> <span class="fu">fmt_int</span>(count)) <span class="sc">|&gt;</span></span>
-<span id="cb15-177"><a href="#cb15-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
-<span id="cb15-178"><a href="#cb15-178" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Diagnostic"</span>, <span class="st">"Count"</span>),</span>
-<span id="cb15-179"><a href="#cb15-179" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="fu">c</span>(<span class="st">"l"</span>, <span class="st">"r"</span>),</span>
-<span id="cb15-180"><a href="#cb15-180" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Quality checks affecting analysis or interpretation"</span></span>
-<span id="cb15-181"><a href="#cb15-181" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-182"><a href="#cb15-182" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-183"><a href="#cb15-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-184"><a href="#cb15-184" aria-hidden="true" tabindex="-1"></a>Fourteen records have a reported province that differs from the polygon containing the coordinates, including the ten records with a non-BMR label. Boundary vintages and point precision can disagree near provincial borders, so I report the mismatch and leave the source label unchanged.</span>
-<span id="cb15-185"><a href="#cb15-185" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-186"><a href="#cb15-186" aria-hidden="true" tabindex="-1"></a>Another <span class="in">`r fmt_int(quality_metrics$count[quality_metrics$check == "Additional events at an already-used exact coordinate"])`</span> events share a coordinate already used by an earlier event. I retain them when event times differ, preserving possible recurrence at the cost of potentially larger short-distance statistics when locations have been snapped. Incident time is complete and defines the temporal pattern; report delay is used only as a quality check.</span>
-<span id="cb15-187"><a href="#cb15-187" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-188"><a href="#cb15-188" aria-hidden="true" tabindex="-1"></a><span class="fu">## Derived fields and spatial objects</span></span>
-<span id="cb15-189"><a href="#cb15-189" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-190"><a href="#cb15-190" aria-hidden="true" tabindex="-1"></a>I derive month, weekday, hour, four daily periods, casualty outcome and report delay. The script creates <span class="in">`sf`</span> point and polygon objects in WGS 84 and EPSG:32647, then converts the projected points and union boundary to a <span class="in">`ppp`</span> object. All boundary geometries pass <span class="in">`st_is_valid()`</span> after validation.</span>
-<span id="cb15-191"><a href="#cb15-191" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-192"><a href="#cb15-192" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 2: First-order point-pattern analysis</span></span>
-<span id="cb15-193"><a href="#cb15-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-194"><a href="#cb15-194" aria-hidden="true" tabindex="-1"></a>First-order analysis describes variation in the expected event intensity. It does not test whether events interact after that intensity is specified.</span>
-<span id="cb15-195"><a href="#cb15-195" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-196"><a href="#cb15-196" aria-hidden="true" tabindex="-1"></a><span class="fu">## Temporal intensity</span></span>
-<span id="cb15-197"><a href="#cb15-197" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-198"><a href="#cb15-198" aria-hidden="true" tabindex="-1"></a>I divide each monthly count by the number of days in that month so February is compared on the same daily-rate basis as the other months.</span>
-<span id="cb15-199"><a href="#cb15-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-202"><a href="#cb15-202" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-203"><a href="#cb15-203" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: monthly-intensity</span></span>
-<span id="cb15-204"><a href="#cb15-204" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Average recorded accidents per day by month in 2022."</span></span>
-<span id="cb15-205"><a href="#cb15-205" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Line chart showing monthly average daily accident counts, highest in October and lowest in February."</span></span>
-<span id="cb15-206"><a href="#cb15-206" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb15-207"><a href="#cb15-207" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4.8</span></span>
-<span id="cb15-208"><a href="#cb15-208" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-209"><a href="#cb15-209" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(monthly_summary, <span class="fu">aes</span>(month_number, events_per_day)) <span class="sc">+</span></span>
-<span id="cb15-210"><a href="#cb15-210" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="at">fill =</span> palette_main[<span class="st">"blue"</span>], <span class="at">alpha =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
-<span id="cb15-211"><a href="#cb15-211" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> palette_main[<span class="st">"blue"</span>], <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb15-212"><a href="#cb15-212" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> palette_main[<span class="st">"navy"</span>], <span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
-<span id="cb15-213"><a href="#cb15-213" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>, <span class="at">labels =</span> month.abb) <span class="sc">+</span></span>
-<span id="cb15-214"><a href="#cb15-214" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.08</span>))) <span class="sc">+</span></span>
-<span id="cb15-215"><a href="#cb15-215" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb15-216"><a href="#cb15-216" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Recorded accident intensity rose in the final quarter"</span>,</span>
-<span id="cb15-217"><a href="#cb15-217" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Counts are normalised by days in each month"</span>,</span>
-<span id="cb15-218"><a href="#cb15-218" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
-<span id="cb15-219"><a href="#cb15-219" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Events per day"</span>,</span>
-<span id="cb15-220"><a href="#cb15-220" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Source: Thailand Road Accident 2019-2022, restricted spatially to the BMR."</span></span>
-<span id="cb15-221"><a href="#cb15-221" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-222"><a href="#cb15-222" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-223"><a href="#cb15-223" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-224"><a href="#cb15-224" aria-hidden="true" tabindex="-1"></a><span class="in">`r as.character(peak_month_row$month)`</span> recorded the highest daily rate at <span class="in">`r fmt_num(peak_month_row$events_per_day, 1)`</span> events per day; <span class="in">`r as.character(low_month_row$month)`</span> recorded the lowest at <span class="in">`r fmt_num(low_month_row$events_per_day, 1)`</span>. The final quarter contains the three highest monthly counts, while April forms an earlier local peak. The dataset provides events but no monthly traffic exposure, so the pattern could reflect travel volume, reporting changes, weather or enforcement as well as a change in accident propensity.</span>
-<span id="cb15-225"><a href="#cb15-225" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-228"><a href="#cb15-228" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-229"><a href="#cb15-229" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: hourly-intensity</span></span>
-<span id="cb15-230"><a href="#cb15-230" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Recorded accident counts by incident hour."</span></span>
-<span id="cb15-231"><a href="#cb15-231" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Bar chart of accidents by hour, with the highest count at 7 pm."</span></span>
-<span id="cb15-232"><a href="#cb15-232" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb15-233"><a href="#cb15-233" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4.5</span></span>
-<span id="cb15-234"><a href="#cb15-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-235"><a href="#cb15-235" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(hourly_summary, <span class="fu">aes</span>(hour, events)) <span class="sc">+</span></span>
-<span id="cb15-236"><a href="#cb15-236" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> palette_main[<span class="st">"teal"</span>], <span class="at">width =</span> <span class="fl">0.82</span>) <span class="sc">+</span></span>
-<span id="cb15-237"><a href="#cb15-237" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">23</span>, <span class="at">by =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
-<span id="cb15-238"><a href="#cb15-238" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.08</span>))) <span class="sc">+</span></span>
-<span id="cb15-239"><a href="#cb15-239" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb15-240"><a href="#cb15-240" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"The recorded hourly maximum occurred at 19:00"</span>,</span>
-<span id="cb15-241"><a href="#cb15-241" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(</span>
-<span id="cb15-242"><a href="#cb15-242" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fmt_int</span>(peak_hour_row<span class="sc">$</span>events),</span>
-<span id="cb15-243"><a href="#cb15-243" aria-hidden="true" tabindex="-1"></a>      <span class="st">" events were recorded during the 19:00 hour"</span></span>
-<span id="cb15-244"><a href="#cb15-244" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb15-245"><a href="#cb15-245" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Hour of day"</span>,</span>
-<span id="cb15-246"><a href="#cb15-246" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Recorded events"</span></span>
-<span id="cb15-247"><a href="#cb15-247" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-248"><a href="#cb15-248" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-249"><a href="#cb15-249" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-250"><a href="#cb15-250" aria-hidden="true" tabindex="-1"></a>The hourly series has a broad daytime and evening elevation rather than a single sharp commute peak. The largest count is <span class="in">`r fmt_int(peak_hour_row$events)`</span> at <span class="in">`r sprintf("%02d:00", peak_hour_row$hour)`</span>, while the overnight minimum is 89 at 04:00. These are event counts per clock hour across the year. Without hourly traffic volume, the chart cannot distinguish greater exposure from greater event probability.</span>
-<span id="cb15-251"><a href="#cb15-251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-252"><a href="#cb15-252" aria-hidden="true" tabindex="-1"></a><span class="fu">## Province-level event density</span></span>
-<span id="cb15-253"><a href="#cb15-253" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-256"><a href="#cb15-256" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-257"><a href="#cb15-257" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: province-density</span></span>
-<span id="cb15-258"><a href="#cb15-258" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Recorded accident events per 100 square kilometres by spatially assigned province."</span></span>
-<span id="cb15-259"><a href="#cb15-259" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Choropleth map showing the highest accident event density in Bangkok, followed by Samut Prakan."</span></span>
-<span id="cb15-260"><a href="#cb15-260" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb15-261"><a href="#cb15-261" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6</span></span>
-<span id="cb15-262"><a href="#cb15-262" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-263"><a href="#cb15-263" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(province_map) <span class="sc">+</span></span>
-<span id="cb15-264"><a href="#cb15-264" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> events_per_100_km2), <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.55</span>) <span class="sc">+</span></span>
-<span id="cb15-265"><a href="#cb15-265" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(</span>
-<span id="cb15-266"><a href="#cb15-266" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(province, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">fmt_num</span>(events_per_100_km2, <span class="dv">1</span>))),</span>
-<span id="cb15-267"><a href="#cb15-267" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">3.1</span>,</span>
-<span id="cb15-268"><a href="#cb15-268" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>],</span>
-<span id="cb15-269"><a href="#cb15-269" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> scales<span class="sc">::</span><span class="fu">alpha</span>(<span class="st">"white"</span>, <span class="fl">0.82</span>),</span>
-<span id="cb15-270"><a href="#cb15-270" aria-hidden="true" tabindex="-1"></a>    <span class="at">label.size =</span> <span class="dv">0</span>,</span>
-<span id="cb15-271"><a href="#cb15-271" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">TRUE</span></span>
-<span id="cb15-272"><a href="#cb15-272" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-273"><a href="#cb15-273" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb15-274"><a href="#cb15-274" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
-<span id="cb15-275"><a href="#cb15-275" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb15-276"><a href="#cb15-276" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Bangkok has the highest event density by land area"</span>,</span>
-<span id="cb15-277"><a href="#cb15-277" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Labels show events per 100 km²; the measure is not traffic-adjusted risk"</span>,</span>
-<span id="cb15-278"><a href="#cb15-278" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Events per</span><span class="sc">\n</span><span class="st">100 km²"</span>,</span>
-<span id="cb15-279"><a href="#cb15-279" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Spatial province is assigned from geoBoundaries ADM1 polygons."</span></span>
-<span id="cb15-280"><a href="#cb15-280" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-281"><a href="#cb15-281" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
-<span id="cb15-282"><a href="#cb15-282" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb15-283"><a href="#cb15-283" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
-<span id="cb15-284"><a href="#cb15-284" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>]),</span>
-<span id="cb15-285"><a href="#cb15-285" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">colour =</span> <span class="st">"#5b677a"</span>)</span>
-<span id="cb15-286"><a href="#cb15-286" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-287"><a href="#cb15-287" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-288"><a href="#cb15-288" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-289"><a href="#cb15-289" aria-hidden="true" tabindex="-1"></a>Bangkok records <span class="in">`r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Bangkok"], 1)`</span> events per 100 km², followed by Samut Prakan at <span class="in">`r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Samut Prakan"], 1)`</span>. Nakhon Pathom has <span class="in">`r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Nakhon Pathom"], 1)`</span>. Dividing by land area controls only for polygon size. It does not control for road length, traffic volume or reporting coverage, so the map identifies where records are concentrated rather than where an individual journey is most dangerous.</span>
-<span id="cb15-290"><a href="#cb15-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-291"><a href="#cb15-291" aria-hidden="true" tabindex="-1"></a><span class="fu">## Kernel intensity estimate</span></span>
-<span id="cb15-292"><a href="#cb15-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-293"><a href="#cb15-293" aria-hidden="true" tabindex="-1"></a>Kernel density estimation (KDE) smooths event locations into an estimated intensity surface. I use a Gaussian kernel, 500 m output grid, edge correction and a 3 km primary bandwidth. Likelihood cross-validation selected approximately <span class="in">`r fmt_int(coordinate_bandwidths["likelihood_cross_validation"])`</span> m, producing a fragmented surface dominated by road-constrained points and repeated coordinates. I chose 3 km for the planning-scale question about broad concentrations, then compare it with 2 km and 6 km estimates.</span>
-<span id="cb15-294"><a href="#cb15-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-297"><a href="#cb15-297" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-298"><a href="#cb15-298" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: kde-primary</span></span>
-<span id="cb15-299"><a href="#cb15-299" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Edge-corrected kernel intensity of recorded accidents using a 3 km Gaussian bandwidth."</span></span>
-<span id="cb15-300"><a href="#cb15-300" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Kernel density map with the highest accident intensity across central and eastern Bangkok."</span></span>
-<span id="cb15-301"><a href="#cb15-301" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb15-302"><a href="#cb15-302" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6.5</span></span>
-<span id="cb15-303"><a href="#cb15-303" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-304"><a href="#cb15-304" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb15-305"><a href="#cb15-305" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_raster</span>(</span>
-<span id="cb15-306"><a href="#cb15-306" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> kde_3km_df,</span>
-<span id="cb15-307"><a href="#cb15-307" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(x, y, <span class="at">fill =</span> events_per_km2)</span>
-<span id="cb15-308"><a href="#cb15-308" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-309"><a href="#cb15-309" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> bmr_provinces_utm, <span class="at">fill =</span> <span class="cn">NA</span>, <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
-<span id="cb15-310"><a href="#cb15-310" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb15-311"><a href="#cb15-311" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>, <span class="at">expand =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb15-312"><a href="#cb15-312" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb15-313"><a href="#cb15-313" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Broad accident concentration centres on Bangkok and its eastern approaches"</span>,</span>
-<span id="cb15-314"><a href="#cb15-314" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Gaussian KDE, 3 km bandwidth, 500 m grid and edge correction"</span>,</span>
-<span id="cb15-315"><a href="#cb15-315" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Estimated annual</span><span class="sc">\n</span><span class="st">events per km²"</span>,</span>
-<span id="cb15-316"><a href="#cb15-316" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Intensity is a smoothed count surface, not exposure-adjusted risk."</span></span>
-<span id="cb15-317"><a href="#cb15-317" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-318"><a href="#cb15-318" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
-<span id="cb15-319"><a href="#cb15-319" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb15-320"><a href="#cb15-320" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
-<span id="cb15-321"><a href="#cb15-321" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>]),</span>
-<span id="cb15-322"><a href="#cb15-322" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">colour =</span> <span class="st">"#5b677a"</span>)</span>
-<span id="cb15-323"><a href="#cb15-323" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-324"><a href="#cb15-324" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-325"><a href="#cb15-325" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-326"><a href="#cb15-326" aria-hidden="true" tabindex="-1"></a>The 3 km surface reaches <span class="in">`r fmt_num(max(kde_3km_df$events_per_km2), 1)`</span> estimated annual events per km² and places the broadest high-intensity zone across Bangkok, extending east towards Samut Prakan. Smaller concentrations follow developed corridors in the surrounding provinces. The kernel is evaluated in planar space even though crashes occur on roads. It therefore smooths across locations that may not be connected by the road network and should not be used to select an individual junction without finer road and exposure data.</span>
-<span id="cb15-327"><a href="#cb15-327" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-328"><a href="#cb15-328" aria-hidden="true" tabindex="-1"></a><span class="fu">## Bandwidth sensitivity</span></span>
-<span id="cb15-329"><a href="#cb15-329" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-332"><a href="#cb15-332" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-333"><a href="#cb15-333" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: kde-sensitivity</span></span>
-<span id="cb15-334"><a href="#cb15-334" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "KDE sensitivity at 2 km, 3 km and 6 km bandwidths on a common colour scale."</span></span>
-<span id="cb15-335"><a href="#cb15-335" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three maps comparing accident intensity under increasingly broad kernel bandwidths."</span></span>
-<span id="cb15-336"><a href="#cb15-336" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 11</span></span>
-<span id="cb15-337"><a href="#cb15-337" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4.5</span></span>
-<span id="cb15-338"><a href="#cb15-338" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-339"><a href="#cb15-339" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(kde_sensitivity_df, <span class="fu">aes</span>(x, y, <span class="at">fill =</span> events_per_km2)) <span class="sc">+</span></span>
-<span id="cb15-340"><a href="#cb15-340" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_raster</span>() <span class="sc">+</span></span>
-<span id="cb15-341"><a href="#cb15-341" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
-<span id="cb15-342"><a href="#cb15-342" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> bmr_provinces_utm,</span>
-<span id="cb15-343"><a href="#cb15-343" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="cn">NA</span>,</span>
-<span id="cb15-344"><a href="#cb15-344" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"white"</span>,</span>
-<span id="cb15-345"><a href="#cb15-345" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.2</span>,</span>
-<span id="cb15-346"><a href="#cb15-346" aria-hidden="true" tabindex="-1"></a>    <span class="at">inherit.aes =</span> <span class="cn">FALSE</span></span>
-<span id="cb15-347"><a href="#cb15-347" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-348"><a href="#cb15-348" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>bandwidth, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb15-349"><a href="#cb15-349" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb15-350"><a href="#cb15-350" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>, <span class="at">expand =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb15-351"><a href="#cb15-351" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb15-352"><a href="#cb15-352" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"The metropolitan core remains prominent under wider smoothing"</span>,</span>
-<span id="cb15-353"><a href="#cb15-353" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"All panels use the same intensity scale"</span>,</span>
-<span id="cb15-354"><a href="#cb15-354" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Events per km²"</span></span>
-<span id="cb15-355"><a href="#cb15-355" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-356"><a href="#cb15-356" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
-<span id="cb15-357"><a href="#cb15-357" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb15-358"><a href="#cb15-358" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
-<span id="cb15-359"><a href="#cb15-359" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
-<span id="cb15-360"><a href="#cb15-360" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>]),</span>
-<span id="cb15-361"><a href="#cb15-361" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">colour =</span> <span class="st">"#5b677a"</span>)</span>
-<span id="cb15-362"><a href="#cb15-362" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-363"><a href="#cb15-363" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-364"><a href="#cb15-364" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-365"><a href="#cb15-365" aria-hidden="true" tabindex="-1"></a>The 2 km estimate resolves more local peaks, while 6 km merges neighbouring concentrations into a broad metropolitan gradient. Event-level intensity ranks correlate at <span class="in">`r fmt_num(intensity_rank_correlations$spearman_rho[1], 2)`</span> between 2 km and 3 km and <span class="in">`r fmt_num(intensity_rank_correlations$spearman_rho[2], 2)`</span> between 3 km and 6 km. The broad Bangkok-Samut Prakan concentration is stable, but the exact shape and height of local peaks are bandwidth-dependent.</span>
-<span id="cb15-366"><a href="#cb15-366" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-367"><a href="#cb15-367" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 3: Second-order point-pattern analysis</span></span>
-<span id="cb15-368"><a href="#cb15-368" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-369"><a href="#cb15-369" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research question and test design</span></span>
-<span id="cb15-370"><a href="#cb15-370" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-371"><a href="#cb15-371" aria-hidden="true" tabindex="-1"></a>The second-order question is whether accidents retain more neighbours within 0-15 km than expected after broad intensity variation is represented. I use the transformed L-function, $L(r)-r$, because zero is the theoretical reference under a Poisson process. Positive departures indicate more neighbours within distance $r$ than the null predicts; negative departures indicate fewer.</span>
-<span id="cb15-372"><a href="#cb15-372" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-373"><a href="#cb15-373" aria-hidden="true" tabindex="-1"></a>I compare two null models:</span>
-<span id="cb15-374"><a href="#cb15-374" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-375"><a href="#cb15-375" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**CSR:** 99 simulations place the observed number of events uniformly within the BMR. It supplies a simple benchmark, although uneven roads and activity make uniform intensity unrealistic.</span>
-<span id="cb15-376"><a href="#cb15-376" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Inhomogeneous Poisson:** 99 simulations draw the observed event count from a fixed 6 km pilot intensity. Broad first-order variation is retained while events remain independent conditional on intensity.</span>
-<span id="cb15-377"><a href="#cb15-377" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-378"><a href="#cb15-378" aria-hidden="true" tabindex="-1"></a>Both tests use 0-15 km at 250 m intervals, translation edge correction, WGS 84 / UTM 47N and pointwise 95% simulation envelopes. A maximum-standardised-deviation statistic supplies a global Monte Carlo test. Conditioning on event count prevents total-count variation from dominating the comparison.</span>
-<span id="cb15-379"><a href="#cb15-379" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-380"><a href="#cb15-380" aria-hidden="true" tabindex="-1"></a><span class="fu">## Results against the null models</span></span>
-<span id="cb15-381"><a href="#cb15-381" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-384"><a href="#cb15-384" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-385"><a href="#cb15-385" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: second-order-envelopes</span></span>
-<span id="cb15-386"><a href="#cb15-386" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Observed L(r)-r compared with pointwise 95% envelopes under CSR and an inhomogeneous Poisson null."</span></span>
-<span id="cb15-387"><a href="#cb15-387" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two L-function envelope plots showing strong clustering under CSR and residual short-distance clustering under the inhomogeneous model."</span></span>
-<span id="cb15-388"><a href="#cb15-388" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 11</span></span>
-<span id="cb15-389"><a href="#cb15-389" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5.2</span></span>
-<span id="cb15-390"><a href="#cb15-390" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-391"><a href="#cb15-391" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(second_order_plot_df, <span class="fu">aes</span>(r <span class="sc">/</span> <span class="dv">1000</span>)) <span class="sc">+</span></span>
-<span id="cb15-392"><a href="#cb15-392" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
-<span id="cb15-393"><a href="#cb15-393" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">ymin =</span> low_minus_r <span class="sc">/</span> <span class="dv">1000</span>, <span class="at">ymax =</span> high_minus_r <span class="sc">/</span> <span class="dv">1000</span>),</span>
-<span id="cb15-394"><a href="#cb15-394" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> palette_main[<span class="st">"grey"</span>],</span>
-<span id="cb15-395"><a href="#cb15-395" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.9</span></span>
-<span id="cb15-396"><a href="#cb15-396" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-397"><a href="#cb15-397" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"#6b7280"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
-<span id="cb15-398"><a href="#cb15-398" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> observed_minus_r <span class="sc">/</span> <span class="dv">1000</span>), <span class="at">colour =</span> palette_main[<span class="st">"red"</span>], <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
-<span id="cb15-399"><a href="#cb15-399" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>model, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
-<span id="cb15-400"><a href="#cb15-400" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">15</span>, <span class="at">by =</span> <span class="dv">3</span>)) <span class="sc">+</span></span>
-<span id="cb15-401"><a href="#cb15-401" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb15-402"><a href="#cb15-402" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Broad intensity explains part, but not all, of the spatial clustering"</span>,</span>
-<span id="cb15-403"><a href="#cb15-403" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Red: observed pattern; grey: pointwise 95% simulation envelope"</span>,</span>
-<span id="cb15-404"><a href="#cb15-404" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Distance r (km)"</span>,</span>
-<span id="cb15-405"><a href="#cb15-405" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"L(r) - r (km)"</span></span>
-<span id="cb15-406"><a href="#cb15-406" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-407"><a href="#cb15-407" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-408"><a href="#cb15-408" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-409"><a href="#cb15-409" aria-hidden="true" tabindex="-1"></a>CSR is rejected by the global deviation test ($p$ = <span class="in">`r fmt_num(second_order_tests$global_deviation_p[1], 2)`</span>), and the observed curve lies above the envelope from 0.25 km through 15 km. The comparison confirms that apparent concentration on a map is insufficient evidence without a statistical reference.</span>
-<span id="cb15-410"><a href="#cb15-410" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-411"><a href="#cb15-411" aria-hidden="true" tabindex="-1"></a>The inhomogeneous null is also rejected ($p$ = <span class="in">`r fmt_num(second_order_tests$global_deviation_p[2], 2)`</span>). The observed curve is above the envelope from <span class="in">`r fmt_num(inhomogeneous_ranges$min_m[inhomogeneous_ranges$relation == "above"] / 1000, 2)`</span> to <span class="in">`r fmt_num(inhomogeneous_ranges$max_m[inhomogeneous_ranges$relation == "above"] / 1000, 2)`</span> km. The broad first-order trend therefore does not account for all of the excess neighbouring events. The result may also reflect road-network support, shared coordinates or a pilot surface that is too smooth to represent every relevant component of intensity.</span>
-<span id="cb15-412"><a href="#cb15-412" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-413"><a href="#cb15-413" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 4: Integrated findings and interpretation</span></span>
-<span id="cb15-414"><a href="#cb15-414" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-415"><a href="#cb15-415" aria-hidden="true" tabindex="-1"></a>First-order results establish a metropolitan gradient: Bangkok has the highest event density per land area, the KDE extends the main concentration into Samut Prakan, and daily event counts are highest in the final quarter. These measures describe where and when more records are expected.</span>
-<span id="cb15-416"><a href="#cb15-416" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-417"><a href="#cb15-417" aria-hidden="true" tabindex="-1"></a>The second-order results answer a different question. Uniform CSR cannot account for the pattern at any tested scale. A broad 6 km intensity surface explains some of that departure, but pairs remain more numerous than expected from 0.25 km to 14.5 km. The remaining structure is consistent with recurrent locations and connected groups of roads or activity centres embedded within the larger metropolitan gradient.</span>
-<span id="cb15-418"><a href="#cb15-418" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-419"><a href="#cb15-419" aria-hidden="true" tabindex="-1"></a><span class="fu">## Coordinate-reuse sensitivity</span></span>
-<span id="cb15-420"><a href="#cb15-420" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-421"><a href="#cb15-421" aria-hidden="true" tabindex="-1"></a>Shared or snapped coordinates are one possible source of short-range pairs. I evaluate that issue below by repeating the inhomogeneous test with one event retained at each exact coordinate.</span>
-<span id="cb15-422"><a href="#cb15-422" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-425"><a href="#cb15-425" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-426"><a href="#cb15-426" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: coordinate-reuse-sensitivity</span></span>
-<span id="cb15-427"><a href="#cb15-427" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-428"><a href="#cb15-428" aria-hidden="true" tabindex="-1"></a>coordinate_reuse_sensitivity <span class="sc">|&gt;</span></span>
-<span id="cb15-429"><a href="#cb15-429" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
-<span id="cb15-430"><a href="#cb15-430" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sample =</span> sample,</span>
-<span id="cb15-431"><a href="#cb15-431" aria-hidden="true" tabindex="-1"></a>    <span class="at">Events =</span> <span class="fu">fmt_int</span>(events),</span>
-<span id="cb15-432"><a href="#cb15-432" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Global p</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(global_deviation_p, <span class="dv">2</span>),</span>
-<span id="cb15-433"><a href="#cb15-433" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Above envelope from (km)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(above_from_m <span class="sc">/</span> <span class="dv">1000</span>, <span class="dv">2</span>),</span>
-<span id="cb15-434"><a href="#cb15-434" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Above envelope to (km)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(above_to_m <span class="sc">/</span> <span class="dv">1000</span>, <span class="dv">2</span>)</span>
-<span id="cb15-435"><a href="#cb15-435" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb15-436"><a href="#cb15-436" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
-<span id="cb15-437"><a href="#cb15-437" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="fu">c</span>(<span class="st">"l"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>),</span>
-<span id="cb15-438"><a href="#cb15-438" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Sensitivity of the inhomogeneous test to repeated coordinates"</span></span>
-<span id="cb15-439"><a href="#cb15-439" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-440"><a href="#cb15-440" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-441"><a href="#cb15-441" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-442"><a href="#cb15-442" aria-hidden="true" tabindex="-1"></a>Removing the 319 repeated-coordinate events leaves <span class="in">`r fmt_int(coordinate_reuse_sensitivity$events[2])`</span> unique locations. The global test remains significant ($p$ = <span class="in">`r fmt_num(coordinate_reuse_sensitivity$global_deviation_p[2], 2)`</span>), with the observed curve above its envelope from <span class="in">`r fmt_num(coordinate_reuse_sensitivity$above_from_m[2] / 1000, 2)`</span> to <span class="in">`r fmt_num(coordinate_reuse_sensitivity$above_to_m[2] / 1000, 2)`</span> km. Coordinate reuse therefore does not account for the residual clustering conclusion.</span>
-<span id="cb15-443"><a href="#cb15-443" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-444"><a href="#cb15-444" aria-hidden="true" tabindex="-1"></a>Accidents occur on a road network, whereas the inhomogeneous model allows points throughout the polygon. The 6 km pilot bandwidth also separates broad trend from local interaction by design: a narrower pilot could absorb some local structure, while a wider pilot could leave more of it unexplained.</span>
-<span id="cb15-445"><a href="#cb15-445" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-446"><a href="#cb15-446" aria-hidden="true" tabindex="-1"></a>The bandwidth sensitivity maps retain the main Bangkok-Samut Prakan concentration, with high rank correlation across 2-6 km smoothing. This supports the broad first-order conclusion, not the exact boundary of an individual hotspot.</span>
-<span id="cb15-447"><a href="#cb15-447" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-448"><a href="#cb15-448" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 5: Geovisualisation and geocommunication</span></span>
-<span id="cb15-449"><a href="#cb15-449" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-450"><a href="#cb15-450" aria-hidden="true" tabindex="-1"></a>The visual sequence moves from study design to temporal variation, areal density, continuous intensity and null-model testing. Province maps use spatially assigned boundaries rather than the reported label. KDE panels share a common scale when compared. Every distance-based graphic uses kilometres, while areal density and kernel intensity state their units explicitly.</span>
-<span id="cb15-451"><a href="#cb15-451" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-452"><a href="#cb15-452" aria-hidden="true" tabindex="-1"></a>The maps avoid a road-risk label because the denominator is absent. The L-function figure pairs the observed curve with its reference envelope so that clustering is not inferred from appearance alone. The bonus plot below exposes the full permutation distribution rather than reporting a $p$-value without context.</span>
-<span id="cb15-453"><a href="#cb15-453" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-454"><a href="#cb15-454" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 6: Public-safety planning and management</span></span>
-<span id="cb15-455"><a href="#cb15-455" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-456"><a href="#cb15-456" aria-hidden="true" tabindex="-1"></a>The stable 2-6 km concentration makes Bangkok and the routes towards Samut Prakan reasonable starting points for detailed diagnostic review. The evidence identifies areas with many recorded events; it does not prove that these roads carry the highest crash risk. Before reallocating resources, agencies should attach road length, traffic volume, speed, junction design and enforcement data to the identified zones.</span>
-<span id="cb15-457"><a href="#cb15-457" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-458"><a href="#cb15-458" aria-hidden="true" tabindex="-1"></a>The October-December rise and the evening maximum provide a basis for reviewing staffing and monitoring schedules. Agencies could compare those periods with traffic counts, rainfall, holidays and enforcement activity. If exposure-adjusted rates also rise, targeted patrols, public messaging or temporary engineering measures could be tested. The present data alone do not show which intervention would work.</span>
-<span id="cb15-459"><a href="#cb15-459" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-460"><a href="#cb15-460" aria-hidden="true" tabindex="-1"></a>Residual clustering across 0.25-14.5 km suggests that province-wide averages hide structure at several operational scales. A follow-up network analysis should locate accidents on verified road segments, audit exact-coordinate reuse and calculate segment-level rates using vehicle kilometres or traffic counts. Sites should then be inspected for modifiable features such as geometry, visibility, crossing demand or speed environment.</span>
-<span id="cb15-461"><a href="#cb15-461" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-462"><a href="#cb15-462" aria-hidden="true" tabindex="-1"></a>The space-time result warrants short-horizon monitoring, with each cluster alert treated as a prompt for review. Repeated reporting practices, temporary works, weather and short-term traffic changes can all create local event bursts. A practical monitoring system would combine event alerts with exposure and operational data, then record whether interventions reduce comparable exposure-adjusted outcomes.</span>
-<span id="cb15-463"><a href="#cb15-463" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-464"><a href="#cb15-464" aria-hidden="true" tabindex="-1"></a><span class="fu"># Bonus: Monte Carlo Knox space-time interaction test</span></span>
-<span id="cb15-465"><a href="#cb15-465" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-466"><a href="#cb15-466" aria-hidden="true" tabindex="-1"></a>The bonus analysis asks whether spatially close accidents also occur closer in time than expected. I use the Knox statistic to count pairs meeting both a spatial and temporal threshold. A 199-run randomisation permutes complete incident times across fixed accident locations, preserving the observed spatial pattern, seasonality and hourly distribution while breaking location-time association. The one-sided Monte Carlo $p$-value is $(1 + \text{simulations at least as large as observed}) / 200$.</span>
-<span id="cb15-467"><a href="#cb15-467" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-470"><a href="#cb15-470" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-471"><a href="#cb15-471" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: knox-results-table</span></span>
-<span id="cb15-472"><a href="#cb15-472" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-473"><a href="#cb15-473" aria-hidden="true" tabindex="-1"></a>knox_results <span class="sc">|&gt;</span></span>
-<span id="cb15-474"><a href="#cb15-474" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
-<span id="cb15-475"><a href="#cb15-475" aria-hidden="true" tabindex="-1"></a>    <span class="at">Threshold =</span> label,</span>
-<span id="cb15-476"><a href="#cb15-476" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Observed pairs</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_int</span>(observed_pairs),</span>
-<span id="cb15-477"><a href="#cb15-477" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Mean under permutation</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(expected_pairs, <span class="dv">1</span>),</span>
-<span id="cb15-478"><a href="#cb15-478" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Excess (%)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(excess_percent, <span class="dv">1</span>),</span>
-<span id="cb15-479"><a href="#cb15-479" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Monte Carlo p</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(p_value, <span class="dv">3</span>)</span>
-<span id="cb15-480"><a href="#cb15-480" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb15-481"><a href="#cb15-481" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
-<span id="cb15-482"><a href="#cb15-482" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="fu">c</span>(<span class="st">"l"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>),</span>
-<span id="cb15-483"><a href="#cb15-483" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Knox space-time interaction results across three scales"</span></span>
-<span id="cb15-484"><a href="#cb15-484" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-485"><a href="#cb15-485" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-486"><a href="#cb15-486" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-489"><a href="#cb15-489" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-490"><a href="#cb15-490" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: knox-permutation</span></span>
-<span id="cb15-491"><a href="#cb15-491" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Permutation distribution for accident pairs within 1 km and 7 days."</span></span>
-<span id="cb15-492"><a href="#cb15-492" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Histogram of simulated Knox pair counts with the observed count shown to the right of all simulations."</span></span>
-<span id="cb15-493"><a href="#cb15-493" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
-<span id="cb15-494"><a href="#cb15-494" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4.8</span></span>
-<span id="cb15-495"><a href="#cb15-495" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-496"><a href="#cb15-496" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(knox_primary_simulation, <span class="fu">aes</span>(simulated_pairs)) <span class="sc">+</span></span>
-<span id="cb15-497"><a href="#cb15-497" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(</span>
-<span id="cb15-498"><a href="#cb15-498" aria-hidden="true" tabindex="-1"></a>    <span class="at">bins =</span> <span class="dv">24</span>,</span>
-<span id="cb15-499"><a href="#cb15-499" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> palette_main[<span class="st">"blue"</span>],</span>
-<span id="cb15-500"><a href="#cb15-500" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"white"</span></span>
-<span id="cb15-501"><a href="#cb15-501" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-502"><a href="#cb15-502" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(</span>
-<span id="cb15-503"><a href="#cb15-503" aria-hidden="true" tabindex="-1"></a>    <span class="at">xintercept =</span> knox_results<span class="sc">$</span>observed_pairs[<span class="dv">2</span>],</span>
-<span id="cb15-504"><a href="#cb15-504" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> palette_main[<span class="st">"red"</span>],</span>
-<span id="cb15-505"><a href="#cb15-505" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">1.1</span></span>
-<span id="cb15-506"><a href="#cb15-506" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-507"><a href="#cb15-507" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(</span>
-<span id="cb15-508"><a href="#cb15-508" aria-hidden="true" tabindex="-1"></a>    <span class="st">"text"</span>,</span>
-<span id="cb15-509"><a href="#cb15-509" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> knox_results<span class="sc">$</span>observed_pairs[<span class="dv">2</span>],</span>
-<span id="cb15-510"><a href="#cb15-510" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="cn">Inf</span>,</span>
-<span id="cb15-511"><a href="#cb15-511" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">paste</span>(<span class="st">"Observed:"</span>, <span class="fu">fmt_int</span>(knox_results<span class="sc">$</span>observed_pairs[<span class="dv">2</span>])),</span>
-<span id="cb15-512"><a href="#cb15-512" aria-hidden="true" tabindex="-1"></a>    <span class="at">hjust =</span> <span class="fl">1.05</span>,</span>
-<span id="cb15-513"><a href="#cb15-513" aria-hidden="true" tabindex="-1"></a>    <span class="at">vjust =</span> <span class="fl">1.5</span>,</span>
-<span id="cb15-514"><a href="#cb15-514" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> palette_main[<span class="st">"red"</span>]</span>
-<span id="cb15-515"><a href="#cb15-515" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb15-516"><a href="#cb15-516" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
-<span id="cb15-517"><a href="#cb15-517" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Nearby accidents were also unusually close in time"</span>,</span>
-<span id="cb15-518"><a href="#cb15-518" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"199 permutations of incident times across fixed locations"</span>,</span>
-<span id="cb15-519"><a href="#cb15-519" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Pairs within 1 km and 7 days"</span>,</span>
-<span id="cb15-520"><a href="#cb15-520" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Simulations"</span></span>
-<span id="cb15-521"><a href="#cb15-521" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-522"><a href="#cb15-522" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-523"><a href="#cb15-523" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-524"><a href="#cb15-524" aria-hidden="true" tabindex="-1"></a>At the primary 1 km / 7 day threshold, the observed pattern has <span class="in">`r fmt_int(knox_results$observed_pairs[2])`</span> close pairs against a permutation mean of <span class="in">`r fmt_num(knox_results$expected_pairs[2], 1)`</span>, an excess of <span class="in">`r fmt_num(knox_results$excess_percent[2], 1)`</span>% ($p$ = <span class="in">`r fmt_num(knox_results$p_value[2], 3)`</span>). Positive results at 500 m / 1 day and 2 km / 14 days show that the finding is not confined to one threshold. The excess supports short-term local recurrence beyond the separate spatial and temporal margins. Timestamps must be exchangeable across sites under the null; location-specific traffic cycles, road works or reporting systems could violate that assumption.</span>
-<span id="cb15-525"><a href="#cb15-525" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-526"><a href="#cb15-526" aria-hidden="true" tabindex="-1"></a><span class="fu"># Limitations</span></span>
-<span id="cb15-527"><a href="#cb15-527" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-528"><a href="#cb15-528" aria-hidden="true" tabindex="-1"></a>The source is an administrative event register compiled on Kaggle rather than a purpose-built research sample. Reporting coverage may vary by road agency, event severity and province. Missing coordinates remove 189 of the 2022 records before spatial filtering. The boundary represents 2017 administrative geometry, so minor discrepancies with 2022 province labels are expected near borders.</span>
-<span id="cb15-529"><a href="#cb15-529" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-530"><a href="#cb15-530" aria-hidden="true" tabindex="-1"></a>The study has no exposure denominator. Land-area density and planar KDE do not adjust for traffic volume or road length, and planar distances do not follow the road network. Exact-coordinate reuse may represent true recurrent sites, coordinate rounding or common reporting locations. The inhomogeneous result depends on the pilot bandwidth and chosen distance range. Pointwise envelopes involve repeated comparisons across distance; the separate global deviation statistic is therefore used for the overall test.</span>
-<span id="cb15-531"><a href="#cb15-531" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-532"><a href="#cb15-532" aria-hidden="true" tabindex="-1"></a>The Knox result preserves the observed marginal patterns but assumes incident times can be exchanged among locations under the null. It does not identify a cause for local bursts. The findings should guide data linkage and site investigation before intervention.</span>
-<span id="cb15-533"><a href="#cb15-533" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-534"><a href="#cb15-534" aria-hidden="true" tabindex="-1"></a><span class="fu"># Reproducibility</span></span>
-<span id="cb15-535"><a href="#cb15-535" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-536"><a href="#cb15-536" aria-hidden="true" tabindex="-1"></a>The raw files are excluded from Git because the complete accident archive is unnecessary for publishing the rendered report. <span class="co">[</span><span class="ot">`download_data.R`</span><span class="co">](scripts/download_data.R)</span> retrieves the fixed public files; <span class="co">[</span><span class="ot">`analysis.R`</span><span class="co">](scripts/analysis.R)</span> reproduces filtering, derived variables, point-pattern objects, simulations and summary tables. A cached local RDS reduces repeated render time but is rebuilt when the source files or analysis script change. Set <span class="in">`ISSS626_REBUILD=1`</span> to force a fresh analytical run.</span>
-<span id="cb15-537"><a href="#cb15-537" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-538"><a href="#cb15-538" aria-hidden="true" tabindex="-1"></a>The point-pattern simulations use seed <span class="in">`6262022`</span>. The second-order analysis uses 99 conditional simulations, and the Knox test uses 199 time permutations.</span>
-<span id="cb15-539"><a href="#cb15-539" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-542"><a href="#cb15-542" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb15-543"><a href="#cb15-543" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: session-information</span></span>
-<span id="cb15-544"><a href="#cb15-544" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-545"><a href="#cb15-545" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb15-546"><a href="#cb15-546" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb15-547"><a href="#cb15-547" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-548"><a href="#cb15-548" aria-hidden="true" tabindex="-1"></a><span class="fu"># References</span></span>
-<span id="cb15-549"><a href="#cb15-549" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-550"><a href="#cb15-550" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Baddeley, A., Rubak, E. and Turner, R. (2015). *Spatial Point Patterns: Methodology and Applications with R*. Chapman and Hall/CRC. <span class="ot">&lt;https://book.spatstat.org/&gt;</span></span>
-<span id="cb15-551"><a href="#cb15-551" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>geoBoundaries. Thailand ADM1 boundary and metadata API. Accessed 9 September 2026. <span class="ot">&lt;https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/&gt;</span></span>
-<span id="cb15-552"><a href="#cb15-552" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Knox, E. G. (1964). The detection of space-time interactions. *Journal of the Royal Statistical Society: Series C*, 13(1), 25-29. <span class="ot">&lt;https://doi.org/10.2307/2985220&gt;</span></span>
-<span id="cb15-553"><a href="#cb15-553" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Runfola, D., Anderson, A., Baier, H., et al. (2020). geoBoundaries: A global database of political administrative boundaries. *PLOS ONE*, 15(4), e0231866. <span class="ot">&lt;https://doi.org/10.1371/journal.pone.0231866&gt;</span></span>
-<span id="cb15-554"><a href="#cb15-554" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Thailand National Statistical Office. Definition of Bangkok and Metropolitan. Accessed 9 September 2026. <span class="ot">&lt;https://www.nso.go.th/nsoweb/storage/survey_detail/2026/20241211125403_33653.pdf#page=16&gt;</span></span>
-<span id="cb15-555"><a href="#cb15-555" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Thaweewat R. Thailand Road Accident 2019-2022. Kaggle, based on Office of the Permanent Secretary, Thailand Ministry of Transport data. Accessed 9 September 2026. <span class="ot">&lt;https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022&gt;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2026-09-09</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="an">date-modified:</span><span class="co"> last-modified</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Show R code"</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a><span class="co">  echo: true</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a><span class="co">#| include: false</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"scripts/analysis.R"</span>)</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>fmt_int <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">format</span>(<span class="fu">round</span>(x), <span class="at">big.mark =</span> <span class="st">","</span>, <span class="at">scientific =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>fmt_num <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">1</span>) <span class="fu">format</span>(</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(x, digits), <span class="at">nsmall =</span> digits, <span class="at">big.mark =</span> <span class="st">","</span>, <span class="at">scientific =</span> <span class="cn">FALSE</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>peak_month_row <span class="ot">&lt;-</span> monthly_summary[<span class="fu">which.max</span>(monthly_summary<span class="sc">$</span>events_per_day), ]</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>low_month_row <span class="ot">&lt;-</span> monthly_summary[<span class="fu">which.min</span>(monthly_summary<span class="sc">$</span>events_per_day), ]</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>peak_hour_row <span class="ot">&lt;-</span> hourly_summary[<span class="fu">which.max</span>(hourly_summary<span class="sc">$</span>events), ]</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>province_map <span class="ot">&lt;-</span> bmr_provinces_utm <span class="sc">|&gt;</span></span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(province_summary, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"province"</span> <span class="ot">=</span> <span class="st">"spatial_province"</span>))</span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>kde_sensitivity_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(kde_2km_df, <span class="at">bandwidth =</span> <span class="st">"2 km"</span>),</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(kde_3km_df, <span class="at">bandwidth =</span> <span class="st">"3 km"</span>),</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(kde_6km_df, <span class="at">bandwidth =</span> <span class="st">"6 km"</span>)</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>second_order_plot_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(csr_envelope_df, <span class="at">model =</span> <span class="st">"CSR"</span>),</span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transform</span>(inhomogeneous_envelope_df, <span class="at">model =</span> <span class="st">"Inhomogeneous"</span>)</span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a><span class="fu"># Introduction and study context</span></span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>Road accidents occur at specific places and times, making point-pattern methods suitable for studying their distribution. The dataset contains <span class="in">`r fmt_int(nrow(events_wgs84))`</span> distinct accident events recorded in 2022 within a six-province Bangkok Metropolitan Region (BMR). I examine where and when those records concentrate and whether nearby events remain unusually common after allowing for broad variation in intensity.</span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>The unit of analysis is a **recorded accident location**. Traffic volume, road length, vehicle kilometres travelled, road design and enforcement exposure are unavailable, so the results cannot estimate exposure-adjusted accident risk. Areas with many records may simply carry more traffic or contain more mapped roads.</span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research questions</span></span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>How did the spatial and temporal intensity of recorded BMR road accidents vary during 2022?</span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Does the point pattern show interaction beyond broad first-order intensity, and at what distances?</span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>For the bonus analysis, were spatially close accidents also unusually close in time after preserving the observed spatial and temporal margins?</span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a><span class="fu">## Objectives</span></span>
+<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a>I first audit the source data and construct the study window. I then compare temporal and spatial intensity, test complete spatial randomness (CSR) and an inhomogeneous null model, examine bandwidth sensitivity, and apply a Monte Carlo Knox test for space-time interaction.</span>
+<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data and study design</span></span>
+<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a><span class="fu">## Event and boundary data</span></span>
+<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-73"><a href="#cb15-73" aria-hidden="true" tabindex="-1"></a>The accident file was downloaded from the <span class="co">[</span><span class="ot">Thailand Road Accident 2019-2022 dataset</span><span class="co">](https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022)</span> on 9 September 2026. The Kaggle record describes 81,735 rows compiled from the Office of the Permanent Secretary, Thailand Ministry of Transport, and distributes the files under CC0. I use the incident timestamp, location, event identifier, agency, road description and casualty counts. The report timestamp is retained only for a delay diagnostic.</span>
+<span id="cb15-74"><a href="#cb15-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-75"><a href="#cb15-75" aria-hidden="true" tabindex="-1"></a>The ADM1 boundary was downloaded through the <span class="co">[</span><span class="ot">geoBoundaries API</span><span class="co">](https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/)</span> on the same date. The returned metadata identifies a 2017 boundary representation, built on 12 December 2023 from OpenStreetMap/Wambacher material under the Open Database Licence 1.0. geoBoundaries documents its open boundary workflow in Runfola et al. (2020).</span>
+<span id="cb15-76"><a href="#cb15-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-77"><a href="#cb15-77" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Source <span class="pp">|</span> Coverage used <span class="pp">|</span> Local source file <span class="pp">|</span> SHA-256 <span class="pp">|</span></span>
+<span id="cb15-78"><a href="#cb15-78" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|---|---|</span></span>
+<span id="cb15-79"><a href="#cb15-79" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Thailand Road Accident 2019-2022 <span class="pp">|</span> Incident dates from 1 January to 31 December 2022 <span class="pp">|</span> <span class="in">`thai_road_accident_2019_2022.csv`</span> <span class="pp">|</span> <span class="in">`40131c32ad417aa3a8b642cc366a3876ace4e86d8a858ee25a8c04bda9fb629c`</span> <span class="pp">|</span></span>
+<span id="cb15-80"><a href="#cb15-80" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> geoBoundaries Thailand ADM1 <span class="pp">|</span> Six BMR provinces <span class="pp">|</span> <span class="in">`geoBoundaries-THA-ADM1.geojson`</span> <span class="pp">|</span> <span class="in">`145beb11e52785a42e16997c92a65426b3df8d009941db6b012ec8e411f3e33c`</span> <span class="pp">|</span></span>
+<span id="cb15-81"><a href="#cb15-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-82"><a href="#cb15-82" aria-hidden="true" tabindex="-1"></a><span class="fu">## Spatial study window</span></span>
+<span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a>The BMR is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom and Samut Sakhon. This matches the grouping used by Thailand's <span class="co">[</span><span class="ot">National Statistical Office</span><span class="co">](https://www.nso.go.th/nsoweb/storage/survey_detail/2026/20241211125403_33653.pdf#page=16)</span>. The six ADM1 polygons form a <span class="in">`r fmt_num(bmr_area_km2, 1)`</span> km² observation window.</span>
+<span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a>I transform the boundary and events from WGS 84 to WGS 84 / UTM zone 47N (EPSG:32647). This projection covers the complete BMR; distance, area, kernel and second-order calculations are consequently made in metres instead of longitude-latitude degrees.</span>
+<span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a><span class="fu">## Point-event definition</span></span>
+<span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-90"><a href="#cb15-90" aria-hidden="true" tabindex="-1"></a>One point represents one reported accident occurrence. The temporal field is <span class="in">`incident_datetime`</span>; the spatial fields are longitude and latitude. Two pairs of rows had different accident codes but the same incident time, coordinates, agency, route, accident type and casualty totals. I treat each pair as one event and retain the earlier record. Events at identical coordinates remain separate when their timestamps differ because they may represent recurrent accidents at the same recorded location.</span>
+<span id="cb15-91"><a href="#cb15-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-92"><a href="#cb15-92" aria-hidden="true" tabindex="-1"></a>Records enter the analysis when they have a valid 2022 incident time, complete coordinates within plausible Thailand bounds, and a point inside the union of the six BMR polygons. Coordinates determine inclusion. Ten records labelled as Ayutthaya, Kanchanaburi or unknown fall inside the BMR boundary and are retained.</span>
+<span id="cb15-93"><a href="#cb15-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-96"><a href="#cb15-96" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-97"><a href="#cb15-97" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: study-area-map</span></span>
+<span id="cb15-98"><a href="#cb15-98" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Recorded road accidents retained within the six-province BMR study window."</span></span>
+<span id="cb15-99"><a href="#cb15-99" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Map of the Bangkok Metropolitan Region with accident points coloured by recorded casualty severity."</span></span>
+<span id="cb15-100"><a href="#cb15-100" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb15-101"><a href="#cb15-101" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6.5</span></span>
+<span id="cb15-102"><a href="#cb15-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-103"><a href="#cb15-103" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb15-104"><a href="#cb15-104" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> bmr_provinces_utm, <span class="at">fill =</span> <span class="st">"#f5f7fa"</span>, <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.45</span>) <span class="sc">+</span></span>
+<span id="cb15-105"><a href="#cb15-105" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb15-106"><a href="#cb15-106" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> events_utm,</span>
+<span id="cb15-107"><a href="#cb15-107" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">colour =</span> severity),</span>
+<span id="cb15-108"><a href="#cb15-108" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">0.65</span>,</span>
+<span id="cb15-109"><a href="#cb15-109" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.55</span></span>
+<span id="cb15-110"><a href="#cb15-110" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-111"><a href="#cb15-111" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(</span>
+<span id="cb15-112"><a href="#cb15-112" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> bmr_provinces_utm,</span>
+<span id="cb15-113"><a href="#cb15-113" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">label =</span> province),</span>
+<span id="cb15-114"><a href="#cb15-114" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">3</span>,</span>
+<span id="cb15-115"><a href="#cb15-115" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>],</span>
+<span id="cb15-116"><a href="#cb15-116" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> scales<span class="sc">::</span><span class="fu">alpha</span>(<span class="st">"white"</span>, <span class="fl">0.82</span>),</span>
+<span id="cb15-117"><a href="#cb15-117" aria-hidden="true" tabindex="-1"></a>    <span class="at">label.size =</span> <span class="dv">0</span>,</span>
+<span id="cb15-118"><a href="#cb15-118" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">TRUE</span></span>
+<span id="cb15-119"><a href="#cb15-119" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-120"><a href="#cb15-120" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(</span>
+<span id="cb15-121"><a href="#cb15-121" aria-hidden="true" tabindex="-1"></a>    <span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb15-122"><a href="#cb15-122" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Fatal"</span> <span class="ot">=</span> palette_main[<span class="st">"red"</span>],</span>
+<span id="cb15-123"><a href="#cb15-123" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Injury"</span> <span class="ot">=</span> palette_main[<span class="st">"amber"</span>],</span>
+<span id="cb15-124"><a href="#cb15-124" aria-hidden="true" tabindex="-1"></a>      <span class="st">"No recorded casualty"</span> <span class="ot">=</span> palette_main[<span class="st">"blue"</span>]</span>
+<span id="cb15-125"><a href="#cb15-125" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb15-126"><a href="#cb15-126" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-127"><a href="#cb15-127" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb15-128"><a href="#cb15-128" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-129"><a href="#cb15-129" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"The study window contains 3,597 distinct accident events"</span>,</span>
+<span id="cb15-130"><a href="#cb15-130" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Spatial inclusion is based on coordinates, not the reported province field"</span>,</span>
+<span id="cb15-131"><a href="#cb15-131" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"Recorded outcome"</span>,</span>
+<span id="cb15-132"><a href="#cb15-132" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Sources: Thailand Ministry of Transport data compiled on Kaggle; geoBoundaries ADM1."</span></span>
+<span id="cb15-133"><a href="#cb15-133" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-134"><a href="#cb15-134" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb15-135"><a href="#cb15-135" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb15-136"><a href="#cb15-136" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb15-137"><a href="#cb15-137" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>]),</span>
+<span id="cb15-138"><a href="#cb15-138" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">colour =</span> <span class="st">"#5b677a"</span>)</span>
+<span id="cb15-139"><a href="#cb15-139" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-140"><a href="#cb15-140" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-141"><a href="#cb15-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-142"><a href="#cb15-142" aria-hidden="true" tabindex="-1"></a>The retained points span the metropolitan core and the five surrounding provinces. Dense overlap is visible in Bangkok and its eastern approaches, while the outer western portion of Nakhon Pathom is sparse. Point overlap alone cannot establish interaction; the second-order tests below compare the pattern with explicit null models. The outcome colours also describe recorded casualties only. They do not measure crash severity consistently if reporting completeness varies by agency.</span>
+<span id="cb15-143"><a href="#cb15-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-144"><a href="#cb15-144" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 1: Data preparation and quality assessment</span></span>
+<span id="cb15-145"><a href="#cb15-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-146"><a href="#cb15-146" aria-hidden="true" tabindex="-1"></a>The source files can be acquired with <span class="co">[</span><span class="ot">`download_data.R`</span><span class="co">](scripts/download_data.R)</span>. The full preparation and analysis are in <span class="co">[</span><span class="ot">`analysis.R`</span><span class="co">](scripts/analysis.R)</span>. Both scripts use relative project paths, fixed download URLs and a fixed simulation seed.</span>
+<span id="cb15-147"><a href="#cb15-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-148"><a href="#cb15-148" aria-hidden="true" tabindex="-1"></a><span class="fu">## Reproducible processing sequence</span></span>
+<span id="cb15-149"><a href="#cb15-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-152"><a href="#cb15-152" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-153"><a href="#cb15-153" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: audit-table</span></span>
+<span id="cb15-154"><a href="#cb15-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-155"><a href="#cb15-155" aria-hidden="true" tabindex="-1"></a>audit_table <span class="sc">|&gt;</span></span>
+<span id="cb15-156"><a href="#cb15-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-157"><a href="#cb15-157" aria-hidden="true" tabindex="-1"></a>    <span class="at">retained =</span> <span class="fu">fmt_int</span>(retained),</span>
+<span id="cb15-158"><a href="#cb15-158" aria-hidden="true" tabindex="-1"></a>    <span class="at">removed_at_step =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(removed_at_step), <span class="st">"-"</span>, <span class="fu">fmt_int</span>(removed_at_step))</span>
+<span id="cb15-159"><a href="#cb15-159" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb15-160"><a href="#cb15-160" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb15-161"><a href="#cb15-161" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Processing step"</span>, <span class="st">"Records retained"</span>, <span class="st">"Removed at step"</span>),</span>
+<span id="cb15-162"><a href="#cb15-162" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="fu">c</span>(<span class="st">"l"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>),</span>
+<span id="cb15-163"><a href="#cb15-163" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Event-record audit trail"</span></span>
+<span id="cb15-164"><a href="#cb15-164" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-165"><a href="#cb15-165" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-166"><a href="#cb15-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-167"><a href="#cb15-167" aria-hidden="true" tabindex="-1"></a>The raw file contained <span class="in">`r fmt_int(nrow(accidents_raw))`</span> records. Filtering to 2022 left <span class="in">`r fmt_int(sum(in_2022))`</span>; <span class="in">`r fmt_int(sum(in_2022 &amp; !complete_coordinates))`</span> had no usable coordinate pair. No complete 2022 coordinate lay outside the broad Thailand bounds. Spatial filtering retained 3,599 BMR points, and the probable duplicate-event rule removed two rows. The final pattern contains <span class="in">`r fmt_int(nrow(events_wgs84))`</span> events.</span>
+<span id="cb15-168"><a href="#cb15-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-169"><a href="#cb15-169" aria-hidden="true" tabindex="-1"></a><span class="fu">## Diagnostic checks</span></span>
+<span id="cb15-170"><a href="#cb15-170" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-173"><a href="#cb15-173" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-174"><a href="#cb15-174" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: quality-table</span></span>
+<span id="cb15-175"><a href="#cb15-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-176"><a href="#cb15-176" aria-hidden="true" tabindex="-1"></a>quality_metrics <span class="sc">|&gt;</span></span>
+<span id="cb15-177"><a href="#cb15-177" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">count =</span> <span class="fu">fmt_int</span>(count)) <span class="sc">|&gt;</span></span>
+<span id="cb15-178"><a href="#cb15-178" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb15-179"><a href="#cb15-179" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Diagnostic"</span>, <span class="st">"Count"</span>),</span>
+<span id="cb15-180"><a href="#cb15-180" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="fu">c</span>(<span class="st">"l"</span>, <span class="st">"r"</span>),</span>
+<span id="cb15-181"><a href="#cb15-181" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Quality checks affecting analysis or interpretation"</span></span>
+<span id="cb15-182"><a href="#cb15-182" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-183"><a href="#cb15-183" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-184"><a href="#cb15-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-185"><a href="#cb15-185" aria-hidden="true" tabindex="-1"></a>Fourteen records have a reported province that differs from the polygon containing the coordinates, including the ten records with a non-BMR label. Boundary vintages and point precision can disagree near provincial borders, so I report the mismatch and leave the source label unchanged.</span>
+<span id="cb15-186"><a href="#cb15-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-187"><a href="#cb15-187" aria-hidden="true" tabindex="-1"></a>Another <span class="in">`r fmt_int(quality_metrics$count[quality_metrics$check == "Additional events at an already-used exact coordinate"])`</span> events share a coordinate already used by an earlier event. I retain them when event times differ, preserving possible recurrence at the cost of potentially larger short-distance statistics when locations have been snapped. Incident time is complete and defines the temporal pattern; report delay is used only as a quality check.</span>
+<span id="cb15-188"><a href="#cb15-188" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-189"><a href="#cb15-189" aria-hidden="true" tabindex="-1"></a><span class="fu">## Derived fields and spatial objects</span></span>
+<span id="cb15-190"><a href="#cb15-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-191"><a href="#cb15-191" aria-hidden="true" tabindex="-1"></a>I derive month, weekday, hour, four daily periods, casualty outcome and report delay. The script creates <span class="in">`sf`</span> point and polygon objects in WGS 84 and EPSG:32647, then converts the projected points and union boundary to a <span class="in">`ppp`</span> object. All boundary geometries pass <span class="in">`st_is_valid()`</span> after validation.</span>
+<span id="cb15-192"><a href="#cb15-192" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-193"><a href="#cb15-193" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 2: First-order point-pattern analysis</span></span>
+<span id="cb15-194"><a href="#cb15-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-195"><a href="#cb15-195" aria-hidden="true" tabindex="-1"></a>First-order analysis describes variation in the expected event intensity. It does not test whether events interact after that intensity is specified.</span>
+<span id="cb15-196"><a href="#cb15-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-197"><a href="#cb15-197" aria-hidden="true" tabindex="-1"></a><span class="fu">## Temporal intensity</span></span>
+<span id="cb15-198"><a href="#cb15-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-199"><a href="#cb15-199" aria-hidden="true" tabindex="-1"></a>I divide each monthly count by the number of days in that month so February is compared on the same daily-rate basis as the other months.</span>
+<span id="cb15-200"><a href="#cb15-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-203"><a href="#cb15-203" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-204"><a href="#cb15-204" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: monthly-intensity</span></span>
+<span id="cb15-205"><a href="#cb15-205" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Average recorded accidents per day by month in 2022."</span></span>
+<span id="cb15-206"><a href="#cb15-206" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Line chart showing monthly average daily accident counts, highest in October and lowest in February."</span></span>
+<span id="cb15-207"><a href="#cb15-207" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb15-208"><a href="#cb15-208" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4.8</span></span>
+<span id="cb15-209"><a href="#cb15-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-210"><a href="#cb15-210" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(monthly_summary, <span class="fu">aes</span>(month_number, events_per_day)) <span class="sc">+</span></span>
+<span id="cb15-211"><a href="#cb15-211" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="at">fill =</span> palette_main[<span class="st">"blue"</span>], <span class="at">alpha =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
+<span id="cb15-212"><a href="#cb15-212" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> palette_main[<span class="st">"blue"</span>], <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb15-213"><a href="#cb15-213" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> palette_main[<span class="st">"navy"</span>], <span class="at">size =</span> <span class="fl">2.5</span>) <span class="sc">+</span></span>
+<span id="cb15-214"><a href="#cb15-214" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>, <span class="at">labels =</span> month.abb) <span class="sc">+</span></span>
+<span id="cb15-215"><a href="#cb15-215" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.08</span>))) <span class="sc">+</span></span>
+<span id="cb15-216"><a href="#cb15-216" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-217"><a href="#cb15-217" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Recorded accident intensity rose in the final quarter"</span>,</span>
+<span id="cb15-218"><a href="#cb15-218" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Counts are normalised by days in each month"</span>,</span>
+<span id="cb15-219"><a href="#cb15-219" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb15-220"><a href="#cb15-220" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Events per day"</span>,</span>
+<span id="cb15-221"><a href="#cb15-221" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Source: Thailand Road Accident 2019-2022, restricted spatially to the BMR."</span></span>
+<span id="cb15-222"><a href="#cb15-222" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-223"><a href="#cb15-223" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-224"><a href="#cb15-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-225"><a href="#cb15-225" aria-hidden="true" tabindex="-1"></a><span class="in">`r as.character(peak_month_row$month)`</span> recorded the highest daily rate at <span class="in">`r fmt_num(peak_month_row$events_per_day, 1)`</span> events per day; <span class="in">`r as.character(low_month_row$month)`</span> recorded the lowest at <span class="in">`r fmt_num(low_month_row$events_per_day, 1)`</span>. The final quarter contains the three highest monthly counts, while April forms an earlier local peak. The dataset provides events but no monthly traffic exposure, so the pattern could reflect travel volume, reporting changes, weather or enforcement as well as a change in accident propensity.</span>
+<span id="cb15-226"><a href="#cb15-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-229"><a href="#cb15-229" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-230"><a href="#cb15-230" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: hourly-intensity</span></span>
+<span id="cb15-231"><a href="#cb15-231" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Recorded accident counts by incident hour."</span></span>
+<span id="cb15-232"><a href="#cb15-232" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Bar chart of accidents by hour, with the highest count at 7 pm."</span></span>
+<span id="cb15-233"><a href="#cb15-233" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb15-234"><a href="#cb15-234" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb15-235"><a href="#cb15-235" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-236"><a href="#cb15-236" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(hourly_summary, <span class="fu">aes</span>(hour, events)) <span class="sc">+</span></span>
+<span id="cb15-237"><a href="#cb15-237" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> palette_main[<span class="st">"teal"</span>], <span class="at">width =</span> <span class="fl">0.82</span>) <span class="sc">+</span></span>
+<span id="cb15-238"><a href="#cb15-238" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">23</span>, <span class="at">by =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb15-239"><a href="#cb15-239" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.08</span>))) <span class="sc">+</span></span>
+<span id="cb15-240"><a href="#cb15-240" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-241"><a href="#cb15-241" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"The recorded hourly maximum occurred at 19:00"</span>,</span>
+<span id="cb15-242"><a href="#cb15-242" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste0</span>(</span>
+<span id="cb15-243"><a href="#cb15-243" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fmt_int</span>(peak_hour_row<span class="sc">$</span>events),</span>
+<span id="cb15-244"><a href="#cb15-244" aria-hidden="true" tabindex="-1"></a>      <span class="st">" events were recorded during the 19:00 hour"</span></span>
+<span id="cb15-245"><a href="#cb15-245" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb15-246"><a href="#cb15-246" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Hour of day"</span>,</span>
+<span id="cb15-247"><a href="#cb15-247" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Recorded events"</span></span>
+<span id="cb15-248"><a href="#cb15-248" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-249"><a href="#cb15-249" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-250"><a href="#cb15-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-251"><a href="#cb15-251" aria-hidden="true" tabindex="-1"></a>The hourly series has a broad daytime and evening elevation rather than a single sharp commute peak. The largest count is <span class="in">`r fmt_int(peak_hour_row$events)`</span> at <span class="in">`r sprintf("%02d:00", peak_hour_row$hour)`</span>, while the overnight minimum is 89 at 04:00. These are event counts per clock hour across the year. Without hourly traffic volume, the chart cannot distinguish greater exposure from greater event probability.</span>
+<span id="cb15-252"><a href="#cb15-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-253"><a href="#cb15-253" aria-hidden="true" tabindex="-1"></a><span class="fu">## Province-level event density</span></span>
+<span id="cb15-254"><a href="#cb15-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-257"><a href="#cb15-257" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-258"><a href="#cb15-258" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: province-density</span></span>
+<span id="cb15-259"><a href="#cb15-259" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Recorded accident events per 100 square kilometres by spatially assigned province."</span></span>
+<span id="cb15-260"><a href="#cb15-260" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Choropleth map showing the highest accident event density in Bangkok, followed by Samut Prakan."</span></span>
+<span id="cb15-261"><a href="#cb15-261" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb15-262"><a href="#cb15-262" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6</span></span>
+<span id="cb15-263"><a href="#cb15-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-264"><a href="#cb15-264" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(province_map) <span class="sc">+</span></span>
+<span id="cb15-265"><a href="#cb15-265" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> events_per_100_km2), <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.55</span>) <span class="sc">+</span></span>
+<span id="cb15-266"><a href="#cb15-266" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf_label</span>(</span>
+<span id="cb15-267"><a href="#cb15-267" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(province, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">fmt_num</span>(events_per_100_km2, <span class="dv">1</span>))),</span>
+<span id="cb15-268"><a href="#cb15-268" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">3.1</span>,</span>
+<span id="cb15-269"><a href="#cb15-269" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>],</span>
+<span id="cb15-270"><a href="#cb15-270" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> scales<span class="sc">::</span><span class="fu">alpha</span>(<span class="st">"white"</span>, <span class="fl">0.82</span>),</span>
+<span id="cb15-271"><a href="#cb15-271" aria-hidden="true" tabindex="-1"></a>    <span class="at">label.size =</span> <span class="dv">0</span>,</span>
+<span id="cb15-272"><a href="#cb15-272" aria-hidden="true" tabindex="-1"></a>    <span class="at">check_overlap =</span> <span class="cn">TRUE</span></span>
+<span id="cb15-273"><a href="#cb15-273" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-274"><a href="#cb15-274" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb15-275"><a href="#cb15-275" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb15-276"><a href="#cb15-276" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-277"><a href="#cb15-277" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Bangkok has the highest event density by land area"</span>,</span>
+<span id="cb15-278"><a href="#cb15-278" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Labels show events per 100 km²; the measure is not traffic-adjusted risk"</span>,</span>
+<span id="cb15-279"><a href="#cb15-279" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Events per</span><span class="sc">\n</span><span class="st">100 km²"</span>,</span>
+<span id="cb15-280"><a href="#cb15-280" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Spatial province is assigned from geoBoundaries ADM1 polygons."</span></span>
+<span id="cb15-281"><a href="#cb15-281" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-282"><a href="#cb15-282" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb15-283"><a href="#cb15-283" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb15-284"><a href="#cb15-284" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
+<span id="cb15-285"><a href="#cb15-285" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>]),</span>
+<span id="cb15-286"><a href="#cb15-286" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">colour =</span> <span class="st">"#5b677a"</span>)</span>
+<span id="cb15-287"><a href="#cb15-287" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-288"><a href="#cb15-288" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-289"><a href="#cb15-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-290"><a href="#cb15-290" aria-hidden="true" tabindex="-1"></a>Bangkok records <span class="in">`r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Bangkok"], 1)`</span> events per 100 km², followed by Samut Prakan at <span class="in">`r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Samut Prakan"], 1)`</span>. Nakhon Pathom has <span class="in">`r fmt_num(province_summary$events_per_100_km2[province_summary$spatial_province == "Nakhon Pathom"], 1)`</span>. Dividing by land area controls only for polygon size. It does not control for road length, traffic volume or reporting coverage, so the map identifies where records are concentrated rather than where an individual journey is most dangerous.</span>
+<span id="cb15-291"><a href="#cb15-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-292"><a href="#cb15-292" aria-hidden="true" tabindex="-1"></a><span class="fu">## Kernel intensity estimate</span></span>
+<span id="cb15-293"><a href="#cb15-293" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-294"><a href="#cb15-294" aria-hidden="true" tabindex="-1"></a>Kernel density estimation (KDE) smooths event locations into an estimated intensity surface. I use a Gaussian kernel, 500 m output grid, edge correction and a 3 km primary bandwidth. Likelihood cross-validation selected approximately <span class="in">`r fmt_int(coordinate_bandwidths["likelihood_cross_validation"])`</span> m, producing a fragmented surface dominated by road-constrained points and repeated coordinates. I chose 3 km for the planning-scale question about broad concentrations, then compare it with 2 km and 6 km estimates.</span>
+<span id="cb15-295"><a href="#cb15-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-298"><a href="#cb15-298" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-299"><a href="#cb15-299" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: kde-primary</span></span>
+<span id="cb15-300"><a href="#cb15-300" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Edge-corrected kernel intensity of recorded accidents using a 3 km Gaussian bandwidth."</span></span>
+<span id="cb15-301"><a href="#cb15-301" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Kernel density map with the highest accident intensity across central and eastern Bangkok."</span></span>
+<span id="cb15-302"><a href="#cb15-302" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb15-303"><a href="#cb15-303" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 6.5</span></span>
+<span id="cb15-304"><a href="#cb15-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-305"><a href="#cb15-305" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb15-306"><a href="#cb15-306" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_raster</span>(</span>
+<span id="cb15-307"><a href="#cb15-307" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> kde_3km_df,</span>
+<span id="cb15-308"><a href="#cb15-308" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(x, y, <span class="at">fill =</span> events_per_km2)</span>
+<span id="cb15-309"><a href="#cb15-309" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-310"><a href="#cb15-310" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> bmr_provinces_utm, <span class="at">fill =</span> <span class="cn">NA</span>, <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb15-311"><a href="#cb15-311" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb15-312"><a href="#cb15-312" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>, <span class="at">expand =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb15-313"><a href="#cb15-313" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-314"><a href="#cb15-314" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Broad accident concentration centres on Bangkok and its eastern approaches"</span>,</span>
+<span id="cb15-315"><a href="#cb15-315" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Gaussian KDE, 3 km bandwidth, 500 m grid and edge correction"</span>,</span>
+<span id="cb15-316"><a href="#cb15-316" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Estimated annual</span><span class="sc">\n</span><span class="st">events per km²"</span>,</span>
+<span id="cb15-317"><a href="#cb15-317" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Intensity is a smoothed count surface, not exposure-adjusted risk."</span></span>
+<span id="cb15-318"><a href="#cb15-318" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-319"><a href="#cb15-319" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb15-320"><a href="#cb15-320" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb15-321"><a href="#cb15-321" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
+<span id="cb15-322"><a href="#cb15-322" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>]),</span>
+<span id="cb15-323"><a href="#cb15-323" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">colour =</span> <span class="st">"#5b677a"</span>)</span>
+<span id="cb15-324"><a href="#cb15-324" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-325"><a href="#cb15-325" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-326"><a href="#cb15-326" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-327"><a href="#cb15-327" aria-hidden="true" tabindex="-1"></a>The 3 km surface reaches <span class="in">`r fmt_num(max(kde_3km_df$events_per_km2), 1)`</span> estimated annual events per km² and places the broadest high-intensity zone across Bangkok, extending east towards Samut Prakan. Smaller concentrations follow developed corridors in the surrounding provinces. The kernel is evaluated in planar space even though crashes occur on roads. It therefore smooths across locations that may not be connected by the road network and should not be used to select an individual junction without finer road and exposure data.</span>
+<span id="cb15-328"><a href="#cb15-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-329"><a href="#cb15-329" aria-hidden="true" tabindex="-1"></a><span class="fu">## Bandwidth sensitivity</span></span>
+<span id="cb15-330"><a href="#cb15-330" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-333"><a href="#cb15-333" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-334"><a href="#cb15-334" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: kde-sensitivity</span></span>
+<span id="cb15-335"><a href="#cb15-335" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "KDE sensitivity at 2 km, 3 km and 6 km bandwidths on a common colour scale."</span></span>
+<span id="cb15-336"><a href="#cb15-336" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Three maps comparing accident intensity under increasingly broad kernel bandwidths."</span></span>
+<span id="cb15-337"><a href="#cb15-337" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 11</span></span>
+<span id="cb15-338"><a href="#cb15-338" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4.5</span></span>
+<span id="cb15-339"><a href="#cb15-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-340"><a href="#cb15-340" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(kde_sensitivity_df, <span class="fu">aes</span>(x, y, <span class="at">fill =</span> events_per_km2)) <span class="sc">+</span></span>
+<span id="cb15-341"><a href="#cb15-341" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_raster</span>() <span class="sc">+</span></span>
+<span id="cb15-342"><a href="#cb15-342" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb15-343"><a href="#cb15-343" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> bmr_provinces_utm,</span>
+<span id="cb15-344"><a href="#cb15-344" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="cn">NA</span>,</span>
+<span id="cb15-345"><a href="#cb15-345" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"white"</span>,</span>
+<span id="cb15-346"><a href="#cb15-346" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.2</span>,</span>
+<span id="cb15-347"><a href="#cb15-347" aria-hidden="true" tabindex="-1"></a>    <span class="at">inherit.aes =</span> <span class="cn">FALSE</span></span>
+<span id="cb15-348"><a href="#cb15-348" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-349"><a href="#cb15-349" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>bandwidth, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb15-350"><a href="#cb15-350" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"C"</span>, <span class="at">direction =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb15-351"><a href="#cb15-351" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(<span class="at">datum =</span> <span class="cn">NA</span>, <span class="at">expand =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb15-352"><a href="#cb15-352" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-353"><a href="#cb15-353" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"The metropolitan core remains prominent under wider smoothing"</span>,</span>
+<span id="cb15-354"><a href="#cb15-354" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"All panels use the same intensity scale"</span>,</span>
+<span id="cb15-355"><a href="#cb15-355" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Events per km²"</span></span>
+<span id="cb15-356"><a href="#cb15-356" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-357"><a href="#cb15-357" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb15-358"><a href="#cb15-358" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb15-359"><a href="#cb15-359" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span>,</span>
+<span id="cb15-360"><a href="#cb15-360" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb15-361"><a href="#cb15-361" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">colour =</span> palette_main[<span class="st">"navy"</span>]),</span>
+<span id="cb15-362"><a href="#cb15-362" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">colour =</span> <span class="st">"#5b677a"</span>)</span>
+<span id="cb15-363"><a href="#cb15-363" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-364"><a href="#cb15-364" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-365"><a href="#cb15-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-366"><a href="#cb15-366" aria-hidden="true" tabindex="-1"></a>The 2 km estimate resolves more local peaks, while 6 km merges neighbouring concentrations into a broad metropolitan gradient. Event-level intensity ranks correlate at <span class="in">`r fmt_num(intensity_rank_correlations$spearman_rho[1], 2)`</span> between 2 km and 3 km and <span class="in">`r fmt_num(intensity_rank_correlations$spearman_rho[2], 2)`</span> between 3 km and 6 km. The broad Bangkok-Samut Prakan concentration is stable, but the exact shape and height of local peaks are bandwidth-dependent.</span>
+<span id="cb15-367"><a href="#cb15-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-368"><a href="#cb15-368" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 3: Second-order point-pattern analysis</span></span>
+<span id="cb15-369"><a href="#cb15-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-370"><a href="#cb15-370" aria-hidden="true" tabindex="-1"></a><span class="fu">## Research question and test design</span></span>
+<span id="cb15-371"><a href="#cb15-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-372"><a href="#cb15-372" aria-hidden="true" tabindex="-1"></a>The second-order question is whether accidents retain more neighbours within 0-15 km than expected after broad intensity variation is represented. I use the transformed L-function, $L(r)-r$, because zero is the theoretical reference under a Poisson process. Positive departures indicate more neighbours within distance $r$ than the null predicts; negative departures indicate fewer.</span>
+<span id="cb15-373"><a href="#cb15-373" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-374"><a href="#cb15-374" aria-hidden="true" tabindex="-1"></a>I compare two null models:</span>
+<span id="cb15-375"><a href="#cb15-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-376"><a href="#cb15-376" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**CSR:** 99 simulations place the observed number of events uniformly within the BMR. It supplies a simple benchmark, although uneven roads and activity make uniform intensity unrealistic.</span>
+<span id="cb15-377"><a href="#cb15-377" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Inhomogeneous Poisson:** 99 simulations draw the observed event count from a fixed 6 km pilot intensity. Broad first-order variation is retained while events remain independent conditional on intensity.</span>
+<span id="cb15-378"><a href="#cb15-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-379"><a href="#cb15-379" aria-hidden="true" tabindex="-1"></a>Both tests use 0-15 km at 250 m intervals, translation edge correction, WGS 84 / UTM 47N and pointwise 95% simulation envelopes. A maximum-standardised-deviation statistic supplies a global Monte Carlo test. Conditioning on event count prevents total-count variation from dominating the comparison.</span>
+<span id="cb15-380"><a href="#cb15-380" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-381"><a href="#cb15-381" aria-hidden="true" tabindex="-1"></a><span class="fu">## Results against the null models</span></span>
+<span id="cb15-382"><a href="#cb15-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-385"><a href="#cb15-385" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-386"><a href="#cb15-386" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: second-order-envelopes</span></span>
+<span id="cb15-387"><a href="#cb15-387" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Observed L(r)-r compared with pointwise 95% envelopes under CSR and an inhomogeneous Poisson null."</span></span>
+<span id="cb15-388"><a href="#cb15-388" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Two L-function envelope plots showing strong clustering under CSR and residual short-distance clustering under the inhomogeneous model."</span></span>
+<span id="cb15-389"><a href="#cb15-389" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 11</span></span>
+<span id="cb15-390"><a href="#cb15-390" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5.2</span></span>
+<span id="cb15-391"><a href="#cb15-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-392"><a href="#cb15-392" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(second_order_plot_df, <span class="fu">aes</span>(r <span class="sc">/</span> <span class="dv">1000</span>)) <span class="sc">+</span></span>
+<span id="cb15-393"><a href="#cb15-393" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(</span>
+<span id="cb15-394"><a href="#cb15-394" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">ymin =</span> low_minus_r <span class="sc">/</span> <span class="dv">1000</span>, <span class="at">ymax =</span> high_minus_r <span class="sc">/</span> <span class="dv">1000</span>),</span>
+<span id="cb15-395"><a href="#cb15-395" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> palette_main[<span class="st">"grey"</span>],</span>
+<span id="cb15-396"><a href="#cb15-396" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.9</span></span>
+<span id="cb15-397"><a href="#cb15-397" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-398"><a href="#cb15-398" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"#6b7280"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
+<span id="cb15-399"><a href="#cb15-399" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> observed_minus_r <span class="sc">/</span> <span class="dv">1000</span>), <span class="at">colour =</span> palette_main[<span class="st">"red"</span>], <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb15-400"><a href="#cb15-400" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>model, <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb15-401"><a href="#cb15-401" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">15</span>, <span class="at">by =</span> <span class="dv">3</span>)) <span class="sc">+</span></span>
+<span id="cb15-402"><a href="#cb15-402" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-403"><a href="#cb15-403" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Broad intensity explains part, but not all, of the spatial clustering"</span>,</span>
+<span id="cb15-404"><a href="#cb15-404" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Red: observed pattern; grey: pointwise 95% simulation envelope"</span>,</span>
+<span id="cb15-405"><a href="#cb15-405" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Distance r (km)"</span>,</span>
+<span id="cb15-406"><a href="#cb15-406" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"L(r) - r (km)"</span></span>
+<span id="cb15-407"><a href="#cb15-407" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-408"><a href="#cb15-408" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-409"><a href="#cb15-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-410"><a href="#cb15-410" aria-hidden="true" tabindex="-1"></a>CSR is rejected by the global deviation test ($p$ = <span class="in">`r fmt_num(second_order_tests$global_deviation_p[1], 2)`</span>), and the observed curve lies above the envelope from 0.25 km through 15 km. The comparison confirms that apparent concentration on a map is insufficient evidence without a statistical reference.</span>
+<span id="cb15-411"><a href="#cb15-411" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-412"><a href="#cb15-412" aria-hidden="true" tabindex="-1"></a>The inhomogeneous null is also rejected ($p$ = <span class="in">`r fmt_num(second_order_tests$global_deviation_p[2], 2)`</span>). The observed curve is above the envelope from <span class="in">`r fmt_num(inhomogeneous_ranges$min_m[inhomogeneous_ranges$relation == "above"] / 1000, 2)`</span> to <span class="in">`r fmt_num(inhomogeneous_ranges$max_m[inhomogeneous_ranges$relation == "above"] / 1000, 2)`</span> km. The broad first-order trend therefore does not account for all of the excess neighbouring events. The result may also reflect road-network support, shared coordinates or a pilot surface that is too smooth to represent every relevant component of intensity.</span>
+<span id="cb15-413"><a href="#cb15-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-414"><a href="#cb15-414" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 4: Integrated findings and interpretation</span></span>
+<span id="cb15-415"><a href="#cb15-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-416"><a href="#cb15-416" aria-hidden="true" tabindex="-1"></a>First-order results establish a metropolitan gradient: Bangkok has the highest event density per land area, the KDE extends the main concentration into Samut Prakan, and daily event counts are highest in the final quarter. These measures describe where and when more records are expected.</span>
+<span id="cb15-417"><a href="#cb15-417" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-418"><a href="#cb15-418" aria-hidden="true" tabindex="-1"></a>The second-order results answer a different question. Uniform CSR cannot account for the pattern at any tested scale. A broad 6 km intensity surface explains some of that departure, but pairs remain more numerous than expected from 0.25 km to 14.5 km. The remaining structure is consistent with recurrent locations and connected groups of roads or activity centres embedded within the larger metropolitan gradient.</span>
+<span id="cb15-419"><a href="#cb15-419" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-420"><a href="#cb15-420" aria-hidden="true" tabindex="-1"></a><span class="fu">## Coordinate-reuse sensitivity</span></span>
+<span id="cb15-421"><a href="#cb15-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-422"><a href="#cb15-422" aria-hidden="true" tabindex="-1"></a>Shared or snapped coordinates are one possible source of short-range pairs. I evaluate that issue below by repeating the inhomogeneous test with one event retained at each exact coordinate.</span>
+<span id="cb15-423"><a href="#cb15-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-426"><a href="#cb15-426" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-427"><a href="#cb15-427" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: coordinate-reuse-sensitivity</span></span>
+<span id="cb15-428"><a href="#cb15-428" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-429"><a href="#cb15-429" aria-hidden="true" tabindex="-1"></a>coordinate_reuse_sensitivity <span class="sc">|&gt;</span></span>
+<span id="cb15-430"><a href="#cb15-430" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb15-431"><a href="#cb15-431" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sample =</span> sample,</span>
+<span id="cb15-432"><a href="#cb15-432" aria-hidden="true" tabindex="-1"></a>    <span class="at">Events =</span> <span class="fu">fmt_int</span>(events),</span>
+<span id="cb15-433"><a href="#cb15-433" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Global p</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(global_deviation_p, <span class="dv">2</span>),</span>
+<span id="cb15-434"><a href="#cb15-434" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Above envelope from (km)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(above_from_m <span class="sc">/</span> <span class="dv">1000</span>, <span class="dv">2</span>),</span>
+<span id="cb15-435"><a href="#cb15-435" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Above envelope to (km)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(above_to_m <span class="sc">/</span> <span class="dv">1000</span>, <span class="dv">2</span>)</span>
+<span id="cb15-436"><a href="#cb15-436" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb15-437"><a href="#cb15-437" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb15-438"><a href="#cb15-438" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="fu">c</span>(<span class="st">"l"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>),</span>
+<span id="cb15-439"><a href="#cb15-439" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Sensitivity of the inhomogeneous test to repeated coordinates"</span></span>
+<span id="cb15-440"><a href="#cb15-440" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-441"><a href="#cb15-441" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-442"><a href="#cb15-442" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-443"><a href="#cb15-443" aria-hidden="true" tabindex="-1"></a>Removing the 319 repeated-coordinate events leaves <span class="in">`r fmt_int(coordinate_reuse_sensitivity$events[2])`</span> unique locations. The global test remains significant ($p$ = <span class="in">`r fmt_num(coordinate_reuse_sensitivity$global_deviation_p[2], 2)`</span>), with the observed curve above its envelope from <span class="in">`r fmt_num(coordinate_reuse_sensitivity$above_from_m[2] / 1000, 2)`</span> to <span class="in">`r fmt_num(coordinate_reuse_sensitivity$above_to_m[2] / 1000, 2)`</span> km. Coordinate reuse therefore does not account for the residual clustering conclusion.</span>
+<span id="cb15-444"><a href="#cb15-444" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-445"><a href="#cb15-445" aria-hidden="true" tabindex="-1"></a>Accidents occur on a road network, whereas the inhomogeneous model allows points throughout the polygon. The 6 km pilot bandwidth also separates broad trend from local interaction by design: a narrower pilot could absorb some local structure, while a wider pilot could leave more of it unexplained.</span>
+<span id="cb15-446"><a href="#cb15-446" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-447"><a href="#cb15-447" aria-hidden="true" tabindex="-1"></a>The bandwidth sensitivity maps retain the main Bangkok-Samut Prakan concentration, with high rank correlation across 2-6 km smoothing. This supports the broad first-order conclusion, not the exact boundary of an individual hotspot.</span>
+<span id="cb15-448"><a href="#cb15-448" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-449"><a href="#cb15-449" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 5: Geovisualisation and geocommunication</span></span>
+<span id="cb15-450"><a href="#cb15-450" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-451"><a href="#cb15-451" aria-hidden="true" tabindex="-1"></a>The visual sequence moves from study design to temporal variation, areal density, continuous intensity and null-model testing. Province maps use spatially assigned boundaries rather than the reported label. KDE panels share a common scale when compared. Every distance-based graphic uses kilometres, while areal density and kernel intensity state their units explicitly.</span>
+<span id="cb15-452"><a href="#cb15-452" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-453"><a href="#cb15-453" aria-hidden="true" tabindex="-1"></a>The maps avoid a road-risk label because the denominator is absent. The L-function figure pairs the observed curve with its reference envelope so that clustering is not inferred from appearance alone. The bonus plot below exposes the full permutation distribution rather than reporting a $p$-value without context.</span>
+<span id="cb15-454"><a href="#cb15-454" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-455"><a href="#cb15-455" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 6: Public-safety planning and management</span></span>
+<span id="cb15-456"><a href="#cb15-456" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-457"><a href="#cb15-457" aria-hidden="true" tabindex="-1"></a>The stable 2-6 km concentration makes Bangkok and the routes towards Samut Prakan reasonable starting points for detailed diagnostic review. The evidence identifies areas with many recorded events; it does not prove that these roads carry the highest crash risk. Before reallocating resources, agencies should attach road length, traffic volume, speed, junction design and enforcement data to the identified zones.</span>
+<span id="cb15-458"><a href="#cb15-458" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-459"><a href="#cb15-459" aria-hidden="true" tabindex="-1"></a>The October-December rise and the evening maximum provide a basis for reviewing staffing and monitoring schedules. Agencies could compare those periods with traffic counts, rainfall, holidays and enforcement activity. If exposure-adjusted rates also rise, targeted patrols, public messaging or temporary engineering measures could be tested. The present data alone do not show which intervention would work.</span>
+<span id="cb15-460"><a href="#cb15-460" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-461"><a href="#cb15-461" aria-hidden="true" tabindex="-1"></a>Residual clustering across 0.25-14.5 km suggests that province-wide averages hide structure at several operational scales. A follow-up network analysis should locate accidents on verified road segments, audit exact-coordinate reuse and calculate segment-level rates using vehicle kilometres or traffic counts. Sites should then be inspected for modifiable features such as geometry, visibility, crossing demand or speed environment.</span>
+<span id="cb15-462"><a href="#cb15-462" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-463"><a href="#cb15-463" aria-hidden="true" tabindex="-1"></a>The space-time result warrants short-horizon monitoring, with each cluster alert treated as a prompt for review. Repeated reporting practices, temporary works, weather and short-term traffic changes can all create local event bursts. A practical monitoring system would combine event alerts with exposure and operational data, then record whether interventions reduce comparable exposure-adjusted outcomes.</span>
+<span id="cb15-464"><a href="#cb15-464" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-465"><a href="#cb15-465" aria-hidden="true" tabindex="-1"></a><span class="fu"># Bonus: Monte Carlo Knox space-time interaction test</span></span>
+<span id="cb15-466"><a href="#cb15-466" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-467"><a href="#cb15-467" aria-hidden="true" tabindex="-1"></a>The bonus analysis asks whether spatially close accidents also occur closer in time than expected. I use the Knox statistic to count pairs meeting both a spatial and temporal threshold. A 199-run randomisation permutes complete incident times across fixed accident locations, preserving the observed spatial pattern, seasonality and hourly distribution while breaking location-time association. The one-sided Monte Carlo $p$-value is $(1 + \text{simulations at least as large as observed}) / 200$.</span>
+<span id="cb15-468"><a href="#cb15-468" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-471"><a href="#cb15-471" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-472"><a href="#cb15-472" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: knox-results-table</span></span>
+<span id="cb15-473"><a href="#cb15-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-474"><a href="#cb15-474" aria-hidden="true" tabindex="-1"></a>knox_results <span class="sc">|&gt;</span></span>
+<span id="cb15-475"><a href="#cb15-475" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb15-476"><a href="#cb15-476" aria-hidden="true" tabindex="-1"></a>    <span class="at">Threshold =</span> label,</span>
+<span id="cb15-477"><a href="#cb15-477" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Observed pairs</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_int</span>(observed_pairs),</span>
+<span id="cb15-478"><a href="#cb15-478" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Mean under permutation</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(expected_pairs, <span class="dv">1</span>),</span>
+<span id="cb15-479"><a href="#cb15-479" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Excess (%)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(excess_percent, <span class="dv">1</span>),</span>
+<span id="cb15-480"><a href="#cb15-480" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Monte Carlo p</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">fmt_num</span>(p_value, <span class="dv">3</span>)</span>
+<span id="cb15-481"><a href="#cb15-481" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb15-482"><a href="#cb15-482" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb15-483"><a href="#cb15-483" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="fu">c</span>(<span class="st">"l"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>, <span class="st">"r"</span>),</span>
+<span id="cb15-484"><a href="#cb15-484" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Knox space-time interaction results across three scales"</span></span>
+<span id="cb15-485"><a href="#cb15-485" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-486"><a href="#cb15-486" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-487"><a href="#cb15-487" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-490"><a href="#cb15-490" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-491"><a href="#cb15-491" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: knox-permutation</span></span>
+<span id="cb15-492"><a href="#cb15-492" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Permutation distribution for accident pairs within 1 km and 7 days."</span></span>
+<span id="cb15-493"><a href="#cb15-493" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-alt: "Histogram of simulated Knox pair counts with the observed count shown to the right of all simulations."</span></span>
+<span id="cb15-494"><a href="#cb15-494" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb15-495"><a href="#cb15-495" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4.8</span></span>
+<span id="cb15-496"><a href="#cb15-496" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-497"><a href="#cb15-497" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(knox_primary_simulation, <span class="fu">aes</span>(simulated_pairs)) <span class="sc">+</span></span>
+<span id="cb15-498"><a href="#cb15-498" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(</span>
+<span id="cb15-499"><a href="#cb15-499" aria-hidden="true" tabindex="-1"></a>    <span class="at">bins =</span> <span class="dv">24</span>,</span>
+<span id="cb15-500"><a href="#cb15-500" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> palette_main[<span class="st">"blue"</span>],</span>
+<span id="cb15-501"><a href="#cb15-501" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"white"</span></span>
+<span id="cb15-502"><a href="#cb15-502" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-503"><a href="#cb15-503" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(</span>
+<span id="cb15-504"><a href="#cb15-504" aria-hidden="true" tabindex="-1"></a>    <span class="at">xintercept =</span> knox_results<span class="sc">$</span>observed_pairs[<span class="dv">2</span>],</span>
+<span id="cb15-505"><a href="#cb15-505" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> palette_main[<span class="st">"red"</span>],</span>
+<span id="cb15-506"><a href="#cb15-506" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">1.1</span></span>
+<span id="cb15-507"><a href="#cb15-507" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-508"><a href="#cb15-508" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(</span>
+<span id="cb15-509"><a href="#cb15-509" aria-hidden="true" tabindex="-1"></a>    <span class="st">"text"</span>,</span>
+<span id="cb15-510"><a href="#cb15-510" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> knox_results<span class="sc">$</span>observed_pairs[<span class="dv">2</span>],</span>
+<span id="cb15-511"><a href="#cb15-511" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="cn">Inf</span>,</span>
+<span id="cb15-512"><a href="#cb15-512" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">paste</span>(<span class="st">"Observed:"</span>, <span class="fu">fmt_int</span>(knox_results<span class="sc">$</span>observed_pairs[<span class="dv">2</span>])),</span>
+<span id="cb15-513"><a href="#cb15-513" aria-hidden="true" tabindex="-1"></a>    <span class="at">hjust =</span> <span class="fl">1.05</span>,</span>
+<span id="cb15-514"><a href="#cb15-514" aria-hidden="true" tabindex="-1"></a>    <span class="at">vjust =</span> <span class="fl">1.5</span>,</span>
+<span id="cb15-515"><a href="#cb15-515" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> palette_main[<span class="st">"red"</span>]</span>
+<span id="cb15-516"><a href="#cb15-516" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-517"><a href="#cb15-517" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-518"><a href="#cb15-518" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Nearby accidents were also unusually close in time"</span>,</span>
+<span id="cb15-519"><a href="#cb15-519" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"199 permutations of incident times across fixed locations"</span>,</span>
+<span id="cb15-520"><a href="#cb15-520" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Pairs within 1 km and 7 days"</span>,</span>
+<span id="cb15-521"><a href="#cb15-521" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Simulations"</span></span>
+<span id="cb15-522"><a href="#cb15-522" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-523"><a href="#cb15-523" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-524"><a href="#cb15-524" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-525"><a href="#cb15-525" aria-hidden="true" tabindex="-1"></a>At the primary 1 km / 7 day threshold, the observed pattern has <span class="in">`r fmt_int(knox_results$observed_pairs[2])`</span> close pairs against a permutation mean of <span class="in">`r fmt_num(knox_results$expected_pairs[2], 1)`</span>, an excess of <span class="in">`r fmt_num(knox_results$excess_percent[2], 1)`</span>% ($p$ = <span class="in">`r fmt_num(knox_results$p_value[2], 3)`</span>). Positive results at 500 m / 1 day and 2 km / 14 days show that the finding is not confined to one threshold. The excess supports short-term local recurrence beyond the separate spatial and temporal margins. Timestamps must be exchangeable across sites under the null; location-specific traffic cycles, road works or reporting systems could violate that assumption.</span>
+<span id="cb15-526"><a href="#cb15-526" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-527"><a href="#cb15-527" aria-hidden="true" tabindex="-1"></a><span class="fu"># Limitations</span></span>
+<span id="cb15-528"><a href="#cb15-528" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-529"><a href="#cb15-529" aria-hidden="true" tabindex="-1"></a>The source is an administrative event register compiled on Kaggle rather than a purpose-built research sample. Reporting coverage may vary by road agency, event severity and province. Missing coordinates remove 189 of the 2022 records before spatial filtering. The boundary represents 2017 administrative geometry, so minor discrepancies with 2022 province labels are expected near borders.</span>
+<span id="cb15-530"><a href="#cb15-530" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-531"><a href="#cb15-531" aria-hidden="true" tabindex="-1"></a>The study has no exposure denominator. Land-area density and planar KDE do not adjust for traffic volume or road length, and planar distances do not follow the road network. Exact-coordinate reuse may represent true recurrent sites, coordinate rounding or common reporting locations. The inhomogeneous result depends on the pilot bandwidth and chosen distance range. Pointwise envelopes involve repeated comparisons across distance; the separate global deviation statistic is therefore used for the overall test.</span>
+<span id="cb15-532"><a href="#cb15-532" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-533"><a href="#cb15-533" aria-hidden="true" tabindex="-1"></a>The Knox result preserves the observed marginal patterns but assumes incident times can be exchanged among locations under the null. It does not identify a cause for local bursts. The findings should guide data linkage and site investigation before intervention.</span>
+<span id="cb15-534"><a href="#cb15-534" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-535"><a href="#cb15-535" aria-hidden="true" tabindex="-1"></a><span class="fu"># Reproducibility</span></span>
+<span id="cb15-536"><a href="#cb15-536" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-537"><a href="#cb15-537" aria-hidden="true" tabindex="-1"></a>The raw files are excluded from Git because the complete accident archive is unnecessary for publishing the rendered report. <span class="co">[</span><span class="ot">`download_data.R`</span><span class="co">](scripts/download_data.R)</span> retrieves the fixed public files; <span class="co">[</span><span class="ot">`analysis.R`</span><span class="co">](scripts/analysis.R)</span> reproduces filtering, derived variables, point-pattern objects, simulations and summary tables. A cached local RDS reduces repeated render time but is rebuilt when the source files or analysis script change. Set <span class="in">`ISSS626_REBUILD=1`</span> to force a fresh analytical run.</span>
+<span id="cb15-538"><a href="#cb15-538" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-539"><a href="#cb15-539" aria-hidden="true" tabindex="-1"></a>The point-pattern simulations use seed <span class="in">`6262022`</span>. The second-order analysis uses 99 conditional simulations, and the Knox test uses 199 time permutations.</span>
+<span id="cb15-540"><a href="#cb15-540" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-543"><a href="#cb15-543" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb15-544"><a href="#cb15-544" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: session-information</span></span>
+<span id="cb15-545"><a href="#cb15-545" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-546"><a href="#cb15-546" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb15-547"><a href="#cb15-547" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb15-548"><a href="#cb15-548" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-549"><a href="#cb15-549" aria-hidden="true" tabindex="-1"></a><span class="fu"># References</span></span>
+<span id="cb15-550"><a href="#cb15-550" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-551"><a href="#cb15-551" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Baddeley, A., Rubak, E. and Turner, R. (2015). *Spatial Point Patterns: Methodology and Applications with R*. Chapman and Hall/CRC. <span class="ot">&lt;https://book.spatstat.org/&gt;</span></span>
+<span id="cb15-552"><a href="#cb15-552" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>geoBoundaries. Thailand ADM1 boundary and metadata API. Accessed 9 September 2026. <span class="ot">&lt;https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/&gt;</span></span>
+<span id="cb15-553"><a href="#cb15-553" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Knox, E. G. (1964). The detection of space-time interactions. *Journal of the Royal Statistical Society: Series C*, 13(1), 25-29. <span class="ot">&lt;https://doi.org/10.2307/2985220&gt;</span></span>
+<span id="cb15-554"><a href="#cb15-554" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Runfola, D., Anderson, A., Baier, H., et al. (2020). geoBoundaries: A global database of political administrative boundaries. *PLOS ONE*, 15(4), e0231866. <span class="ot">&lt;https://doi.org/10.1371/journal.pone.0231866&gt;</span></span>
+<span id="cb15-555"><a href="#cb15-555" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Thailand National Statistical Office. Definition of Bangkok and Metropolitan. Accessed 9 September 2026. <span class="ot">&lt;https://www.nso.go.th/nsoweb/storage/survey_detail/2026/20241211125403_33653.pdf#page=16&gt;</span></span>
+<span id="cb15-556"><a href="#cb15-556" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Thaweewat R. Thailand Road Accident 2019-2022. Kaggle, based on Office of the Permanent Secretary, Thailand Ministry of Transport data. Accessed 9 September 2026. <span class="ot">&lt;https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022&gt;</span></span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

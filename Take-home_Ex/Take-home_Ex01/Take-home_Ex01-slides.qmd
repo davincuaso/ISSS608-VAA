@@ -2,9 +2,13 @@
 title: "Where and when did road accidents concentrate?"
 subtitle: "Bangkok Metropolitan Region, 2022"
 author: "Davin Cuaso"
-date: last-modified
+date: 2026-09-09
+date-modified: last-modified
+date-format: "D MMMM YYYY"
 format:
   revealjs:
+    template-partials:
+      - title-slide.html
     theme: simple
     css: slides.css
     slide-number: true

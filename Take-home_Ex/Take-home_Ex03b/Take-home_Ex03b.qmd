@@ -1,5 +1,7 @@
 ---
 title: "Take-home Exercise 3b"
+date: 2026-09-09
+date-modified: last-modified
 toc: false
 ---
 

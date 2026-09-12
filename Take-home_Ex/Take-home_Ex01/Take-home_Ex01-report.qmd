@@ -2,7 +2,8 @@
 title: "Take-home Exercise 1: Technical Report"
 subtitle: "Road traffic accidents in the Bangkok Metropolitan Region, 2022"
 author: "Davin Cuaso"
-date: last-modified
+date: 2026-09-09
+date-modified: last-modified
 format:
   html:
     toc: true
