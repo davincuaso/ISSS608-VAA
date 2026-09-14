@@ -19,7 +19,7 @@ execute:
 
 ## Overview
 
-This exercise follows [Chapter 4: First-order Spatial Point Patterns Analysis](https://r4gdsa.netlify.app/chap04.html) and studies the distribution of childcare services in Singapore. It answers two questions:
+Using the workflow in [Chapter 4: First-order Spatial Point Patterns Analysis](https://r4gdsa.netlify.app/chap04.html), I study the distribution of childcare services in Singapore. I focus on two questions:
 
 1. Are childcare centres consistent with complete spatial randomness (CSR)?
 2. Where is first-order intensity highest, and how sensitive is it to bandwidth choice?
@@ -107,7 +107,7 @@ ggplot() +
 
 ## Clark–Evans nearest-neighbour test
 
-The null hypothesis is CSR. Values of the Clark–Evans ratio (R<1) indicate shorter nearest-neighbour distances than expected under CSR; (R>1) indicates a more regular pattern. The CDF edge correction is suitable for the non-rectangular Singapore window.
+The null hypothesis is CSR. A Clark–Evans ratio below 1 means that nearest-neighbour distances are shorter than expected under CSR; a ratio above 1 points to a more regular pattern. I use the CDF edge correction because the Singapore window is not rectangular.
 
 ```{r}
 #| label: clark-evans-test
@@ -128,11 +128,11 @@ ce_result <- data.frame(
 kable(ce_result, caption = "Clark–Evans test with CDF edge correction")
 ```
 
-**Answer.** (R=) **`r round(unname(ce_sg$statistic), 3)`** with **`r format.pval(ce_sg$p.value, eps = 0.001)`**, so the childcare pattern is significantly clustered relative to CSR. This is not evidence that centres attract one another; population, housing estates, zoning, and service demand are plausible spatially varying drivers.
+The test gives (R=) **`r round(unname(ce_sg$statistic), 3)`** with **`r format.pval(ce_sg$p.value, eps = 0.001)`**, so the childcare pattern is significantly clustered relative to CSR. This does not mean that centres attract one another. Population, housing estates, zoning and service demand are plausible spatially varying drivers.
 
 ## Kernel density estimation
 
-`bw.diggle()` selects a data-driven fixed bandwidth. An adaptive KDE is also estimated: it uses narrower kernels where points are dense and wider kernels in sparse areas. Both surfaces are expressed as estimated centres per square kilometre.
+I let `bw.diggle()` select the fixed bandwidth from the data. I also estimate an adaptive KDE, which uses narrower kernels where points are dense and wider kernels in sparse areas. Both surfaces are expressed as estimated centres per square kilometre.
 
 ```{r}
 #| label: calculate-kde
@@ -195,7 +195,7 @@ peak_point <- st_as_sf(peak_cell, coords = c("x", "y"), crs = 3414)
 peak_area <- st_join(peak_point, planning_area["PLN_AREA_N"], join = st_within)$PLN_AREA_N[1]
 ```
 
-**Answer.** The fixed-bandwidth surface peaks in **`r tools::toTitleCase(tolower(peak_area))`**. The fixed surface is easier to compare across the island; the adaptive surface retains sharper local peaks in dense estates and smooths more aggressively in sparse peripheral areas. KDE measures concentration of facilities, not accessibility or demand satisfaction.
+The fixed-bandwidth surface peaks in **`r tools::toTitleCase(tolower(peak_area))`**. The fixed surface is easier to compare across the island; the adaptive surface retains sharper local peaks in dense estates and smooths more heavily in sparse peripheral areas. KDE measures the concentration of facilities, not accessibility or whether demand is being met.
 
 ## Planning-area comparison
 
@@ -270,6 +270,6 @@ kable(local_tests, caption = "Local Clark–Evans tests")
 
 Tampines has more centres, while Choa Chu Kang has greater centres-per-area density because its boundary is much smaller. Both local (R) values are below 1 and statistically significant, so clustering is present within each planning area rather than being only an island-wide effect.
 
-## Conclusion
+## What I found
 
-The nearest-neighbour and KDE results agree: childcare services are not distributed uniformly. The strongest fixed-KDE concentration is in Sengkang, and substantial local clustering remains in Choa Chu Kang and Tampines. These are descriptive first-order findings; a demand-adjusted study would add child population, capacity, transport access, and housing density.
+Both the nearest-neighbour test and KDE point to a non-uniform pattern. The strongest fixed-KDE concentration is in Sengkang, and the local checks still find clustering in Choa Chu Kang and Tampines. These are descriptive first-order results. A demand-adjusted study would also need child population, centre capacity, transport access and housing density.

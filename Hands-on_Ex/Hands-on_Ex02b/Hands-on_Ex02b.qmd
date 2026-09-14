@@ -19,7 +19,7 @@ execute:
 
 ## Overview
 
-This exercise follows [Chapter 5: Second-order Spatial Point Patterns Analysis](https://r4gdsa.netlify.app/chap05.html). Hands-on Exercise 2a established that childcare-centre intensity varies across Singapore. Here, G-, F-, K-, and L-functions test whether centres also depart from complete spatial randomness (CSR) across distance scales within **Choa Chu Kang** and **Tampines**.
+Hands-on Exercise 2a showed that childcare-centre intensity varies across Singapore. Here I use the G-, F-, K- and L-functions from [Chapter 5: Second-order Spatial Point Patterns Analysis](https://r4gdsa.netlify.app/chap05.html) to check for departures from complete spatial randomness (CSR) at different distances within **Choa Chu Kang** and **Tampines**.
 
 ```{r}
 #| label: setup
@@ -115,7 +115,7 @@ ggplot() +
 - **K-function:** cumulative event interaction over distance; values above CSR suggest clustering.
 - **L-function:** a variance-stabilised transformation of K; values above CSR again suggest clustering.
 
-For each statistic, 99 CSR simulations create a pointwise simulation envelope. The seed makes the exercise reproducible. This is a concise exploratory test; a confirmatory analysis should use more simulations and a global envelope.
+For each statistic, I run 99 CSR simulations to form a pointwise envelope. A fixed seed makes the result reproducible. This is an exploratory test; a confirmatory analysis should use more simulations and a global envelope.
 
 ```{r}
 #| label: simulate-envelopes
@@ -151,7 +151,7 @@ plot(envelopes[["Choa Chu Kang"]]$L, main = "L: variance-stabilised K")
 par(old_par)
 ```
 
-The observed G curve rises above the envelope at short distances and F falls below it across part of the range. K is above the envelope for much of the evaluated distance range. Together these are consistent with clusters of nearby centres separated by relatively larger gaps.
+The observed G curve rises above the envelope at short distances and F falls below it across part of the range. K is above the envelope for much of the evaluated distance range. Taken together, the curves are consistent with groups of nearby centres separated by larger gaps.
 
 ## Tampines
 
@@ -171,7 +171,7 @@ par(old_par)
 
 Tampines shows a stronger and more persistent departure: G is frequently above the upper envelope, F is below its lower envelope over most of the tested range, and both K and L remain above CSR. The result indicates multi-scale clustering rather than a pattern confined to only immediate neighbours.
 
-## Compact numerical diagnostic
+## A numerical check
 
 The table summarises the share of evaluated radii in the clustering direction outside the pointwise CSR envelope. It is a descriptive aid, not a separate p-value.
 
@@ -203,8 +203,8 @@ diagnostics <- bind_rows(diagnostic_rows)
 kable(diagnostics, caption = "Observed departures in the direction associated with clustering")
 ```
 
-## Answer and limitations
+## What I found and its limits
 
-**Both planning areas reject the visual expectation of CSR over meaningful distance ranges, with markedly stronger and more consistent clustering in Tampines.** G and F describe the nearest-event and empty-space components, while K and L show that the departure persists across broader distances.
+Both planning areas depart from the CSR envelopes over meaningful distance ranges. The departure is stronger and more consistent in Tampines. G and F describe the nearest-event and empty-space components, while K and L show that the pattern persists across broader distances.
 
 The reference process is deliberately simple. Childcare services respond to population and urban form, so CSR is a baseline rather than a realistic causal model. Results also depend on the planning-area boundary, edge correction, duplicate-location handling, and the number of simulations.

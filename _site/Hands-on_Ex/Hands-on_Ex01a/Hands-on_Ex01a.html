@@ -233,7 +233,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#pre-school-density" id="toc-pre-school-density" class="nav-link" data-scroll-target="#pre-school-density">Pre-school density</a></li>
   </ul></li>
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">Exploratory data analysis</a></li>
-  <li><a href="#key-findings" id="toc-key-findings" class="nav-link" data-scroll-target="#key-findings">Key findings</a></li>
+  <li><a href="#what-i-found" id="toc-what-i-found" class="nav-link" data-scroll-target="#what-i-found">What I found</a></li>
   <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
   </ul>
 </nav>
@@ -281,7 +281,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>This exercise follows <a href="https://r4gdsa.netlify.app/chap01.html">Chapter 1: Geospatial Data Science with R</a>. It demonstrates how to import, inspect, project, convert, and geoprocess spatial data in R. The analysis answers two practical questions:</p>
+<p>I worked through <a href="https://r4gdsa.netlify.app/chap01.html">Chapter 1: Geospatial Data Science with R</a> using the current public downloads. The steps cover importing, checking, projecting, converting and geoprocessing spatial data in R. I use them to answer two practical questions:</p>
 <ol type="1">
 <li>How much land lies within five metres of Singapore’s cycling-path network?</li>
 <li>How are pre-schools distributed across Master Plan 2014 subzones?</li>
@@ -289,8 +289,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="data-and-packages" class="level2">
 <h2 class="anchored" data-anchor-id="data-and-packages">Data and packages</h2>
-<p>The current data.gov.sg downloads are GeoJSON rather than the shapefile and KML formats used in the original course notes. GeoJSON is used here because it is the current official downloadable format and preserves the geometry in one file.</p>
-<p>The requested <strong>Master Plan 2014 Subzone Boundary (Web)</strong> collection currently has no downloadable child dataset. I therefore use <strong>Master Plan 2014 Subzone Boundary (No Sea)</strong>. This substitution is appropriate for area-based pre-school density because offshore polygons would enlarge coastal subzones without adding pre-schools.</p>
+<p>The files now supplied through data.gov.sg are GeoJSON rather than the shapefile and KML formats used in the original course notes. I used GeoJSON because it is the official downloadable format and keeps each layer’s geometry in one file.</p>
+<p>The requested <strong>Master Plan 2014 Subzone Boundary (Web)</strong> collection currently has no downloadable child dataset, so I used <strong>Master Plan 2014 Subzone Boundary (No Sea)</strong>. For the pre-school density calculation, this is a reasonable substitute because offshore polygons add area but no pre-school points.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -353,7 +353,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="inspecting-the-feature-data-frames" class="level3">
 <h3 class="anchored" data-anchor-id="inspecting-the-feature-data-frames">Inspecting the feature data frames</h3>
-<p>Before analysing the data, I check the number of features, geometry type, attributes, and coordinate reference system (CRS).</p>
+<p>I first check the number of features, geometry type, attributes and coordinate reference system (CRS).</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the R code</summary>
@@ -602,7 +602,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </div>
 </div>
-<p><strong>Answer.</strong> The non-overlapping five-metre buffer covers approximately <strong>431.51 hectares</strong>. A simple sum gives 498.97 hectares because overlapping buffers are counted more than once, overstating the unique footprint by about 13.5%.</p>
+<p>After dissolving the overlaps, the five-metre buffer covers approximately <strong>431.51 hectares</strong>. A simple sum gives 498.97 hectares because overlapping buffers are counted more than once. That overstates the unique footprint by about 13.5%.</p>
 </section>
 <section id="question-2-how-many-pre-schools-are-in-each-subzone" class="level3">
 <h3 class="anchored" data-anchor-id="question-2-how-many-pre-schools-are-in-each-subzone">Question 2: How many pre-schools are in each subzone?</h3>
@@ -863,10 +863,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>The long right tail confirms that most subzones have few pre-schools per square kilometre and a small number have much higher density. This matters for later thematic mapping because different classification methods can present a skewed variable very differently.</p>
+<p>The histogram has a long right tail. Most subzones have few pre-schools per square kilometre, while a small number have much higher density. This matters for the later thematic map because its appearance will depend on how the skewed values are classified.</p>
 </section>
-<section id="key-findings" class="level2">
-<h2 class="anchored" data-anchor-id="key-findings">Key findings</h2>
+<section id="what-i-found" class="level2">
+<h2 class="anchored" data-anchor-id="what-i-found">What I found</h2>
 <ul>
 <li>The current official spatial files contain 323 subzones, 8,523 cycling-path features, and 2,290 pre-school locations.</li>
 <li>Transforming from WGS84 to EPSG:3414 is essential before calculating metres or square kilometres.</li>
@@ -877,7 +877,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="limitations" class="level2">
 <h2 class="anchored" data-anchor-id="limitations">Limitations</h2>
-<p>The datasets come from different reference dates, so the analysis is a methodological exercise rather than a fully time-aligned planning study. A five-metre buffer measures geometric proximity, not construction feasibility or legal land acquisition. Density per land area also does not account for the number or age of children living in each subzone.</p>
+<p>The datasets come from different reference dates, so I treat this as a methods exercise rather than a fully time-aligned planning study. A five-metre buffer measures geometric proximity, not construction feasibility or legal land acquisition. Density per land area also does not account for the number or age of children living in each subzone.</p>
 
 
 <!-- -->
@@ -1357,7 +1357,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="fu">## Overview</span></span>
 <span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>This exercise follows <span class="co">[</span><span class="ot">Chapter 1: Geospatial Data Science with R</span><span class="co">](https://r4gdsa.netlify.app/chap01.html)</span>. It demonstrates how to import, inspect, project, convert, and geoprocess spatial data in R. The analysis answers two practical questions:</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>I worked through <span class="co">[</span><span class="ot">Chapter 1: Geospatial Data Science with R</span><span class="co">](https://r4gdsa.netlify.app/chap01.html)</span> using the current public downloads. The steps cover importing, checking, projecting, converting and geoprocessing spatial data in R. I use them to answer two practical questions:</span>
 <span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>How much land lies within five metres of Singapore's cycling-path network?</span>
 <span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>How are pre-schools distributed across Master Plan 2014 subzones?</span>
@@ -1376,9 +1376,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data and packages</span></span>
 <span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>The current data.gov.sg downloads are GeoJSON rather than the shapefile and KML formats used in the original course notes. GeoJSON is used here because it is the current official downloadable format and preserves the geometry in one file.</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>The files now supplied through data.gov.sg are GeoJSON rather than the shapefile and KML formats used in the original course notes. I used GeoJSON because it is the official downloadable format and keeps each layer's geometry in one file.</span>
 <span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>The requested **Master Plan 2014 Subzone Boundary (Web)** collection currently has no downloadable child dataset. I therefore use **Master Plan 2014 Subzone Boundary (No Sea)**. This substitution is appropriate for area-based pre-school density because offshore polygons would enlarge coastal subzones without adding pre-schools.</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>The requested **Master Plan 2014 Subzone Boundary (Web)** collection currently has no downloadable child dataset, so I used **Master Plan 2014 Subzone Boundary (No Sea)**. For the pre-school density calculation, this is a reasonable substitute because offshore polygons add area but no pre-school points.</span>
 <span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Dataset <span class="pp">|</span> Source <span class="pp">|</span> Format <span class="pp">|</span> Purpose <span class="pp">|</span></span>
 <span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|---|---|</span></span>
@@ -1414,7 +1414,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a><span class="fu">### Inspecting the feature data frames</span></span>
 <span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a>Before analysing the data, I check the number of features, geometry type, attributes, and coordinate reference system (CRS).</span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a>I first check the number of features, geometry type, attributes and coordinate reference system (CRS).</span>
 <span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: spatial-data-summary</span></span>
@@ -1546,7 +1546,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-222"><a href="#cb12-222" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(buffer_results, <span class="at">caption =</span> <span class="st">"Area within five metres of cycling paths"</span>)</span>
 <span id="cb12-223"><a href="#cb12-223" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb12-224"><a href="#cb12-224" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-225"><a href="#cb12-225" aria-hidden="true" tabindex="-1"></a>**Answer.** The non-overlapping five-metre buffer covers approximately **`r round(as.numeric(dissolved_buffer_ha), 2)` hectares**. A simple sum gives <span class="in">`r round(as.numeric(naive_buffer_ha), 2)`</span> hectares because overlapping buffers are counted more than once, overstating the unique footprint by about <span class="in">`r round(overlap_pct, 1)`</span>%.</span>
+<span id="cb12-225"><a href="#cb12-225" aria-hidden="true" tabindex="-1"></a>After dissolving the overlaps, the five-metre buffer covers approximately **`r round(as.numeric(dissolved_buffer_ha), 2)` hectares**. A simple sum gives <span class="in">`r round(as.numeric(naive_buffer_ha), 2)`</span> hectares because overlapping buffers are counted more than once. That overstates the unique footprint by about <span class="in">`r round(overlap_pct, 1)`</span>%.</span>
 <span id="cb12-226"><a href="#cb12-226" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-227"><a href="#cb12-227" aria-hidden="true" tabindex="-1"></a><span class="fu">### Question 2: How many pre-schools are in each subzone?</span></span>
 <span id="cb12-228"><a href="#cb12-228" aria-hidden="true" tabindex="-1"></a></span>
@@ -1648,9 +1648,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-332"><a href="#cb12-332" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb12-333"><a href="#cb12-333" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb12-334"><a href="#cb12-334" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-335"><a href="#cb12-335" aria-hidden="true" tabindex="-1"></a>The long right tail confirms that most subzones have few pre-schools per square kilometre and a small number have much higher density. This matters for later thematic mapping because different classification methods can present a skewed variable very differently.</span>
+<span id="cb12-335"><a href="#cb12-335" aria-hidden="true" tabindex="-1"></a>The histogram has a long right tail. Most subzones have few pre-schools per square kilometre, while a small number have much higher density. This matters for the later thematic map because its appearance will depend on how the skewed values are classified.</span>
 <span id="cb12-336"><a href="#cb12-336" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-337"><a href="#cb12-337" aria-hidden="true" tabindex="-1"></a><span class="fu">## Key findings</span></span>
+<span id="cb12-337"><a href="#cb12-337" aria-hidden="true" tabindex="-1"></a><span class="fu">## What I found</span></span>
 <span id="cb12-338"><a href="#cb12-338" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-339"><a href="#cb12-339" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The current official spatial files contain <span class="in">`r nrow(mpsz)`</span> subzones, <span class="in">`r format(nrow(cyclingpath), big.mark = ",")`</span> cycling-path features, and <span class="in">`r format(nrow(preschool), big.mark = ",")`</span> pre-school locations.</span>
 <span id="cb12-340"><a href="#cb12-340" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Transforming from WGS84 to EPSG:3414 is essential before calculating metres or square kilometres.</span>
@@ -1660,7 +1660,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-344"><a href="#cb12-344" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-345"><a href="#cb12-345" aria-hidden="true" tabindex="-1"></a><span class="fu">## Limitations</span></span>
 <span id="cb12-346"><a href="#cb12-346" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-347"><a href="#cb12-347" aria-hidden="true" tabindex="-1"></a>The datasets come from different reference dates, so the analysis is a methodological exercise rather than a fully time-aligned planning study. A five-metre buffer measures geometric proximity, not construction feasibility or legal land acquisition. Density per land area also does not account for the number or age of children living in each subzone.</span>
+<span id="cb12-347"><a href="#cb12-347" aria-hidden="true" tabindex="-1"></a>The datasets come from different reference dates, so I treat this as a methods exercise rather than a fully time-aligned planning study. A five-metre buffer measures geometric proximity, not construction feasibility or legal land acquisition. Density per land area also does not account for the number or age of children living in each subzone.</span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

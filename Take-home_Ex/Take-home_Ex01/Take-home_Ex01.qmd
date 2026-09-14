@@ -9,7 +9,7 @@ page-layout: full
 ---
 
 ::: {.hero-panel}
-Option B examines road accidents recorded across the Bangkok Metropolitan Region in 2022. The report covers the six required tasks and adds a space-time analysis; the slide deck condenses the evidence for an executive audience.
+Option B examines road accidents recorded across the Bangkok Metropolitan Region in 2022. I work through the six required tasks and add a space-time analysis. The slide deck condenses the results for an executive audience.
 :::
 
 ::: {.callout-note title="Main result"}
@@ -55,7 +55,7 @@ The bonus analysis must answer a useful geospatial question beyond the core requ
 
 The analysis uses **Option B: Thailand road accidents in 2022**. Event records come from the [Thailand Road Accident 2019-2022 dataset](https://www.kaggle.com/datasets/thaweewatboy/thailand-road-accident-2019-2022), while provincial boundaries come from [geoBoundaries Thailand ADM1](https://www.geoboundaries.org/api/current/gbOpen/THA/ADM1/).
 
-The Bangkok Metropolitan Region is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom, and Samut Sakhon. This six-province definition is documented by Thailand's National Statistical Office. Distance and area calculations use WGS 84 / UTM zone 47N (EPSG:32647).
+I define the Bangkok Metropolitan Region as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom and Samut Sakhon. Thailand's National Statistical Office uses this six-province grouping. Distance and area calculations use WGS 84 / UTM zone 47N (EPSG:32647).
 
 ## Analytical coverage
 

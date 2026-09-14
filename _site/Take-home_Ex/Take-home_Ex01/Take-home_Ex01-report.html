@@ -319,7 +319,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">12 September 2026</p>
+      <p class="date-modified">14 September 2026</p>
     </div>
   </div>
 
@@ -387,7 +387,7 @@ window.Quarto = {
 <section id="spatial-study-window" class="level2" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="spatial-study-window"><span class="header-section-number">2.2</span> Spatial study window</h2>
 <p>The BMR is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom and Samut Sakhon. This matches the grouping used by Thailand’s <a href="https://www.nso.go.th/nsoweb/storage/survey_detail/2026/20241211125403_33653.pdf#page=16">National Statistical Office</a>. The six ADM1 polygons form a 7,604.1 km² observation window.</p>
-<p>I transform the boundary and events from WGS 84 to WGS 84 / UTM zone 47N (EPSG:32647). This projection covers the complete BMR; distance, area, kernel and second-order calculations are consequently made in metres instead of longitude-latitude degrees.</p>
+<p>I transform the boundary and events from WGS 84 to WGS 84 / UTM zone 47N (EPSG:32647). This projection covers the complete BMR, so distance, area, kernel and second-order calculations are made in metres instead of longitude-latitude degrees.</p>
 </section>
 <section id="point-event-definition" class="level2" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="point-event-definition"><span class="header-section-number">2.3</span> Point-event definition</h2>
@@ -624,7 +624,7 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>Oct recorded the highest daily rate at 12.7 events per day; Feb recorded the lowest at 7.6. The final quarter contains the three highest monthly counts, while April forms an earlier local peak. The dataset provides events but no monthly traffic exposure, so the pattern could reflect travel volume, reporting changes, weather or enforcement as well as a change in accident propensity.</p>
+<p>Oct recorded the highest daily rate at 12.7 events per day; Feb recorded the lowest at 7.6. The final quarter contains the three highest monthly counts, and April is a smaller earlier peak. The dataset provides events but no monthly traffic exposure, so the pattern could reflect travel volume, reporting changes, weather or enforcement as well as a change in accident propensity.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show R code</summary>
@@ -696,7 +696,7 @@ window.Quarto = {
 </section>
 <section id="kernel-intensity-estimate" class="level2" data-number="4.3">
 <h2 data-number="4.3" class="anchored" data-anchor-id="kernel-intensity-estimate"><span class="header-section-number">4.3</span> Kernel intensity estimate</h2>
-<p>Kernel density estimation (KDE) smooths event locations into an estimated intensity surface. I use a Gaussian kernel, 500 m output grid, edge correction and a 3 km primary bandwidth. Likelihood cross-validation selected approximately 751 m, producing a fragmented surface dominated by road-constrained points and repeated coordinates. I chose 3 km for the planning-scale question about broad concentrations, then compare it with 2 km and 6 km estimates.</p>
+<p>Kernel density estimation (KDE) smooths event locations into an estimated intensity surface. I use a Gaussian kernel, 500 m output grid, edge correction and a 3 km primary bandwidth. Likelihood cross-validation selected approximately 751 m, but the resulting surface is fragmented and dominated by road-constrained points and repeated coordinates. I chose 3 km because the planning question concerns broad concentrations, then compare it with 2 km and 6 km estimates.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show R code</summary>
@@ -817,13 +817,13 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>CSR is rejected by the global deviation test (<span class="math inline">\(p\)</span> = 0.01), and the observed curve lies above the envelope from 0.25 km through 15 km. The comparison confirms that apparent concentration on a map is insufficient evidence without a statistical reference.</p>
+<p>CSR is rejected by the global deviation test (<span class="math inline">\(p\)</span> = 0.01), and the observed curve lies above the envelope from 0.25 km through 15 km. A dense-looking map alone would not establish this departure; the simulated reference provides the comparison.</p>
 <p>The inhomogeneous null is also rejected (<span class="math inline">\(p\)</span> = 0.01). The observed curve is above the envelope from 0.25 to 14.50 km. The broad first-order trend therefore does not account for all of the excess neighbouring events. The result may also reflect road-network support, shared coordinates or a pilot surface that is too smooth to represent every relevant component of intensity.</p>
 </section>
 </section>
 <section id="task-4-integrated-findings-and-interpretation" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> Task 4: Integrated findings and interpretation</h1>
-<p>First-order results establish a metropolitan gradient: Bangkok has the highest event density per land area, the KDE extends the main concentration into Samut Prakan, and daily event counts are highest in the final quarter. These measures describe where and when more records are expected.</p>
+<p>The first-order results describe a metropolitan gradient. Bangkok has the highest event density per land area, the KDE extends the main concentration into Samut Prakan, and daily event counts are highest in the final quarter. These measures describe where and when more records are expected.</p>
 <p>The second-order results answer a different question. Uniform CSR cannot account for the pattern at any tested scale. A broad 6 km intensity surface explains some of that departure, but pairs remain more numerous than expected from 0.25 km to 14.5 km. The remaining structure is consistent with recurrent locations and connected groups of roads or activity centres embedded within the larger metropolitan gradient.</p>
 <section id="coordinate-reuse-sensitivity" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="coordinate-reuse-sensitivity"><span class="header-section-number">6.1</span> Coordinate-reuse sensitivity</h2>
@@ -884,12 +884,12 @@ window.Quarto = {
 </div>
 <p>Removing the 319 repeated-coordinate events leaves 3,278 unique locations. The global test remains significant (<span class="math inline">\(p\)</span> = 0.01), with the observed curve above its envelope from 0.25 to 15.00 km. Coordinate reuse therefore does not account for the residual clustering conclusion.</p>
 <p>Accidents occur on a road network, whereas the inhomogeneous model allows points throughout the polygon. The 6 km pilot bandwidth also separates broad trend from local interaction by design: a narrower pilot could absorb some local structure, while a wider pilot could leave more of it unexplained.</p>
-<p>The bandwidth sensitivity maps retain the main Bangkok-Samut Prakan concentration, with high rank correlation across 2-6 km smoothing. This supports the broad first-order conclusion, not the exact boundary of an individual hotspot.</p>
+<p>Across the tested bandwidths, the main Bangkok-Samut Prakan concentration remains and the event-level intensity ranks are highly correlated. I therefore treat the broad concentration as stable, but not the exact boundary of an individual hotspot.</p>
 </section>
 </section>
 <section id="task-5-geovisualisation-and-geocommunication" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> Task 5: Geovisualisation and geocommunication</h1>
-<p>The visual sequence moves from study design to temporal variation, areal density, continuous intensity and null-model testing. Province maps use spatially assigned boundaries rather than the reported label. KDE panels share a common scale when compared. Every distance-based graphic uses kilometres, while areal density and kernel intensity state their units explicitly.</p>
+<p>I arranged the figures from study design through temporal variation, areal density, continuous intensity and null-model testing. Province maps use spatially assigned boundaries rather than the reported label. KDE panels share a common scale when compared. Every distance-based graphic uses kilometres, while areal density and kernel intensity state their units explicitly.</p>
 <p>The maps avoid a road-risk label because the denominator is absent. The L-function figure pairs the observed curve with its reference envelope so that clustering is not inferred from appearance alone. The bonus plot below exposes the full permutation distribution rather than reporting a <span class="math inline">\(p\)</span>-value without context.</p>
 </section>
 <section id="task-6-public-safety-planning-and-management" class="level1" data-number="8">
@@ -1002,12 +1002,12 @@ window.Quarto = {
 </div>
 </div>
 </div>
-<p>At the primary 1 km / 7 day threshold, the observed pattern has 2,193 close pairs against a permutation mean of 1,788.6, an excess of 22.6% (<span class="math inline">\(p\)</span> = 0.005). Positive results at 500 m / 1 day and 2 km / 14 days show that the finding is not confined to one threshold. The excess supports short-term local recurrence beyond the separate spatial and temporal margins. Timestamps must be exchangeable across sites under the null; location-specific traffic cycles, road works or reporting systems could violate that assumption.</p>
+<p>At the primary 1 km / 7 day threshold, the observed pattern has 2,193 close pairs against a permutation mean of 1,788.6, an excess of 22.6% (<span class="math inline">\(p\)</span> = 0.005). Similar excesses appear at 500 m / 1 day and 2 km / 14 days, so the result is less dependent on the primary threshold. The excess supports short-term local recurrence beyond the separate spatial and temporal margins. Timestamps must be exchangeable across sites under the null; location-specific traffic cycles, road works or reporting systems could violate that assumption.</p>
 </section>
 <section id="limitations" class="level1" data-number="10">
 <h1 data-number="10"><span class="header-section-number">10</span> Limitations</h1>
 <p>The source is an administrative event register compiled on Kaggle rather than a purpose-built research sample. Reporting coverage may vary by road agency, event severity and province. Missing coordinates remove 189 of the 2022 records before spatial filtering. The boundary represents 2017 administrative geometry, so minor discrepancies with 2022 province labels are expected near borders.</p>
-<p>The study has no exposure denominator. Land-area density and planar KDE do not adjust for traffic volume or road length, and planar distances do not follow the road network. Exact-coordinate reuse may represent true recurrent sites, coordinate rounding or common reporting locations. The inhomogeneous result depends on the pilot bandwidth and chosen distance range. Pointwise envelopes involve repeated comparisons across distance; the separate global deviation statistic is therefore used for the overall test.</p>
+<p>The study has no exposure denominator. Land-area density and planar KDE do not adjust for traffic volume or road length, and planar distances do not follow the road network. Exact-coordinate reuse may represent true recurrent sites, coordinate rounding or common reporting locations. The inhomogeneous result depends on the pilot bandwidth and chosen distance range. Pointwise envelopes involve repeated comparisons across distance, so I use the separate global deviation statistic for the formal test.</p>
 <p>The Knox result preserves the observed marginal patterns but assumes incident times can be exchanged among locations under the null. It does not identify a cause for local bursts. The findings should guide data linkage and site investigation before intervention.</p>
 </section>
 <section id="reproducibility" class="level1" data-number="11">
@@ -1615,7 +1615,7 @@ loaded via a namespace (and not attached):
 <span id="cb15-83"><a href="#cb15-83" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-84"><a href="#cb15-84" aria-hidden="true" tabindex="-1"></a>The BMR is operationalised as Bangkok, Samut Prakan, Nonthaburi, Pathum Thani, Nakhon Pathom and Samut Sakhon. This matches the grouping used by Thailand's <span class="co">[</span><span class="ot">National Statistical Office</span><span class="co">](https://www.nso.go.th/nsoweb/storage/survey_detail/2026/20241211125403_33653.pdf#page=16)</span>. The six ADM1 polygons form a <span class="in">`r fmt_num(bmr_area_km2, 1)`</span> km² observation window.</span>
 <span id="cb15-85"><a href="#cb15-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a>I transform the boundary and events from WGS 84 to WGS 84 / UTM zone 47N (EPSG:32647). This projection covers the complete BMR; distance, area, kernel and second-order calculations are consequently made in metres instead of longitude-latitude degrees.</span>
+<span id="cb15-86"><a href="#cb15-86" aria-hidden="true" tabindex="-1"></a>I transform the boundary and events from WGS 84 to WGS 84 / UTM zone 47N (EPSG:32647). This projection covers the complete BMR, so distance, area, kernel and second-order calculations are made in metres instead of longitude-latitude degrees.</span>
 <span id="cb15-87"><a href="#cb15-87" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-88"><a href="#cb15-88" aria-hidden="true" tabindex="-1"></a><span class="fu">## Point-event definition</span></span>
 <span id="cb15-89"><a href="#cb15-89" aria-hidden="true" tabindex="-1"></a></span>
@@ -1746,7 +1746,7 @@ loaded via a namespace (and not attached):
 <span id="cb15-222"><a href="#cb15-222" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb15-223"><a href="#cb15-223" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb15-224"><a href="#cb15-224" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-225"><a href="#cb15-225" aria-hidden="true" tabindex="-1"></a><span class="in">`r as.character(peak_month_row$month)`</span> recorded the highest daily rate at <span class="in">`r fmt_num(peak_month_row$events_per_day, 1)`</span> events per day; <span class="in">`r as.character(low_month_row$month)`</span> recorded the lowest at <span class="in">`r fmt_num(low_month_row$events_per_day, 1)`</span>. The final quarter contains the three highest monthly counts, while April forms an earlier local peak. The dataset provides events but no monthly traffic exposure, so the pattern could reflect travel volume, reporting changes, weather or enforcement as well as a change in accident propensity.</span>
+<span id="cb15-225"><a href="#cb15-225" aria-hidden="true" tabindex="-1"></a><span class="in">`r as.character(peak_month_row$month)`</span> recorded the highest daily rate at <span class="in">`r fmt_num(peak_month_row$events_per_day, 1)`</span> events per day; <span class="in">`r as.character(low_month_row$month)`</span> recorded the lowest at <span class="in">`r fmt_num(low_month_row$events_per_day, 1)`</span>. The final quarter contains the three highest monthly counts, and April is a smaller earlier peak. The dataset provides events but no monthly traffic exposure, so the pattern could reflect travel volume, reporting changes, weather or enforcement as well as a change in accident propensity.</span>
 <span id="cb15-226"><a href="#cb15-226" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-229"><a href="#cb15-229" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb15-230"><a href="#cb15-230" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: hourly-intensity</span></span>
@@ -1811,7 +1811,7 @@ loaded via a namespace (and not attached):
 <span id="cb15-291"><a href="#cb15-291" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-292"><a href="#cb15-292" aria-hidden="true" tabindex="-1"></a><span class="fu">## Kernel intensity estimate</span></span>
 <span id="cb15-293"><a href="#cb15-293" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-294"><a href="#cb15-294" aria-hidden="true" tabindex="-1"></a>Kernel density estimation (KDE) smooths event locations into an estimated intensity surface. I use a Gaussian kernel, 500 m output grid, edge correction and a 3 km primary bandwidth. Likelihood cross-validation selected approximately <span class="in">`r fmt_int(coordinate_bandwidths["likelihood_cross_validation"])`</span> m, producing a fragmented surface dominated by road-constrained points and repeated coordinates. I chose 3 km for the planning-scale question about broad concentrations, then compare it with 2 km and 6 km estimates.</span>
+<span id="cb15-294"><a href="#cb15-294" aria-hidden="true" tabindex="-1"></a>Kernel density estimation (KDE) smooths event locations into an estimated intensity surface. I use a Gaussian kernel, 500 m output grid, edge correction and a 3 km primary bandwidth. Likelihood cross-validation selected approximately <span class="in">`r fmt_int(coordinate_bandwidths["likelihood_cross_validation"])`</span> m, but the resulting surface is fragmented and dominated by road-constrained points and repeated coordinates. I chose 3 km because the planning question concerns broad concentrations, then compare it with 2 km and 6 km estimates.</span>
 <span id="cb15-295"><a href="#cb15-295" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-298"><a href="#cb15-298" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb15-299"><a href="#cb15-299" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: kde-primary</span></span>
@@ -1921,13 +1921,13 @@ loaded via a namespace (and not attached):
 <span id="cb15-407"><a href="#cb15-407" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb15-408"><a href="#cb15-408" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb15-409"><a href="#cb15-409" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-410"><a href="#cb15-410" aria-hidden="true" tabindex="-1"></a>CSR is rejected by the global deviation test ($p$ = <span class="in">`r fmt_num(second_order_tests$global_deviation_p[1], 2)`</span>), and the observed curve lies above the envelope from 0.25 km through 15 km. The comparison confirms that apparent concentration on a map is insufficient evidence without a statistical reference.</span>
+<span id="cb15-410"><a href="#cb15-410" aria-hidden="true" tabindex="-1"></a>CSR is rejected by the global deviation test ($p$ = <span class="in">`r fmt_num(second_order_tests$global_deviation_p[1], 2)`</span>), and the observed curve lies above the envelope from 0.25 km through 15 km. A dense-looking map alone would not establish this departure; the simulated reference provides the comparison.</span>
 <span id="cb15-411"><a href="#cb15-411" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-412"><a href="#cb15-412" aria-hidden="true" tabindex="-1"></a>The inhomogeneous null is also rejected ($p$ = <span class="in">`r fmt_num(second_order_tests$global_deviation_p[2], 2)`</span>). The observed curve is above the envelope from <span class="in">`r fmt_num(inhomogeneous_ranges$min_m[inhomogeneous_ranges$relation == "above"] / 1000, 2)`</span> to <span class="in">`r fmt_num(inhomogeneous_ranges$max_m[inhomogeneous_ranges$relation == "above"] / 1000, 2)`</span> km. The broad first-order trend therefore does not account for all of the excess neighbouring events. The result may also reflect road-network support, shared coordinates or a pilot surface that is too smooth to represent every relevant component of intensity.</span>
 <span id="cb15-413"><a href="#cb15-413" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-414"><a href="#cb15-414" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 4: Integrated findings and interpretation</span></span>
 <span id="cb15-415"><a href="#cb15-415" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-416"><a href="#cb15-416" aria-hidden="true" tabindex="-1"></a>First-order results establish a metropolitan gradient: Bangkok has the highest event density per land area, the KDE extends the main concentration into Samut Prakan, and daily event counts are highest in the final quarter. These measures describe where and when more records are expected.</span>
+<span id="cb15-416"><a href="#cb15-416" aria-hidden="true" tabindex="-1"></a>The first-order results describe a metropolitan gradient. Bangkok has the highest event density per land area, the KDE extends the main concentration into Samut Prakan, and daily event counts are highest in the final quarter. These measures describe where and when more records are expected.</span>
 <span id="cb15-417"><a href="#cb15-417" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-418"><a href="#cb15-418" aria-hidden="true" tabindex="-1"></a>The second-order results answer a different question. Uniform CSR cannot account for the pattern at any tested scale. A broad 6 km intensity surface explains some of that departure, but pairs remain more numerous than expected from 0.25 km to 14.5 km. The remaining structure is consistent with recurrent locations and connected groups of roads or activity centres embedded within the larger metropolitan gradient.</span>
 <span id="cb15-419"><a href="#cb15-419" aria-hidden="true" tabindex="-1"></a></span>
@@ -1956,11 +1956,11 @@ loaded via a namespace (and not attached):
 <span id="cb15-444"><a href="#cb15-444" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-445"><a href="#cb15-445" aria-hidden="true" tabindex="-1"></a>Accidents occur on a road network, whereas the inhomogeneous model allows points throughout the polygon. The 6 km pilot bandwidth also separates broad trend from local interaction by design: a narrower pilot could absorb some local structure, while a wider pilot could leave more of it unexplained.</span>
 <span id="cb15-446"><a href="#cb15-446" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-447"><a href="#cb15-447" aria-hidden="true" tabindex="-1"></a>The bandwidth sensitivity maps retain the main Bangkok-Samut Prakan concentration, with high rank correlation across 2-6 km smoothing. This supports the broad first-order conclusion, not the exact boundary of an individual hotspot.</span>
+<span id="cb15-447"><a href="#cb15-447" aria-hidden="true" tabindex="-1"></a>Across the tested bandwidths, the main Bangkok-Samut Prakan concentration remains and the event-level intensity ranks are highly correlated. I therefore treat the broad concentration as stable, but not the exact boundary of an individual hotspot.</span>
 <span id="cb15-448"><a href="#cb15-448" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-449"><a href="#cb15-449" aria-hidden="true" tabindex="-1"></a><span class="fu"># Task 5: Geovisualisation and geocommunication</span></span>
 <span id="cb15-450"><a href="#cb15-450" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-451"><a href="#cb15-451" aria-hidden="true" tabindex="-1"></a>The visual sequence moves from study design to temporal variation, areal density, continuous intensity and null-model testing. Province maps use spatially assigned boundaries rather than the reported label. KDE panels share a common scale when compared. Every distance-based graphic uses kilometres, while areal density and kernel intensity state their units explicitly.</span>
+<span id="cb15-451"><a href="#cb15-451" aria-hidden="true" tabindex="-1"></a>I arranged the figures from study design through temporal variation, areal density, continuous intensity and null-model testing. Province maps use spatially assigned boundaries rather than the reported label. KDE panels share a common scale when compared. Every distance-based graphic uses kilometres, while areal density and kernel intensity state their units explicitly.</span>
 <span id="cb15-452"><a href="#cb15-452" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-453"><a href="#cb15-453" aria-hidden="true" tabindex="-1"></a>The maps avoid a road-risk label because the denominator is absent. The L-function figure pairs the observed curve with its reference envelope so that clustering is not inferred from appearance alone. The bonus plot below exposes the full permutation distribution rather than reporting a $p$-value without context.</span>
 <span id="cb15-454"><a href="#cb15-454" aria-hidden="true" tabindex="-1"></a></span>
@@ -2030,13 +2030,13 @@ loaded via a namespace (and not attached):
 <span id="cb15-522"><a href="#cb15-522" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb15-523"><a href="#cb15-523" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb15-524"><a href="#cb15-524" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-525"><a href="#cb15-525" aria-hidden="true" tabindex="-1"></a>At the primary 1 km / 7 day threshold, the observed pattern has <span class="in">`r fmt_int(knox_results$observed_pairs[2])`</span> close pairs against a permutation mean of <span class="in">`r fmt_num(knox_results$expected_pairs[2], 1)`</span>, an excess of <span class="in">`r fmt_num(knox_results$excess_percent[2], 1)`</span>% ($p$ = <span class="in">`r fmt_num(knox_results$p_value[2], 3)`</span>). Positive results at 500 m / 1 day and 2 km / 14 days show that the finding is not confined to one threshold. The excess supports short-term local recurrence beyond the separate spatial and temporal margins. Timestamps must be exchangeable across sites under the null; location-specific traffic cycles, road works or reporting systems could violate that assumption.</span>
+<span id="cb15-525"><a href="#cb15-525" aria-hidden="true" tabindex="-1"></a>At the primary 1 km / 7 day threshold, the observed pattern has <span class="in">`r fmt_int(knox_results$observed_pairs[2])`</span> close pairs against a permutation mean of <span class="in">`r fmt_num(knox_results$expected_pairs[2], 1)`</span>, an excess of <span class="in">`r fmt_num(knox_results$excess_percent[2], 1)`</span>% ($p$ = <span class="in">`r fmt_num(knox_results$p_value[2], 3)`</span>). Similar excesses appear at 500 m / 1 day and 2 km / 14 days, so the result is less dependent on the primary threshold. The excess supports short-term local recurrence beyond the separate spatial and temporal margins. Timestamps must be exchangeable across sites under the null; location-specific traffic cycles, road works or reporting systems could violate that assumption.</span>
 <span id="cb15-526"><a href="#cb15-526" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-527"><a href="#cb15-527" aria-hidden="true" tabindex="-1"></a><span class="fu"># Limitations</span></span>
 <span id="cb15-528"><a href="#cb15-528" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-529"><a href="#cb15-529" aria-hidden="true" tabindex="-1"></a>The source is an administrative event register compiled on Kaggle rather than a purpose-built research sample. Reporting coverage may vary by road agency, event severity and province. Missing coordinates remove 189 of the 2022 records before spatial filtering. The boundary represents 2017 administrative geometry, so minor discrepancies with 2022 province labels are expected near borders.</span>
 <span id="cb15-530"><a href="#cb15-530" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-531"><a href="#cb15-531" aria-hidden="true" tabindex="-1"></a>The study has no exposure denominator. Land-area density and planar KDE do not adjust for traffic volume or road length, and planar distances do not follow the road network. Exact-coordinate reuse may represent true recurrent sites, coordinate rounding or common reporting locations. The inhomogeneous result depends on the pilot bandwidth and chosen distance range. Pointwise envelopes involve repeated comparisons across distance; the separate global deviation statistic is therefore used for the overall test.</span>
+<span id="cb15-531"><a href="#cb15-531" aria-hidden="true" tabindex="-1"></a>The study has no exposure denominator. Land-area density and planar KDE do not adjust for traffic volume or road length, and planar distances do not follow the road network. Exact-coordinate reuse may represent true recurrent sites, coordinate rounding or common reporting locations. The inhomogeneous result depends on the pilot bandwidth and chosen distance range. Pointwise envelopes involve repeated comparisons across distance, so I use the separate global deviation statistic for the formal test.</span>
 <span id="cb15-532"><a href="#cb15-532" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-533"><a href="#cb15-533" aria-hidden="true" tabindex="-1"></a>The Knox result preserves the observed marginal patterns but assumes incident times can be exchanged among locations under the null. It does not identify a cause for local bursts. The findings should guide data linkage and site investigation before intervention.</span>
 <span id="cb15-534"><a href="#cb15-534" aria-hidden="true" tabindex="-1"></a></span>

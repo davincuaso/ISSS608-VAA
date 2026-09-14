@@ -19,7 +19,7 @@ execute:
 
 ## Overview
 
-This exercise follows [Chapter 1: Geospatial Data Science with R](https://r4gdsa.netlify.app/chap01.html). It demonstrates how to import, inspect, project, convert, and geoprocess spatial data in R. The analysis answers two practical questions:
+I worked through [Chapter 1: Geospatial Data Science with R](https://r4gdsa.netlify.app/chap01.html) using the current public downloads. The steps cover importing, checking, projecting, converting and geoprocessing spatial data in R. I use them to answer two practical questions:
 
 1. How much land lies within five metres of Singapore's cycling-path network?
 2. How are pre-schools distributed across Master Plan 2014 subzones?
@@ -38,9 +38,9 @@ data_path <- "data"
 
 ## Data and packages
 
-The current data.gov.sg downloads are GeoJSON rather than the shapefile and KML formats used in the original course notes. GeoJSON is used here because it is the current official downloadable format and preserves the geometry in one file.
+The files now supplied through data.gov.sg are GeoJSON rather than the shapefile and KML formats used in the original course notes. I used GeoJSON because it is the official downloadable format and keeps each layer's geometry in one file.
 
-The requested **Master Plan 2014 Subzone Boundary (Web)** collection currently has no downloadable child dataset. I therefore use **Master Plan 2014 Subzone Boundary (No Sea)**. This substitution is appropriate for area-based pre-school density because offshore polygons would enlarge coastal subzones without adding pre-schools.
+The requested **Master Plan 2014 Subzone Boundary (Web)** collection currently has no downloadable child dataset, so I used **Master Plan 2014 Subzone Boundary (No Sea)**. For the pre-school density calculation, this is a reasonable substitute because offshore polygons add area but no pre-school points.
 
 | Dataset | Source | Format | Purpose |
 |---|---|---|---|
@@ -76,7 +76,7 @@ preschool <- st_read(
 
 ### Inspecting the feature data frames
 
-Before analysing the data, I check the number of features, geometry type, attributes, and coordinate reference system (CRS).
+I first check the number of features, geometry type, attributes and coordinate reference system (CRS).
 
 ```{r}
 #| label: spatial-data-summary
@@ -208,7 +208,7 @@ buffer_results <- data.frame(
 kable(buffer_results, caption = "Area within five metres of cycling paths")
 ```
 
-**Answer.** The non-overlapping five-metre buffer covers approximately **`r round(as.numeric(dissolved_buffer_ha), 2)` hectares**. A simple sum gives `r round(as.numeric(naive_buffer_ha), 2)` hectares because overlapping buffers are counted more than once, overstating the unique footprint by about `r round(overlap_pct, 1)`%.
+After dissolving the overlaps, the five-metre buffer covers approximately **`r round(as.numeric(dissolved_buffer_ha), 2)` hectares**. A simple sum gives `r round(as.numeric(naive_buffer_ha), 2)` hectares because overlapping buffers are counted more than once. That overstates the unique footprint by about `r round(overlap_pct, 1)`%.
 
 ### Question 2: How many pre-schools are in each subzone?
 
@@ -310,9 +310,9 @@ ggplot(mpsz, aes(x = PreSch_Density)) +
   )
 ```
 
-The long right tail confirms that most subzones have few pre-schools per square kilometre and a small number have much higher density. This matters for later thematic mapping because different classification methods can present a skewed variable very differently.
+The histogram has a long right tail. Most subzones have few pre-schools per square kilometre, while a small number have much higher density. This matters for the later thematic map because its appearance will depend on how the skewed values are classified.
 
-## Key findings
+## What I found
 
 - The current official spatial files contain `r nrow(mpsz)` subzones, `r format(nrow(cyclingpath), big.mark = ",")` cycling-path features, and `r format(nrow(preschool), big.mark = ",")` pre-school locations.
 - Transforming from WGS84 to EPSG:3414 is essential before calculating metres or square kilometres.
@@ -322,4 +322,4 @@ The long right tail confirms that most subzones have few pre-schools per square 
 
 ## Limitations
 
-The datasets come from different reference dates, so the analysis is a methodological exercise rather than a fully time-aligned planning study. A five-metre buffer measures geometric proximity, not construction feasibility or legal land acquisition. Density per land area also does not account for the number or age of children living in each subzone.
+The datasets come from different reference dates, so I treat this as a methods exercise rather than a fully time-aligned planning study. A five-metre buffer measures geometric proximity, not construction feasibility or legal land acquisition. Density per land area also does not account for the number or age of children living in each subzone.

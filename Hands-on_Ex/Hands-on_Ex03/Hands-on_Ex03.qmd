@@ -19,7 +19,7 @@ execute:
 
 ## Overview
 
-This exercise follows [Chapter 6: Spatio-Temporal Point Patterns Analysis](https://r4gdsa.netlify.app/chap06) and studies 2023 satellite fire detections in Indonesia's Kepulauan Bangka Belitung province. It answers the guide's two research questions:
+For this exercise, I apply [Chapter 6: Spatio-Temporal Point Patterns Analysis](https://r4gdsa.netlify.app/chap06) to 2023 satellite fire detections in Indonesia's Kepulauan Bangka Belitung province. The guide poses two research questions:
 
 1. Are the spatial locations and detection dates independent?
 2. Where and when do fire detections cluster?
@@ -42,7 +42,7 @@ data_path <- "../../data"
 
 ## Data and study area
 
-The lecturer's project-local files are not published through the chapter URL, so this reproducible version uses a public snapshot of the same NASA FIRMS 2023 Indonesia feed and filters it spatially to Bangka Belitung. GADM level-1 and level-2 boundaries replace the course's union of subdistrict polygons; the province footprint has the same analytical role, while districts make the results easier to name.
+The lecturer's local project files are not available at the chapter URL. To keep the exercise reproducible, I use a public snapshot of the same NASA FIRMS 2023 Indonesia feed and filter it to Bangka Belitung. GADM level-1 and level-2 boundaries replace the course's union of subdistrict polygons. The province footprint has the same analytical role, while the district boundaries give names to the results.
 
 | Dataset | Source | Use |
 |---|---|---|
@@ -143,7 +143,7 @@ ggplot(monthly_counts, aes(Month, n, fill = n)) +
   theme(panel.grid.major.x = element_blank())
 ```
 
-October records the maximum with **`r max(monthly_counts$n)` detections**, followed by September and August. Together, July–November account for **`r round(100 * sum(monthly_counts$n[monthly_counts$Month %in% month.abb[7:11]]) / sum(monthly_counts$n), 1)`%** of the annual detections.
+October has the maximum with **`r max(monthly_counts$n)` detections**, followed by September and August. From July through November, the five months account for **`r round(100 * sum(monthly_counts$n[monthly_counts$Month %in% month.abb[7:11]]) / sum(monthly_counts$n), 1)`%** of the annual detections.
 
 ```{r}
 #| label: day-of-year-kde
@@ -212,7 +212,7 @@ kable(district_summary, caption = "Detections and peak month by district")
 
 ## Spatio-temporal kernel density
 
-The chapter uses `spattemp.density()`. The calculation below implements the same product-kernel idea directly: every monthly slice combines a 12 km Gaussian spatial kernel with a one-month Gaussian temporal kernel. Values are rescaled to 0–1 across all six slices to emphasise changes in the location and strength of concentrations.
+The chapter uses `spattemp.density()`. I implement the same product-kernel idea directly: each monthly slice combines a 12 km Gaussian spatial kernel with a one-month Gaussian temporal kernel. I rescale values to 0–1 across all six slices so changes in the location and strength of concentrations can be compared.
 
 ```{r}
 #| label: calculate-stkde
@@ -273,11 +273,11 @@ ggplot(monthly_surfaces, aes(x, y, fill = Relative_intensity)) +
   )
 ```
 
-The surfaces show activity building on Bangka Island from July, strengthening across western and southern Bangka in August–September, and reaching its strongest and broadest concentration in **Bangka Selatan in October**. Intensity falls in November and contracts sharply by December.
+Activity is already visible on Bangka Island in July. It becomes stronger across western and southern Bangka in August and September, then reaches its broadest and strongest concentration in **Bangka Selatan in October**. Intensity falls in November and contracts sharply by December.
 
 ## Are space and time independent?
 
-Under space-time independence, randomly reassigning dates to the observed locations should leave the number of near-space/near-time pairs broadly unchanged. I use a transparent permutation test:
+If space and time are independent, randomly reassigning dates to the observed locations should leave the number of near-space/near-time pairs broadly unchanged. I test this by permuting dates:
 
 - a spatial pair is “near” when locations are within 10 km;
 - a temporal pair is “near” when detections are within seven days;
@@ -345,7 +345,7 @@ ggplot(data.frame(Close_pairs = permuted_pairs), aes(Close_pairs)) +
   )
 ```
 
-## Answers and limitations
+## What I found and its limits
 
 **1. Are location and time independent?** No. The observed data contain **`r observed_pairs`** close space-time pairs, **`r round(pair_ratio, 2)` times** the permutation expectation, with (p=) **`r format.pval(permutation_p, digits = 3)`**. Dates and locations therefore show significant interaction at the chosen 10 km / 7-day scale.
 

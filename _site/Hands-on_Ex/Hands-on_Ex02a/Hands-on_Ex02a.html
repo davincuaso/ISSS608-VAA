@@ -223,7 +223,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#clarkevans-nearest-neighbour-test" id="toc-clarkevans-nearest-neighbour-test" class="nav-link" data-scroll-target="#clarkevans-nearest-neighbour-test">Clark–Evans nearest-neighbour test</a></li>
   <li><a href="#kernel-density-estimation" id="toc-kernel-density-estimation" class="nav-link" data-scroll-target="#kernel-density-estimation">Kernel density estimation</a></li>
   <li><a href="#planning-area-comparison" id="toc-planning-area-comparison" class="nav-link" data-scroll-target="#planning-area-comparison">Planning-area comparison</a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#what-i-found" id="toc-what-i-found" class="nav-link" data-scroll-target="#what-i-found">What I found</a></li>
   </ul>
 </nav>
     </div>
@@ -270,7 +270,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>This exercise follows <a href="https://r4gdsa.netlify.app/chap04.html">Chapter 4: First-order Spatial Point Patterns Analysis</a> and studies the distribution of childcare services in Singapore. It answers two questions:</p>
+<p>Using the workflow in <a href="https://r4gdsa.netlify.app/chap04.html">Chapter 4: First-order Spatial Point Patterns Analysis</a>, I study the distribution of childcare services in Singapore. I focus on two questions:</p>
 <ol type="1">
 <li>Are childcare centres consistent with complete spatial randomness (CSR)?</li>
 <li>Where is first-order intensity highest, and how sensitive is it to bandwidth choice?</li>
@@ -393,7 +393,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="clarkevans-nearest-neighbour-test" class="level2">
 <h2 class="anchored" data-anchor-id="clarkevans-nearest-neighbour-test">Clark–Evans nearest-neighbour test</h2>
-<p>The null hypothesis is CSR. Values of the Clark–Evans ratio (R&lt;1) indicate shorter nearest-neighbour distances than expected under CSR; (R&gt;1) indicates a more regular pattern. The CDF edge correction is suitable for the non-rectangular Singapore window.</p>
+<p>The null hypothesis is CSR. A Clark–Evans ratio below 1 means that nearest-neighbour distances are shorter than expected under CSR; a ratio above 1 points to a more regular pattern. I use the CDF edge correction because the Singapore window is not rectangular.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the R code</summary>
@@ -434,11 +434,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </div>
 </div>
-<p><strong>Answer.</strong> (R=) <strong>0.486</strong> with <strong>&lt; 0.001</strong>, so the childcare pattern is significantly clustered relative to CSR. This is not evidence that centres attract one another; population, housing estates, zoning, and service demand are plausible spatially varying drivers.</p>
+<p>The test gives (R=) <strong>0.486</strong> with <strong>&lt; 0.001</strong>, so the childcare pattern is significantly clustered relative to CSR. This does not mean that centres attract one another. Population, housing estates, zoning and service demand are plausible spatially varying drivers.</p>
 </section>
 <section id="kernel-density-estimation" class="level2">
 <h2 class="anchored" data-anchor-id="kernel-density-estimation">Kernel density estimation</h2>
-<p><code>bw.diggle()</code> selects a data-driven fixed bandwidth. An adaptive KDE is also estimated: it uses narrower kernels where points are dense and wider kernels in sparse areas. Both surfaces are expressed as estimated centres per square kilometre.</p>
+<p>I let <code>bw.diggle()</code> select the fixed bandwidth from the data. I also estimate an adaptive KDE, which uses narrower kernels where points are dense and wider kernels in sparse areas. Both surfaces are expressed as estimated centres per square kilometre.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the R code</summary>
@@ -496,7 +496,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p><strong>Answer.</strong> The fixed-bandwidth surface peaks in <strong>Sengkang</strong>. The fixed surface is easier to compare across the island; the adaptive surface retains sharper local peaks in dense estates and smooths more aggressively in sparse peripheral areas. KDE measures concentration of facilities, not accessibility or demand satisfaction.</p>
+<p>The fixed-bandwidth surface peaks in <strong>Sengkang</strong>. The fixed surface is easier to compare across the island; the adaptive surface retains sharper local peaks in dense estates and smooths more heavily in sparse peripheral areas. KDE measures the concentration of facilities, not accessibility or whether demand is being met.</p>
 </section>
 <section id="planning-area-comparison" class="level2">
 <h2 class="anchored" data-anchor-id="planning-area-comparison">Planning-area comparison</h2>
@@ -636,9 +636,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>Tampines has more centres, while Choa Chu Kang has greater centres-per-area density because its boundary is much smaller. Both local (R) values are below 1 and statistically significant, so clustering is present within each planning area rather than being only an island-wide effect.</p>
 </section>
-<section id="conclusion" class="level2">
-<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>The nearest-neighbour and KDE results agree: childcare services are not distributed uniformly. The strongest fixed-KDE concentration is in Sengkang, and substantial local clustering remains in Choa Chu Kang and Tampines. These are descriptive first-order findings; a demand-adjusted study would add child population, capacity, transport access, and housing density.</p>
+<section id="what-i-found" class="level2">
+<h2 class="anchored" data-anchor-id="what-i-found">What I found</h2>
+<p>Both the nearest-neighbour test and KDE point to a non-uniform pattern. The strongest fixed-KDE concentration is in Sengkang, and the local checks still find clustering in Choa Chu Kang and Tampines. These are descriptive first-order results. A demand-adjusted study would also need child population, centre capacity, transport access and housing density.</p>
 
 
 <!-- -->
@@ -1118,7 +1118,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="fu">## Overview</span></span>
 <span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>This exercise follows <span class="co">[</span><span class="ot">Chapter 4: First-order Spatial Point Patterns Analysis</span><span class="co">](https://r4gdsa.netlify.app/chap04.html)</span> and studies the distribution of childcare services in Singapore. It answers two questions:</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>Using the workflow in <span class="co">[</span><span class="ot">Chapter 4: First-order Spatial Point Patterns Analysis</span><span class="co">](https://r4gdsa.netlify.app/chap04.html)</span>, I study the distribution of childcare services in Singapore. I focus on two questions:</span>
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Are childcare centres consistent with complete spatial randomness (CSR)?</span>
 <span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Where is first-order intensity highest, and how sensitive is it to bandwidth choice?</span>
@@ -1206,7 +1206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-113"><a href="#cb8-113" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-114"><a href="#cb8-114" aria-hidden="true" tabindex="-1"></a><span class="fu">## Clark–Evans nearest-neighbour test</span></span>
 <span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a>The null hypothesis is CSR. Values of the Clark–Evans ratio (R&lt;1) indicate shorter nearest-neighbour distances than expected under CSR; (R&gt;1) indicates a more regular pattern. The CDF edge correction is suitable for the non-rectangular Singapore window.</span>
+<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a>The null hypothesis is CSR. A Clark–Evans ratio below 1 means that nearest-neighbour distances are shorter than expected under CSR; a ratio above 1 points to a more regular pattern. I use the CDF edge correction because the Singapore window is not rectangular.</span>
 <span id="cb8-117"><a href="#cb8-117" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-120"><a href="#cb8-120" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb8-121"><a href="#cb8-121" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: clark-evans-test</span></span>
@@ -1227,11 +1227,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-136"><a href="#cb8-136" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(ce_result, <span class="at">caption =</span> <span class="st">"Clark–Evans test with CDF edge correction"</span>)</span>
 <span id="cb8-137"><a href="#cb8-137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb8-138"><a href="#cb8-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a>**Answer.** (R=) **`r round(unname(ce_sg$statistic), 3)`** with **`r format.pval(ce_sg$p.value, eps = 0.001)`**, so the childcare pattern is significantly clustered relative to CSR. This is not evidence that centres attract one another; population, housing estates, zoning, and service demand are plausible spatially varying drivers.</span>
+<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a>The test gives (R=) **`r round(unname(ce_sg$statistic), 3)`** with **`r format.pval(ce_sg$p.value, eps = 0.001)`**, so the childcare pattern is significantly clustered relative to CSR. This does not mean that centres attract one another. Population, housing estates, zoning and service demand are plausible spatially varying drivers.</span>
 <span id="cb8-140"><a href="#cb8-140" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-141"><a href="#cb8-141" aria-hidden="true" tabindex="-1"></a><span class="fu">## Kernel density estimation</span></span>
 <span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a><span class="in">`bw.diggle()`</span> selects a data-driven fixed bandwidth. An adaptive KDE is also estimated: it uses narrower kernels where points are dense and wider kernels in sparse areas. Both surfaces are expressed as estimated centres per square kilometre.</span>
+<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a>I let <span class="in">`bw.diggle()`</span> select the fixed bandwidth from the data. I also estimate an adaptive KDE, which uses narrower kernels where points are dense and wider kernels in sparse areas. Both surfaces are expressed as estimated centres per square kilometre.</span>
 <span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb8-148"><a href="#cb8-148" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: calculate-kde</span></span>
@@ -1294,7 +1294,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-209"><a href="#cb8-209" aria-hidden="true" tabindex="-1"></a>peak_area <span class="ot">&lt;-</span> <span class="fu">st_join</span>(peak_point, planning_area[<span class="st">"PLN_AREA_N"</span>], <span class="at">join =</span> st_within)<span class="sc">$</span>PLN_AREA_N[<span class="dv">1</span>]</span>
 <span id="cb8-210"><a href="#cb8-210" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb8-211"><a href="#cb8-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-212"><a href="#cb8-212" aria-hidden="true" tabindex="-1"></a>**Answer.** The fixed-bandwidth surface peaks in **`r tools::toTitleCase(tolower(peak_area))`**. The fixed surface is easier to compare across the island; the adaptive surface retains sharper local peaks in dense estates and smooths more aggressively in sparse peripheral areas. KDE measures concentration of facilities, not accessibility or demand satisfaction.</span>
+<span id="cb8-212"><a href="#cb8-212" aria-hidden="true" tabindex="-1"></a>The fixed-bandwidth surface peaks in **`r tools::toTitleCase(tolower(peak_area))`**. The fixed surface is easier to compare across the island; the adaptive surface retains sharper local peaks in dense estates and smooths more heavily in sparse peripheral areas. KDE measures the concentration of facilities, not accessibility or whether demand is being met.</span>
 <span id="cb8-213"><a href="#cb8-213" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-214"><a href="#cb8-214" aria-hidden="true" tabindex="-1"></a><span class="fu">## Planning-area comparison</span></span>
 <span id="cb8-215"><a href="#cb8-215" aria-hidden="true" tabindex="-1"></a></span>
@@ -1369,9 +1369,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-288"><a href="#cb8-288" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-289"><a href="#cb8-289" aria-hidden="true" tabindex="-1"></a>Tampines has more centres, while Choa Chu Kang has greater centres-per-area density because its boundary is much smaller. Both local (R) values are below 1 and statistically significant, so clustering is present within each planning area rather than being only an island-wide effect.</span>
 <span id="cb8-290"><a href="#cb8-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-291"><a href="#cb8-291" aria-hidden="true" tabindex="-1"></a><span class="fu">## Conclusion</span></span>
+<span id="cb8-291"><a href="#cb8-291" aria-hidden="true" tabindex="-1"></a><span class="fu">## What I found</span></span>
 <span id="cb8-292"><a href="#cb8-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-293"><a href="#cb8-293" aria-hidden="true" tabindex="-1"></a>The nearest-neighbour and KDE results agree: childcare services are not distributed uniformly. The strongest fixed-KDE concentration is in Sengkang, and substantial local clustering remains in Choa Chu Kang and Tampines. These are descriptive first-order findings; a demand-adjusted study would add child population, capacity, transport access, and housing density.</span>
+<span id="cb8-293"><a href="#cb8-293" aria-hidden="true" tabindex="-1"></a>Both the nearest-neighbour test and KDE point to a non-uniform pattern. The strongest fixed-KDE concentration is in Sengkang, and the local checks still find clustering in Choa Chu Kang and Tampines. These are descriptive first-order results. A demand-adjusted study would also need child population, centre capacity, transport access and housing density.</span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

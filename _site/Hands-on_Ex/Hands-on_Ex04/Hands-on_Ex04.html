@@ -233,8 +233,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#counties-that-differ-from-their-neighbours" id="toc-counties-that-differ-from-their-neighbours" class="nav-link" data-scroll-target="#counties-that-differ-from-their-neighbours">Counties that differ from their neighbours</a></li>
   </ul></li>
-  <li><a href="#assumptions-and-limitations" id="toc-assumptions-and-limitations" class="nav-link" data-scroll-target="#assumptions-and-limitations">Assumptions and limitations</a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#assumptions-and-limits" id="toc-assumptions-and-limits" class="nav-link" data-scroll-target="#assumptions-and-limits">Assumptions and limits</a></li>
+  <li><a href="#what-i-found" id="toc-what-i-found" class="nav-link" data-scroll-target="#what-i-found">What I found</a></li>
   </ul>
 </nav>
     </div>
@@ -281,7 +281,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>This exercise follows <a href="https://r4gdsa.netlify.app/chap08.html">Chapter 8: Spatial Weights and Applications</a> and the <a href="https://isss626-ay2026-27aug.netlify.app/outline/lesson04_outline">Lesson 4 outline</a>. It uses GDP per capita (GDPPC) for 88 counties in Hunan, China, to answer three questions:</p>
+<p>I follow <a href="https://r4gdsa.netlify.app/chap08.html">Chapter 8: Spatial Weights and Applications</a> and the <a href="https://isss626-ay2026-27aug.netlify.app/outline/lesson04_outline">Lesson 4 outline</a>. Using GDP per capita (GDPPC) for 88 counties in Hunan, China, I answer three questions:</p>
 <ol type="1">
 <li>How does the definition of a neighbour change the spatial weights matrix?</li>
 <li>How does row standardisation turn those links into comparable weights?</li>
@@ -1011,11 +1011,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>Lengshuijiang, Changsha and Zixing sit well above their surrounding averages. Pingjiang is the strongest contrast in the other direction: its GDPPC is much lower than the average among its queen-contiguous neighbours. These are local comparisons, not significance tests, but they identify places worth examining in a later spatial-autocorrelation analysis.</p>
+<p>Lengshuijiang, Changsha and Zixing sit well above their surrounding averages. Pingjiang is the strongest contrast in the other direction: its GDPPC is much lower than the average among its queen-contiguous neighbours. These local comparisons identify places worth examining in a later spatial-autocorrelation analysis. They are not significance tests.</p>
 </section>
 </section>
-<section id="assumptions-and-limitations" class="level2">
-<h2 class="anchored" data-anchor-id="assumptions-and-limitations">Assumptions and limitations</h2>
+<section id="assumptions-and-limits" class="level2">
+<h2 class="anchored" data-anchor-id="assumptions-and-limits">Assumptions and limits</h2>
 <ul>
 <li>A queen link assumes that any shared edge or corner can support interaction. A different substantive process may call for rook, road-network or travel-time neighbours.</li>
 <li>The distance methods use polygon centroids. Large or irregular counties are reduced to one representative point, and the 62 km threshold is a connectivity rule rather than an economic boundary.</li>
@@ -1024,9 +1024,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>GDPPC is a county-level, cross-sectional indicator. A spatial lag describes context; it does not show that neighbouring GDPPC caused a county’s value.</li>
 </ul>
 </section>
-<section id="conclusion" class="level2">
-<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>The same 88 counties produce noticeably different graphs under queen, rook, fixed-distance and k-nearest-neighbour rules. Queen contiguity is a defensible baseline here because counties are complete administrative polygons and the task is to compare directly adjacent areas. Row-standardised queen weights then give a readable neighbouring mean. That comparison supports the main finding: Hunan has broad local similarity, but a small set of counties—notably Lengshuijiang, Changsha, Zixing and Pingjiang—differ sharply from their immediate surroundings. The conclusion is supported by the transparent weights construction, complete data join, mapped lags and county-level differences, while remaining descriptive rather than causal.</p>
+<section id="what-i-found" class="level2">
+<h2 class="anchored" data-anchor-id="what-i-found">What I found</h2>
+<p>Changing the neighbour rule changes the graph, even though the 88 county values stay the same. I use queen contiguity as the main specification because the question concerns counties that touch. With row-standardised weights, each spatial lag is the mean among those neighbours. Most nearby counties have similar GDPPC, but Lengshuijiang, Changsha and Zixing are well above their surrounding averages, while Pingjiang is well below. These comparisons are descriptive; they do not show that one county’s GDPPC caused another’s.</p>
 
 
 <!-- -->
@@ -1506,7 +1506,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="fu">## Overview</span></span>
 <span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>This exercise follows <span class="co">[</span><span class="ot">Chapter 8: Spatial Weights and Applications</span><span class="co">](https://r4gdsa.netlify.app/chap08.html)</span> and the <span class="co">[</span><span class="ot">Lesson 4 outline</span><span class="co">](https://isss626-ay2026-27aug.netlify.app/outline/lesson04_outline)</span>. It uses GDP per capita (GDPPC) for 88 counties in Hunan, China, to answer three questions:</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>I follow <span class="co">[</span><span class="ot">Chapter 8: Spatial Weights and Applications</span><span class="co">](https://r4gdsa.netlify.app/chap08.html)</span> and the <span class="co">[</span><span class="ot">Lesson 4 outline</span><span class="co">](https://isss626-ay2026-27aug.netlify.app/outline/lesson04_outline)</span>. Using GDP per capita (GDPPC) for 88 counties in Hunan, China, I answer three questions:</span>
 <span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>How does the definition of a neighbour change the spatial weights matrix?</span>
 <span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>How does row standardisation turn those links into comparable weights?</span>
@@ -1915,9 +1915,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-452"><a href="#cb14-452" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb14-453"><a href="#cb14-453" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb14-454"><a href="#cb14-454" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-455"><a href="#cb14-455" aria-hidden="true" tabindex="-1"></a>Lengshuijiang, Changsha and Zixing sit well above their surrounding averages. Pingjiang is the strongest contrast in the other direction: its GDPPC is much lower than the average among its queen-contiguous neighbours. These are local comparisons, not significance tests, but they identify places worth examining in a later spatial-autocorrelation analysis.</span>
+<span id="cb14-455"><a href="#cb14-455" aria-hidden="true" tabindex="-1"></a>Lengshuijiang, Changsha and Zixing sit well above their surrounding averages. Pingjiang is the strongest contrast in the other direction: its GDPPC is much lower than the average among its queen-contiguous neighbours. These local comparisons identify places worth examining in a later spatial-autocorrelation analysis. They are not significance tests.</span>
 <span id="cb14-456"><a href="#cb14-456" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-457"><a href="#cb14-457" aria-hidden="true" tabindex="-1"></a><span class="fu">## Assumptions and limitations</span></span>
+<span id="cb14-457"><a href="#cb14-457" aria-hidden="true" tabindex="-1"></a><span class="fu">## Assumptions and limits</span></span>
 <span id="cb14-458"><a href="#cb14-458" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-459"><a href="#cb14-459" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>A queen link assumes that any shared edge or corner can support interaction. A different substantive process may call for rook, road-network or travel-time neighbours.</span>
 <span id="cb14-460"><a href="#cb14-460" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The distance methods use polygon centroids. Large or irregular counties are reduced to one representative point, and the 62 km threshold is a connectivity rule rather than an economic boundary.</span>
@@ -1925,9 +1925,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-462"><a href="#cb14-462" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Row standardisation gives every county the same total weight, which increases the individual influence of neighbours around counties with few links.</span>
 <span id="cb14-463"><a href="#cb14-463" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>GDPPC is a county-level, cross-sectional indicator. A spatial lag describes context; it does not show that neighbouring GDPPC caused a county's value.</span>
 <span id="cb14-464"><a href="#cb14-464" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-465"><a href="#cb14-465" aria-hidden="true" tabindex="-1"></a><span class="fu">## Conclusion</span></span>
+<span id="cb14-465"><a href="#cb14-465" aria-hidden="true" tabindex="-1"></a><span class="fu">## What I found</span></span>
 <span id="cb14-466"><a href="#cb14-466" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-467"><a href="#cb14-467" aria-hidden="true" tabindex="-1"></a>The same 88 counties produce noticeably different graphs under queen, rook, fixed-distance and k-nearest-neighbour rules. Queen contiguity is a defensible baseline here because counties are complete administrative polygons and the task is to compare directly adjacent areas. Row-standardised queen weights then give a readable neighbouring mean. That comparison supports the main finding: Hunan has broad local similarity, but a small set of counties—notably Lengshuijiang, Changsha, Zixing and Pingjiang—differ sharply from their immediate surroundings. The conclusion is supported by the transparent weights construction, complete data join, mapped lags and county-level differences, while remaining descriptive rather than causal.</span>
+<span id="cb14-467"><a href="#cb14-467" aria-hidden="true" tabindex="-1"></a>Changing the neighbour rule changes the graph, even though the 88 county values stay the same. I use queen contiguity as the main specification because the question concerns counties that touch. With row-standardised weights, each spatial lag is the mean among those neighbours. Most nearby counties have similar GDPPC, but Lengshuijiang, Changsha and Zixing are well above their surrounding averages, while Pingjiang is well below. These comparisons are descriptive; they do not show that one county's GDPPC caused another's.</span>
 </code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

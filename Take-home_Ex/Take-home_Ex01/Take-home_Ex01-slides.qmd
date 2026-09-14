@@ -49,7 +49,7 @@ second_order_plot_df <- bind_rows(
 2. Data preparation
 3. First-order temporal and spatial intensity
 4. Second-order spatial interaction
-5. Value-added space-time test
+5. Bonus space-time test
 6. Planning implications and limits
 
 ## 1. Decision question
@@ -309,7 +309,7 @@ The time-permutation null cannot explain the cause of a local burst.
 
 ::: {.columns}
 ::: {.column width="55%"}
-### What the evidence supports
+### What the data support
 
 <div class="small">
 

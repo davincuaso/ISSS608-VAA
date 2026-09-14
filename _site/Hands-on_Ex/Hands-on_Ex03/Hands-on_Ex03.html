@@ -224,7 +224,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#where-did-detections-concentrate" id="toc-where-did-detections-concentrate" class="nav-link" data-scroll-target="#where-did-detections-concentrate">Where did detections concentrate?</a></li>
   <li><a href="#spatio-temporal-kernel-density" id="toc-spatio-temporal-kernel-density" class="nav-link" data-scroll-target="#spatio-temporal-kernel-density">Spatio-temporal kernel density</a></li>
   <li><a href="#are-space-and-time-independent" id="toc-are-space-and-time-independent" class="nav-link" data-scroll-target="#are-space-and-time-independent">Are space and time independent?</a></li>
-  <li><a href="#answers-and-limitations" id="toc-answers-and-limitations" class="nav-link" data-scroll-target="#answers-and-limitations">Answers and limitations</a></li>
+  <li><a href="#what-i-found-and-its-limits" id="toc-what-i-found-and-its-limits" class="nav-link" data-scroll-target="#what-i-found-and-its-limits">What I found and its limits</a></li>
   </ul>
 </nav>
     </div>
@@ -271,7 +271,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level2">
 <h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>This exercise follows <a href="https://r4gdsa.netlify.app/chap06">Chapter 6: Spatio-Temporal Point Patterns Analysis</a> and studies 2023 satellite fire detections in Indonesia’s Kepulauan Bangka Belitung province. It answers the guide’s two research questions:</p>
+<p>For this exercise, I apply <a href="https://r4gdsa.netlify.app/chap06">Chapter 6: Spatio-Temporal Point Patterns Analysis</a> to 2023 satellite fire detections in Indonesia’s Kepulauan Bangka Belitung province. The guide poses two research questions:</p>
 <ol type="1">
 <li>Are the spatial locations and detection dates independent?</li>
 <li>Where and when do fire detections cluster?</li>
@@ -279,7 +279,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="data-and-study-area" class="level2">
 <h2 class="anchored" data-anchor-id="data-and-study-area">Data and study area</h2>
-<p>The lecturer’s project-local files are not published through the chapter URL, so this reproducible version uses a public snapshot of the same NASA FIRMS 2023 Indonesia feed and filters it spatially to Bangka Belitung. GADM level-1 and level-2 boundaries replace the course’s union of subdistrict polygons; the province footprint has the same analytical role, while districts make the results easier to name.</p>
+<p>The lecturer’s local project files are not available at the chapter URL. To keep the exercise reproducible, I use a public snapshot of the same NASA FIRMS 2023 Indonesia feed and filter it to Bangka Belitung. GADM level-1 and level-2 boundaries replace the course’s union of subdistrict polygons. The province footprint has the same analytical role, while the district boundaries give names to the results.</p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -429,7 +429,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>October records the maximum with <strong>239 detections</strong>, followed by September and August. Together, July–November account for <strong>87.3%</strong> of the annual detections.</p>
+<p>October has the maximum with <strong>239 detections</strong>, followed by September and August. From July through November, the five months account for <strong>87.3%</strong> of the annual detections.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the R code</summary>
@@ -553,7 +553,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="spatio-temporal-kernel-density" class="level2">
 <h2 class="anchored" data-anchor-id="spatio-temporal-kernel-density">Spatio-temporal kernel density</h2>
-<p>The chapter uses <code>spattemp.density()</code>. The calculation below implements the same product-kernel idea directly: every monthly slice combines a 12 km Gaussian spatial kernel with a one-month Gaussian temporal kernel. Values are rescaled to 0–1 across all six slices to emphasise changes in the location and strength of concentrations.</p>
+<p>The chapter uses <code>spattemp.density()</code>. I implement the same product-kernel idea directly: each monthly slice combines a 12 km Gaussian spatial kernel with a one-month Gaussian temporal kernel. I rescale values to 0–1 across all six slices so changes in the location and strength of concentrations can be compared.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Show the R code</summary>
@@ -618,11 +618,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-<p>The surfaces show activity building on Bangka Island from July, strengthening across western and southern Bangka in August–September, and reaching its strongest and broadest concentration in <strong>Bangka Selatan in October</strong>. Intensity falls in November and contracts sharply by December.</p>
+<p>Activity is already visible on Bangka Island in July. It becomes stronger across western and southern Bangka in August and September, then reaches its broadest and strongest concentration in <strong>Bangka Selatan in October</strong>. Intensity falls in November and contracts sharply by December.</p>
 </section>
 <section id="are-space-and-time-independent" class="level2">
 <h2 class="anchored" data-anchor-id="are-space-and-time-independent">Are space and time independent?</h2>
-<p>Under space-time independence, randomly reassigning dates to the observed locations should leave the number of near-space/near-time pairs broadly unchanged. I use a transparent permutation test:</p>
+<p>If space and time are independent, randomly reassigning dates to the observed locations should leave the number of near-space/near-time pairs broadly unchanged. I test this by permuting dates:</p>
 <ul>
 <li>a spatial pair is “near” when locations are within 10 km;</li>
 <li>a temporal pair is “near” when detections are within seven days;</li>
@@ -722,8 +722,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="answers-and-limitations" class="level2">
-<h2 class="anchored" data-anchor-id="answers-and-limitations">Answers and limitations</h2>
+<section id="what-i-found-and-its-limits" class="level2">
+<h2 class="anchored" data-anchor-id="what-i-found-and-its-limits">What I found and its limits</h2>
 <p><strong>1. Are location and time independent?</strong> No.&nbsp;The observed data contain <strong>1831</strong> close space-time pairs, <strong>1.87 times</strong> the permutation expectation, with (p=) <strong>0.005</strong>. Dates and locations therefore show significant interaction at the chosen 10 km / 7-day scale.</p>
 <p><strong>2. Where and when is clustering strongest?</strong> The largest annual and monthly concentration occurs in <strong>Bangka Selatan</strong>, peaking in <strong>October</strong>. The temporal KDE peaks around 11 October, and the space-time density surfaces show the hotspot expanding from July through October before receding.</p>
 <p>NASA FIRMS records satellite detections, not verified fire incidents or burned area. Cloud cover, satellite revisit timing, duplicate detections of one fire, confidence, and the chosen bandwidths all affect the pattern. The analysis identifies space-time concentration; it does not establish ignition causes.</p>
@@ -1206,7 +1206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="fu">## Overview</span></span>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>This exercise follows <span class="co">[</span><span class="ot">Chapter 6: Spatio-Temporal Point Patterns Analysis</span><span class="co">](https://r4gdsa.netlify.app/chap06)</span> and studies 2023 satellite fire detections in Indonesia's Kepulauan Bangka Belitung province. It answers the guide's two research questions:</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>For this exercise, I apply <span class="co">[</span><span class="ot">Chapter 6: Spatio-Temporal Point Patterns Analysis</span><span class="co">](https://r4gdsa.netlify.app/chap06)</span> to 2023 satellite fire detections in Indonesia's Kepulauan Bangka Belitung province. The guide poses two research questions:</span>
 <span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Are the spatial locations and detection dates independent?</span>
 <span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Where and when do fire detections cluster?</span>
@@ -1229,7 +1229,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data and study area</span></span>
 <span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>The lecturer's project-local files are not published through the chapter URL, so this reproducible version uses a public snapshot of the same NASA FIRMS 2023 Indonesia feed and filters it spatially to Bangka Belitung. GADM level-1 and level-2 boundaries replace the course's union of subdistrict polygons; the province footprint has the same analytical role, while districts make the results easier to name.</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>The lecturer's local project files are not available at the chapter URL. To keep the exercise reproducible, I use a public snapshot of the same NASA FIRMS 2023 Indonesia feed and filter it to Bangka Belitung. GADM level-1 and level-2 boundaries replace the course's union of subdistrict polygons. The province footprint has the same analytical role, while the district boundaries give names to the results.</span>
 <span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Dataset <span class="pp">|</span> Source <span class="pp">|</span> Use <span class="pp">|</span></span>
 <span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a><span class="pp">|---|---|---|</span></span>
@@ -1330,7 +1330,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-149"><a href="#cb9-149" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>())</span>
 <span id="cb9-150"><a href="#cb9-150" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb9-151"><a href="#cb9-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a>October records the maximum with **`r max(monthly_counts$n)` detections**, followed by September and August. Together, July–November account for **`r round(100 * sum(monthly_counts$n[monthly_counts$Month %in% month.abb[7:11]]) / sum(monthly_counts$n), 1)`%** of the annual detections.</span>
+<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a>October has the maximum with **`r max(monthly_counts$n)` detections**, followed by September and August. From July through November, the five months account for **`r round(100 * sum(monthly_counts$n[monthly_counts$Month %in% month.abb[7:11]]) / sum(monthly_counts$n), 1)`%** of the annual detections.</span>
 <span id="cb9-153"><a href="#cb9-153" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-156"><a href="#cb9-156" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb9-157"><a href="#cb9-157" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: day-of-year-kde</span></span>
@@ -1399,7 +1399,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-222"><a href="#cb9-222" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-223"><a href="#cb9-223" aria-hidden="true" tabindex="-1"></a><span class="fu">## Spatio-temporal kernel density</span></span>
 <span id="cb9-224"><a href="#cb9-224" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-225"><a href="#cb9-225" aria-hidden="true" tabindex="-1"></a>The chapter uses <span class="in">`spattemp.density()`</span>. The calculation below implements the same product-kernel idea directly: every monthly slice combines a 12 km Gaussian spatial kernel with a one-month Gaussian temporal kernel. Values are rescaled to 0–1 across all six slices to emphasise changes in the location and strength of concentrations.</span>
+<span id="cb9-225"><a href="#cb9-225" aria-hidden="true" tabindex="-1"></a>The chapter uses <span class="in">`spattemp.density()`</span>. I implement the same product-kernel idea directly: each monthly slice combines a 12 km Gaussian spatial kernel with a one-month Gaussian temporal kernel. I rescale values to 0–1 across all six slices so changes in the location and strength of concentrations can be compared.</span>
 <span id="cb9-226"><a href="#cb9-226" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-229"><a href="#cb9-229" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb9-230"><a href="#cb9-230" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: calculate-stkde</span></span>
@@ -1460,11 +1460,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-287"><a href="#cb9-287" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb9-288"><a href="#cb9-288" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb9-289"><a href="#cb9-289" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-290"><a href="#cb9-290" aria-hidden="true" tabindex="-1"></a>The surfaces show activity building on Bangka Island from July, strengthening across western and southern Bangka in August–September, and reaching its strongest and broadest concentration in **Bangka Selatan in October**. Intensity falls in November and contracts sharply by December.</span>
+<span id="cb9-290"><a href="#cb9-290" aria-hidden="true" tabindex="-1"></a>Activity is already visible on Bangka Island in July. It becomes stronger across western and southern Bangka in August and September, then reaches its broadest and strongest concentration in **Bangka Selatan in October**. Intensity falls in November and contracts sharply by December.</span>
 <span id="cb9-291"><a href="#cb9-291" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-292"><a href="#cb9-292" aria-hidden="true" tabindex="-1"></a><span class="fu">## Are space and time independent?</span></span>
 <span id="cb9-293"><a href="#cb9-293" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-294"><a href="#cb9-294" aria-hidden="true" tabindex="-1"></a>Under space-time independence, randomly reassigning dates to the observed locations should leave the number of near-space/near-time pairs broadly unchanged. I use a transparent permutation test:</span>
+<span id="cb9-294"><a href="#cb9-294" aria-hidden="true" tabindex="-1"></a>If space and time are independent, randomly reassigning dates to the observed locations should leave the number of near-space/near-time pairs broadly unchanged. I test this by permuting dates:</span>
 <span id="cb9-295"><a href="#cb9-295" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-296"><a href="#cb9-296" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>a spatial pair is “near” when locations are within 10 km;</span>
 <span id="cb9-297"><a href="#cb9-297" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>a temporal pair is “near” when detections are within seven days;</span>
@@ -1532,7 +1532,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-363"><a href="#cb9-363" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb9-364"><a href="#cb9-364" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb9-365"><a href="#cb9-365" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-366"><a href="#cb9-366" aria-hidden="true" tabindex="-1"></a><span class="fu">## Answers and limitations</span></span>
+<span id="cb9-366"><a href="#cb9-366" aria-hidden="true" tabindex="-1"></a><span class="fu">## What I found and its limits</span></span>
 <span id="cb9-367"><a href="#cb9-367" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-368"><a href="#cb9-368" aria-hidden="true" tabindex="-1"></a>**1. Are location and time independent?** No. The observed data contain **`r observed_pairs`** close space-time pairs, **`r round(pair_ratio, 2)` times** the permutation expectation, with (p=) **`r format.pval(permutation_p, digits = 3)`**. Dates and locations therefore show significant interaction at the chosen 10 km / 7-day scale.</span>
 <span id="cb9-369"><a href="#cb9-369" aria-hidden="true" tabindex="-1"></a></span>
