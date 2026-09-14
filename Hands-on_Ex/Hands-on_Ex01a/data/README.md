@@ -1,6 +1,6 @@
-# Hands-on Exercise 1 data
+# Hands-on Exercise 1a data
 
-Downloaded on 6 September 2026 for the reproducible Exercise 1 analysis.
+Downloaded on 6 September 2026 for the reproducible Hands-on Exercise 1a analysis.
 
 ## Geospatial data
 

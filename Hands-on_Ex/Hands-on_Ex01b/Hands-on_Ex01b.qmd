@@ -1,6 +1,6 @@
 ---
-title: "Hands-on Exercise 2"
-subtitle: "Thematic Mapping and GeoVisualisation with R"
+title: "Hands-on Exercise 1b"
+subtitle: "Choropleth Mapping with R"
 author: "Davin Cuaso"
 date: 2026-09-06
 date-modified: last-modified

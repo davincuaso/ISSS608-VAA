@@ -15,16 +15,18 @@ website:
         text: Home
       - text: Hands-on Exercises
         menu:
-          - href: Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.qmd
-            text: "Exercise 1: Geospatial Data Science"
-          - href: Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.qmd
-            text: "Exercise 2: Thematic Mapping"
+          - href: Hands-on_Ex/Hands-on_Ex01a/Hands-on_Ex01a.qmd
+            text: "Hands-on Exercise 1a: Geospatial Data Wrangling"
+          - href: Hands-on_Ex/Hands-on_Ex01b/Hands-on_Ex01b.qmd
+            text: "Hands-on Exercise 1b: Choropleth Mapping"
+          - href: Hands-on_Ex/Hands-on_Ex02a/Hands-on_Ex02a.qmd
+            text: "Hands-on Exercise 2a: First-order SPPA"
+          - href: Hands-on_Ex/Hands-on_Ex02b/Hands-on_Ex02b.qmd
+            text: "Hands-on Exercise 2b: Second-order SPPA"
+          - href: Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.qmd
+            text: "Hands-on Exercise 3: Spatio-temporal SPPA"
           - href: Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd
-            text: "Exercise 4: First-order SPPA"
-          - href: Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.qmd
-            text: "Exercise 5: Second-order SPPA"
-          - href: Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.qmd
-            text: "Exercise 6: Spatio-temporal SPPA"
+            text: "Hands-on Exercise 4: Spatial Weights"
       - text: Take-home Exercises
         menu:
           - href: Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd

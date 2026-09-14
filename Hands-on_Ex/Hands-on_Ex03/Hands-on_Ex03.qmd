@@ -1,5 +1,5 @@
 ---
-title: "Hands-on Exercise 6"
+title: "Hands-on Exercise 3"
 subtitle: "Spatio-Temporal Point Patterns Analysis"
 author: "Davin Cuaso"
 date: 2026-09-06

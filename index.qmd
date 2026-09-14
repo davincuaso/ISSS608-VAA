@@ -8,7 +8,7 @@ page-layout: full
 ---
 
 ::: {.hero-panel}
-This portfolio documents my hands-on work for **ISSS608 Visual Analytics and Applications**. It brings together geospatial data handling, thematic mapping, spatial point-pattern analysis, and spatio-temporal analysis using R.
+This portfolio documents my hands-on work for **ISSS608 Visual Analytics and Applications**. It brings together geospatial data handling, thematic mapping, spatial point-pattern analysis, spatio-temporal analysis, and spatial weights using R.
 
 Use the **Hands-on Exercises** and **Take-home Exercises** menus in the navigation bar, or select an exercise below.
 :::
@@ -17,23 +17,23 @@ Use the **Hands-on Exercises** and **Take-home Exercises** menus in the navigati
 
 ::: {.exercise-grid}
 ::: {.exercise-card}
-### [Exercise 1](Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.qmd)
+### [Hands-on Exercise 1a](Hands-on_Ex/Hands-on_Ex01a/Hands-on_Ex01a.qmd)
 
-**Geospatial Data Science with R**
+**Geospatial Data Wrangling with R**
 
 Import, inspect, project, wrangle, and analyse spatial data with `sf` and the tidyverse.
 :::
 
 ::: {.exercise-card}
-### [Exercise 2](Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.qmd)
+### [Hands-on Exercise 1b](Hands-on_Ex/Hands-on_Ex01b/Hands-on_Ex01b.qmd)
 
-**Thematic Mapping and GeoVisualisation**
+**Choropleth Mapping with R**
 
 Build static and interactive thematic maps and complement them with statistical graphics.
 :::
 
 ::: {.exercise-card}
-### [Exercise 4](Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd)
+### [Hands-on Exercise 2a](Hands-on_Ex/Hands-on_Ex02a/Hands-on_Ex02a.qmd)
 
 **First-order Spatial Point Patterns**
 
@@ -41,7 +41,7 @@ Explore nearest-neighbour analysis and kernel density estimation for spatial eve
 :::
 
 ::: {.exercise-card}
-### [Exercise 5](Hands-on_Ex/Hands-on_Ex05/Hands-on_Ex05.qmd)
+### [Hands-on Exercise 2b](Hands-on_Ex/Hands-on_Ex02b/Hands-on_Ex02b.qmd)
 
 **Second-order Spatial Point Patterns**
 
@@ -49,11 +49,19 @@ Study spatial interaction across distances with G-, F-, K-, and L-functions.
 :::
 
 ::: {.exercise-card}
-### [Exercise 6](Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.qmd)
+### [Hands-on Exercise 3](Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.qmd)
 
 **Spatio-temporal Point Patterns**
 
 Analyse how event intensity and spatial patterns change over time.
+:::
+
+::: {.exercise-card}
+### [Hands-on Exercise 4](Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd)
+
+**Spatial Weights and Applications**
+
+Construct contiguity- and distance-based neighbours, standardise their weights, and calculate spatially lagged GDP per capita.
 :::
 :::
 

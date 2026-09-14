@@ -9,7 +9,7 @@ These files support Hands-on Exercises 2, 4, 5, and 6. They are committed so the
 - `geospatial/ChildCareServices.geojson` — ECDA Child Care Services, data.gov.sg dataset `d_5d668e3f544335f8028f546827b773b4` (download metadata reports December 2021 source data).
 - `aspatial/resident_population_2020.csv` — Singapore Department of Statistics, Resident Population by Planning Area/Subzone of Residence, Age Group and Sex, Census of Population 2020, data.gov.sg dataset `d_d95ae740c0f8961a0b10435836660ce0`.
 
-The Exercise 2 course notes use a newer SingStat CSV. The 2020 Census table is used here because it is available as a stable public download and provides the same subzone-by-age fields needed for the dependency-ratio workflow.
+The Hands-on Exercise 1b course notes use a newer SingStat CSV. The 2020 Census table is used here because it is available as a stable public download and provides the same subzone-by-age fields needed for the dependency-ratio workflow.
 
 ## Bangka Belitung
 
@@ -17,5 +17,4 @@ The Exercise 2 course notes use a newer SingStat CSV. The 2020 Census table is u
 - `temporal/BangkaBelitung.geojson` — GADM 4.1 Indonesia level-1 feature for `BangkaBelitung`.
 - `temporal/BangkaBelitung_Districts.geojson` — GADM 4.1 Indonesia level-2 features inside the province.
 
-The Chapter 6 project-local fire and Indonesia Geospatial files are not published through the chapter URL. The public NASA-derived snapshot and GADM boundaries preserve the same study year, province, projected-analysis workflow, and research questions while making the exercise reproducible.
-
+The Chapter 6 project-local fire and Indonesia geospatial files are not published through the chapter URL. The public NASA-derived snapshot and GADM boundaries preserve the same study year, province, projected-analysis workflow, and research questions while making Hands-on Exercise 3 reproducible.

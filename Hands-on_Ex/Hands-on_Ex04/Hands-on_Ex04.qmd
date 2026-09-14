@@ -1,8 +1,8 @@
 ---
 title: "Hands-on Exercise 4"
-subtitle: "First-order Spatial Point Patterns Analysis"
+subtitle: "Spatial Weights and Applications"
 author: "Davin Cuaso"
-date: 2026-09-06
+date: 2026-09-14
 date-modified: last-modified
 format:
   html:
@@ -19,10 +19,11 @@ execute:
 
 ## Overview
 
-This exercise follows [Chapter 4: First-order Spatial Point Patterns Analysis](https://r4gdsa.netlify.app/chap04.html) and studies the distribution of childcare services in Singapore. It answers two questions:
+This exercise follows [Chapter 8: Spatial Weights and Applications](https://r4gdsa.netlify.app/chap08.html) and the [Lesson 4 outline](https://isss626-ay2026-27aug.netlify.app/outline/lesson04_outline). It uses GDP per capita (GDPPC) for 88 counties in Hunan, China, to answer three questions:
 
-1. Are childcare centres consistent with complete spatial randomness (CSR)?
-2. Where is first-order intensity highest, and how sensitive is it to bandwidth choice?
+1. How does the definition of a neighbour change the spatial weights matrix?
+2. How does row standardisation turn those links into comparable weights?
+3. Which counties stand out after their GDPPC is compared with neighbouring counties?
 
 ```{r}
 #| label: setup
@@ -32,244 +33,411 @@ library(sf)
 library(dplyr)
 library(ggplot2)
 library(knitr)
-library(spatstat.geom)
-library(spatstat.explore)
+library(spdep)
 
-theme_set(theme_minimal(base_size = 12))
 options(scipen = 999)
-data_path <- "../../data"
+theme_set(theme_minimal(base_size = 12))
+data_path <- "data"
 ```
 
-## Data and point-pattern preparation
+## Data and preparation
+
+I use the files distributed with the current course's Lesson 4 rather than recreating the data from another source.
 
 | Dataset | Source | Use |
 |---|---|---|
-| Child Care Services | [ECDA via data.gov.sg](https://data.gov.sg/datasets/d_5d668e3f544335f8028f546827b773b4/view) | Point events |
-| Master Plan 2019 Planning Area Boundary (No Sea) | [URA via data.gov.sg](https://data.gov.sg/datasets/d_4765db0e87b9c86336792efe8a1f7a66/view) | Observation window and comparisons |
+| Hunan county boundary | [Official Lesson 4 course files](https://github.com/tskam/ISSS626-AY2026-27Aug/tree/master/lesson/Lesson04/data/geospatial) | Polygons and neighbourhood relationships |
+| Hunan 2012 development indicators | [Official Lesson 4 course file](https://github.com/tskam/ISSS626-AY2026-27Aug/blob/master/lesson/Lesson04/data/aspatial/Hunan_2012.csv) | County GDP per capita |
 
-Distance-based analysis requires metres, so both layers are transformed to **SVY21 / Singapore TM (EPSG:3414)**. The union of all planning areas becomes the polygonal observation window.
+The shapefile and CSV both carry a `County` field. A left join keeps all 88 polygons and attaches the matching indicators. The checks immediately after the join make sure that no county was duplicated or left without GDPPC.
 
 ```{r}
-#| label: prepare-point-pattern
+#| label: import-and-join
 
-planning_area <- st_read(
-  file.path(data_path, "geospatial", "MP2019_PlanningArea.geojson"),
+hunan_boundary <- st_read(
+  file.path(data_path, "geospatial", "Hunan.shp"),
   quiet = TRUE
 ) |>
-  st_make_valid() |>
-  st_transform(3414)
+  st_make_valid()
 
-childcare <- st_read(
-  file.path(data_path, "geospatial", "ChildCareServices.geojson"),
-  quiet = TRUE
-) |>
-  st_transform(3414)
-
-singapore_window <- as.owin(st_union(planning_area))
-xy <- st_coordinates(childcare)
-
-childcare_ppp <- ppp(
-  x = xy[, 1],
-  y = xy[, 2],
-  window = singapore_window,
-  checkdup = FALSE
-)
-
-pattern_summary <- data.frame(
-  Measure = c("Childcare centres", "Planning areas", "Projected CRS", "Observation-window area (km²)"),
-  Value = c(
-    npoints(childcare_ppp),
-    nrow(planning_area),
-    st_crs(childcare)$epsg,
-    round(area.owin(singapore_window) / 1e6, 1)
-  )
-)
-kable(pattern_summary, caption = "Validated point-pattern inputs")
-```
-
-```{r}
-#| label: event-map
-#| fig-cap: "Childcare services inside the Singapore planning-area boundary"
-#| fig-width: 9
-#| fig-height: 6
-
-ggplot() +
-  geom_sf(data = planning_area, fill = "#f5f7fa", color = "white", linewidth = 0.2) +
-  geom_sf(data = childcare, color = "#c43c39", size = 0.35, alpha = 0.6) +
-  coord_sf(datum = NA) +
-  labs(
-    title = "Childcare centres follow Singapore's populated urban footprint",
-    subtitle = paste(format(nrow(childcare), big.mark = ","), "service locations")
-  ) +
-  theme_void() +
-  theme(plot.title = element_text(face = "bold"))
-```
-
-## Clark–Evans nearest-neighbour test
-
-The null hypothesis is CSR. Values of the Clark–Evans ratio (R<1) indicate shorter nearest-neighbour distances than expected under CSR; (R>1) indicates a more regular pattern. The CDF edge correction is suitable for the non-rectangular Singapore window.
-
-```{r}
-#| label: clark-evans-test
-
-ce_sg <- clarkevans.test(
-  childcare_ppp,
-  correction = "cdf",
-  alternative = "clustered"
-)
-
-ce_result <- data.frame(
-  Area = "Singapore",
-  `Clark-Evans R` = round(unname(ce_sg$statistic), 3),
-  `p-value` = format.pval(ce_sg$p.value, digits = 3, eps = 0.001),
-  Decision = ifelse(ce_sg$p.value < 0.05, "Reject CSR", "Do not reject CSR"),
+hunan_2012 <- read.csv(
+  file.path(data_path, "aspatial", "Hunan_2012.csv"),
   check.names = FALSE
 )
-kable(ce_result, caption = "Clark–Evans test with CDF edge correction")
-```
 
-**Answer.** (R=) **`r round(unname(ce_sg$statistic), 3)`** with **`r format.pval(ce_sg$p.value, eps = 0.001)`**, so the childcare pattern is significantly clustered relative to CSR. This is not evidence that centres attract one another; population, housing estates, zoning, and service demand are plausible spatially varying drivers.
+hunan <- hunan_boundary |>
+  left_join(hunan_2012, by = "County") |>
+  select(NAME_2, ID_3, NAME_3, ENGTYPE_3, County, GDPPC)
 
-## Kernel density estimation
-
-`bw.diggle()` selects a data-driven fixed bandwidth. An adaptive KDE is also estimated: it uses narrower kernels where points are dense and wider kernels in sparse areas. Both surfaces are expressed as estimated centres per square kilometre.
-
-```{r}
-#| label: calculate-kde
-
-fixed_bandwidth <- bw.diggle(childcare_ppp)
-
-fixed_kde <- density(
-  childcare_ppp,
-  sigma = fixed_bandwidth,
-  edge = TRUE,
-  dimyx = 180
+stopifnot(
+  nrow(hunan_boundary) == 88,
+  nrow(hunan_2012) == 88,
+  nrow(hunan) == 88,
+  n_distinct(hunan$County) == 88,
+  !anyNA(hunan$GDPPC)
 )
 
-adaptive_kde <- adaptive.density(
-  childcare_ppp,
-  f = 0.15,
-  edge = TRUE,
-  dimyx = 180
+input_summary <- data.frame(
+  Check = c(
+    "County polygons",
+    "Indicator rows",
+    "Matched GDPPC values",
+    "Geometry type",
+    "Coordinate reference system"
+  ),
+  Result = c(
+    nrow(hunan_boundary),
+    nrow(hunan_2012),
+    sum(!is.na(hunan$GDPPC)),
+    paste(unique(as.character(st_geometry_type(hunan))), collapse = ", "),
+    st_crs(hunan)$input
+  )
 )
 
-fixed_grid <- as.data.frame(fixed_kde) |>
-  mutate(value = value * 1e6, Method = paste0("Fixed KDE (h = ", round(fixed_bandwidth), " m)"))
-
-adaptive_grid <- as.data.frame(adaptive_kde) |>
-  mutate(value = value * 1e6, Method = "Adaptive KDE")
-
-kde_grid <- bind_rows(fixed_grid, adaptive_grid)
+kable(input_summary, caption = "Input validation before constructing spatial weights")
 ```
 
-```{r}
-#| label: kde-comparison
-#| fig-cap: "Fixed and adaptive estimates of childcare-centre intensity"
-#| fig-width: 11
-#| fig-height: 5.5
+### GDP per capita
 
-ggplot(kde_grid, aes(x, y, fill = value)) +
-  geom_raster() +
-  geom_sf(data = planning_area, fill = NA, color = "white", linewidth = 0.08, inherit.aes = FALSE) +
-  facet_wrap(~Method) +
-  coord_sf(crs = st_crs(planning_area), datum = NA) +
-  scale_fill_viridis_c(option = "magma", trans = "sqrt", na.value = NA) +
-  labs(
-    fill = "Estimated centres\nper km²",
-    x = NULL,
-    y = NULL
+```{r}
+#| label: gdppc-map
+#| fig-cap: "GDP per capita by Hunan county, 2012"
+#| fig-width: 8
+#| fig-height: 6
+
+ggplot(hunan) +
+  geom_sf(aes(fill = GDPPC), colour = "white", linewidth = 0.15) +
+  scale_fill_viridis_c(
+    option = "C",
+    labels = scales::label_comma(),
+    name = "GDPPC"
   ) +
-  theme_void(base_size = 11) +
+  labs(
+    title = "GDP per capita is uneven across Hunan",
+    subtitle = "County values in the 2012 course dataset",
+    caption = "Source: ISSS626 Lesson 4 course files"
+  ) +
+  theme_void(base_size = 12) +
   theme(
-    strip.text = element_text(face = "bold"),
+    plot.title = element_text(face = "bold"),
     legend.position = "right"
   )
 ```
 
-```{r}
-#| label: kde-peak
-#| include: false
+The county distribution is right-skewed: the median GDPPC is `r scales::comma(median(hunan$GDPPC))`, while the maximum is `r scales::comma(max(hunan$GDPPC))`. A few prosperous counties therefore sit well above most of the province. Spatial weights provide a consistent way to compare each county with a defined set of neighbours.
 
-peak_cell <- fixed_grid[which.max(fixed_grid$value), ]
-peak_point <- st_as_sf(peak_cell, coords = c("x", "y"), crs = 3414)
-peak_area <- st_join(peak_point, planning_area["PLN_AREA_N"], join = st_within)$PLN_AREA_N[1]
-```
+## Contiguity-based neighbours
 
-**Answer.** The fixed-bandwidth surface peaks in **`r tools::toTitleCase(tolower(peak_area))`**. The fixed surface is easier to compare across the island; the adaptive surface retains sharper local peaks in dense estates and smooths more aggressively in sparse peripheral areas. KDE measures concentration of facilities, not accessibility or demand satisfaction.
-
-## Planning-area comparison
-
-The course guide compares Punggol, Tampines, Choa Chu Kang, and Jurong West. Counts and area-standardised densities show why raw totals alone can mislead.
+`poly2nb()` derives neighbours directly from the polygon topology. Under the **queen** rule, counties are neighbours when their boundaries share either an edge or a corner. The stricter **rook** rule requires a shared edge.
 
 ```{r}
-#| label: planning-area-summary
+#| label: contiguity-weights
 
-focus_names <- c("PUNGGOL", "TAMPINES", "CHOA CHU KANG", "JURONG WEST")
+queen_nb <- poly2nb(hunan, queen = TRUE, row.names = hunan$County)
+rook_nb <- poly2nb(hunan, queen = FALSE, row.names = hunan$County)
 
-childcare_with_area <- st_join(
-  childcare,
-  planning_area["PLN_AREA_N"],
-  join = st_within,
-  left = FALSE
-)
-
-focus_summary <- planning_area |>
-  filter(PLN_AREA_N %in% focus_names) |>
-  mutate(Area_km2 = as.numeric(st_area(geometry)) / 1e6) |>
-  st_drop_geometry() |>
-  select(PLN_AREA_N, Area_km2) |>
-  left_join(
-    childcare_with_area |>
-      st_drop_geometry() |>
-      count(PLN_AREA_N, name = "Centres"),
-    by = "PLN_AREA_N"
-  ) |>
-  mutate(
-    `Centres per km²` = Centres / Area_km2,
-    Area_km2 = round(Area_km2, 2),
-    `Centres per km²` = round(`Centres per km²`, 2)
-  ) |>
-  arrange(desc(`Centres per km²`))
-
-kable(
-  focus_summary,
-  col.names = c("Planning area", "Area (km²)", "Centres", "Centres per km²"),
-  caption = "Childcare provision in the four focus planning areas"
-)
-```
-
-```{r}
-#| label: local-clark-evans
-
-make_local_ppp <- function(area_name) {
-  boundary <- planning_area |> filter(PLN_AREA_N == area_name)
-  local_points <- childcare[lengths(st_within(childcare, boundary)) > 0, ]
-  local_xy <- st_coordinates(local_points)
-  ppp(
-    local_xy[, 1], local_xy[, 2],
-    window = as.owin(st_union(boundary)),
-    checkdup = FALSE
+neighbour_summary <- function(nb, method) {
+  counts <- card(nb)
+  data.frame(
+    Method = method,
+    `Directed links` = sum(counts),
+    `Average neighbours` = round(mean(counts), 2),
+    `Minimum neighbours` = min(counts),
+    `Maximum neighbours` = max(counts),
+    `Connected components` = n.comp.nb(nb)$nc,
+    check.names = FALSE
   )
 }
 
-local_tests <- lapply(c("CHOA CHU KANG", "TAMPINES"), function(area_name) {
-  local_ppp <- make_local_ppp(area_name)
-  test <- clarkevans.test(local_ppp, correction = "cdf", alternative = "clustered")
-  data.frame(
-    `Planning area` = tools::toTitleCase(tolower(area_name)),
-    Centres = npoints(local_ppp),
-    `Clark-Evans R` = round(unname(test$statistic), 3),
-    `p-value` = format.pval(test$p.value, digits = 3, eps = 0.001),
-    check.names = FALSE
-  )
-}) |>
-  bind_rows()
+contiguity_summary <- bind_rows(
+  neighbour_summary(queen_nb, "Queen contiguity"),
+  neighbour_summary(rook_nb, "Rook contiguity")
+)
 
-kable(local_tests, caption = "Local Clark–Evans tests")
+kable(contiguity_summary, caption = "Contiguity neighbour structures")
 ```
 
-Tampines has more centres, while Choa Chu Kang has greater centres-per-area density because its boundary is much smaller. Both local (R) values are below 1 and statistically significant, so clustering is present within each planning area rather than being only an island-wide effect.
+Queen contiguity produces `r sum(card(queen_nb))` directed links and an average of `r round(mean(card(queen_nb)), 2)` neighbours per county. Rook contiguity produces `r sum(card(rook_nb))` links. The small difference means that most connections come from shared edges; only a few exist solely because two counties meet at a corner.
+
+```{r}
+#| label: contiguity-network
+#| fig-cap: "Queen contiguity (left) retains corner contacts that rook contiguity (right) excludes"
+#| fig-width: 10
+#| fig-height: 5
+
+centres <- suppressWarnings(st_centroid(hunan))
+coords <- st_coordinates(centres)
+
+old_par <- par(mfrow = c(1, 2), mar = c(0.4, 0.4, 2.2, 0.4))
+plot(st_geometry(hunan), col = "#f3f4f6", border = "white", main = "Queen contiguity")
+plot(queen_nb, coords, add = TRUE, col = "#2563eb", lwd = 0.6, pch = 19, cex = 0.35)
+plot(st_geometry(hunan), col = "#f3f4f6", border = "white", main = "Rook contiguity")
+plot(rook_nb, coords, add = TRUE, col = "#dc2626", lwd = 0.6, pch = 19, cex = 0.35)
+par(old_par)
+```
+
+### Reading one neighbour list
+
+The first polygon is Anxiang. Its list entry stores the row numbers of all counties connected under the queen rule.
+
+```{r}
+#| label: anxiang-neighbours
+
+anxiang_id <- match("Anxiang", hunan$County)
+anxiang_neighbour_ids <- queen_nb[[anxiang_id]]
+
+anxiang_neighbours <- data.frame(
+  County = hunan$County[anxiang_neighbour_ids],
+  GDPPC = hunan$GDPPC[anxiang_neighbour_ids]
+) |>
+  arrange(County)
+
+kable(
+  anxiang_neighbours,
+  format.args = list(big.mark = ","),
+  caption = "Anxiang's queen-contiguity neighbours"
+)
+```
+
+## Distance-based neighbours
+
+Contiguity may not represent every kind of interaction. The chapter therefore introduces two distance-based alternatives. I retain its **62 km fixed band**, which gives every county at least one neighbour and keeps the province in a single connected component. I also construct a **six-nearest-neighbour** graph, which gives every county the same number of outgoing links.
+
+```{r}
+#| label: distance-weights
+
+distance_62_nb <- dnearneigh(
+  coords,
+  d1 = 0,
+  d2 = 62,
+  row.names = hunan$County,
+  longlat = TRUE
+)
+
+knn6_nb <- knn2nb(
+  knearneigh(coords, k = 6, longlat = TRUE),
+  row.names = hunan$County
+)
+
+distance_summary <- bind_rows(
+  neighbour_summary(distance_62_nb, "Fixed distance: 62 km"),
+  neighbour_summary(knn6_nb, "Six nearest neighbours")
+)
+
+kable(distance_summary, caption = "Distance-based neighbour structures")
+```
+
+The 62 km band yields `r sum(card(distance_62_nb))` directed links, fewer than either contiguity rule. The six-nearest-neighbour graph yields `r sum(card(knn6_nb))` directed links because every county selects six neighbours. Its links are not necessarily symmetric: county A can rank B among its six closest counties even when B does not rank A among its own six.
+
+```{r}
+#| label: distance-network
+#| fig-cap: "A fixed distance band (left) versus six nearest neighbours (right)"
+#| fig-width: 10
+#| fig-height: 5
+
+old_par <- par(mfrow = c(1, 2), mar = c(0.4, 0.4, 2.2, 0.4))
+plot(st_geometry(hunan), col = "#f3f4f6", border = "white", main = "Within 62 km")
+plot(distance_62_nb, coords, add = TRUE, col = "#0f766e", lwd = 0.6, pch = 19, cex = 0.35)
+plot(st_geometry(hunan), col = "#f3f4f6", border = "white", main = "Six nearest neighbours")
+plot(knn6_nb, coords, add = TRUE, col = "#7c3aed", lwd = 0.6, pch = 19, cex = 0.35)
+par(old_par)
+```
+
+## From neighbours to weights
+
+A neighbour list only records who is connected. `nb2listw()` assigns numeric weights to those links. Binary weights give every neighbour a value of 1. Row-standardised weights divide each row by its number of neighbours, so the weights for each county add to 1. Inverse-distance weights give closer neighbours more influence before the same row standardisation is applied.
+
+```{r}
+#| label: weight-styles
+
+queen_binary <- nb2listw(queen_nb, style = "B", zero.policy = TRUE)
+queen_row <- nb2listw(queen_nb, style = "W", zero.policy = TRUE)
+
+queen_distances <- nbdists(queen_nb, coords, longlat = TRUE)
+inverse_distance <- lapply(queen_distances, function(x) 1 / x)
+queen_idw <- nb2listw(
+  queen_nb,
+  glist = inverse_distance,
+  style = "W",
+  zero.policy = TRUE
+)
+
+anxiang_weights <- data.frame(
+  County = hunan$County[anxiang_neighbour_ids],
+  `Distance (km)` = round(queen_distances[[anxiang_id]], 1),
+  Binary = queen_binary$weights[[anxiang_id]],
+  `Row-standardised` = round(queen_row$weights[[anxiang_id]], 3),
+  `Row-standardised inverse distance` = round(queen_idw$weights[[anxiang_id]], 3),
+  check.names = FALSE
+) |>
+  arrange(County)
+
+kable(anxiang_weights, caption = "How Anxiang's queen neighbours are weighted")
+```
+
+For Anxiang, ordinary row standardisation gives each of its `r card(queen_nb)[anxiang_id]` neighbours a weight of `r round(1 / card(queen_nb)[anxiang_id], 2)`. The inverse-distance version still sums to 1, but gives a larger share to nearer county centres. Row standardisation is useful for a neighbouring **average**; binary weights are appropriate when the desired quantity is a neighbouring **sum**.
+
+## Spatially lagged GDPPC
+
+The spatial lag is the weighted combination of neighbouring values. With row-standardised queen weights, it is the mean GDPPC among a county's neighbours.
+
+```{r}
+#| label: spatial-lags
+
+hunan$lag_gdppc <- lag.listw(
+  queen_row,
+  hunan$GDPPC,
+  zero.policy = TRUE
+)
+
+hunan$neighbour_sum <- lag.listw(
+  queen_binary,
+  hunan$GDPPC,
+  zero.policy = TRUE
+)
+
+queen_self_nb <- include.self(queen_nb)
+queen_self_row <- nb2listw(queen_self_nb, style = "W", zero.policy = TRUE)
+queen_self_binary <- nb2listw(queen_self_nb, style = "B", zero.policy = TRUE)
+
+hunan$window_average <- lag.listw(
+  queen_self_row,
+  hunan$GDPPC,
+  zero.policy = TRUE
+)
+
+hunan$window_sum <- lag.listw(
+  queen_self_binary,
+  hunan$GDPPC,
+  zero.policy = TRUE
+)
+
+hunan$own_minus_lag <- hunan$GDPPC - hunan$lag_gdppc
+
+lag_examples <- hunan |>
+  st_drop_geometry() |>
+  select(
+    County,
+    GDPPC,
+    lag_gdppc,
+    neighbour_sum,
+    window_average,
+    window_sum
+  ) |>
+  arrange(desc(abs(GDPPC - lag_gdppc))) |>
+  slice_head(n = 8) |>
+  mutate(across(where(is.numeric), round))
+
+kable(
+  lag_examples,
+  format.args = list(big.mark = ","),
+  caption = "Counties with the largest absolute gap from their neighbours"
+)
+```
+
+These four lags answer different questions:
+
+- `lag_gdppc` is the average among neighbours only.
+- `neighbour_sum` adds neighbouring GDPPC values, so it increases with both values and neighbour count.
+- `window_average` averages the county together with its neighbours.
+- `window_sum` adds the county to the neighbouring sum.
+
+The window average is less extreme than the neighbour-only comparison because it includes the county's own value. The sums should not be interpreted as local income totals; they are included to demonstrate how the choice of binary versus row-standardised weights changes the calculation.
+
+```{r}
+#| label: own-and-lag-map
+#| fig-cap: "Observed GDPPC and the row-standardised queen spatial lag use the same colour scale"
+#| fig-width: 10
+#| fig-height: 5.5
+
+map_comparison <- bind_rows(
+  hunan |>
+    select(County, value = GDPPC) |>
+    mutate(Measure = "County GDPPC"),
+  hunan |>
+    select(County, value = lag_gdppc) |>
+    mutate(Measure = "Average neighbour GDPPC")
+) |>
+  mutate(Measure = factor(
+    Measure,
+    levels = c("County GDPPC", "Average neighbour GDPPC")
+  ))
+
+ggplot(map_comparison) +
+  geom_sf(aes(fill = value), colour = "white", linewidth = 0.1) +
+  facet_wrap(~Measure) +
+  scale_fill_viridis_c(
+    option = "C",
+    limits = range(hunan$GDPPC),
+    breaks = c(20000, 50000, 80000),
+    labels = scales::label_comma(),
+    name = "GDPPC"
+  ) +
+  guides(fill = guide_colourbar(
+    title.position = "top",
+    barwidth = grid::unit(10, "cm"),
+    barheight = grid::unit(0.35, "cm")
+  )) +
+  theme_void(base_size = 11) +
+  theme(
+    strip.text = element_text(face = "bold"),
+    legend.position = "bottom"
+  )
+```
+
+The neighbour map is smoother because each value is an average of several counties. The correlation between own and neighbouring GDPPC is `r round(cor(hunan$GDPPC, hunan$lag_gdppc), 3)`: nearby counties tend to be similar, but the relationship is far from perfect.
+
+### Counties that differ from their neighbours
+
+```{r}
+#| label: lag-comparison
+#| fig-cap: "GDPPC compared with the average of queen-contiguous neighbours"
+#| fig-width: 8
+#| fig-height: 6
+
+label_counties <- hunan |>
+  st_drop_geometry() |>
+  slice_max(abs(own_minus_lag), n = 8)
+
+ggplot(st_drop_geometry(hunan), aes(x = lag_gdppc, y = GDPPC)) +
+  geom_abline(slope = 1, intercept = 0, colour = "grey55", linetype = "dashed") +
+  geom_point(aes(colour = own_minus_lag), size = 2.4, alpha = 0.85) +
+  geom_text(
+    data = label_counties,
+    aes(label = County),
+    colour = "grey20",
+    size = 3.1,
+    nudge_y = 1800,
+    check_overlap = TRUE
+  ) +
+  scale_colour_gradient2(
+    low = "#2563eb",
+    mid = "grey80",
+    high = "#dc2626",
+    midpoint = 0,
+    labels = scales::label_comma(),
+    name = "Own minus\nneighbour GDPPC"
+  ) +
+  scale_x_continuous(labels = scales::label_comma()) +
+  scale_y_continuous(labels = scales::label_comma()) +
+  labs(
+    x = "Average neighbour GDPPC",
+    y = "County GDPPC",
+    title = "Some counties are very different from their surroundings",
+    subtitle = "The dashed line marks equality between own and neighbouring GDPPC"
+  )
+```
+
+Lengshuijiang, Changsha and Zixing sit well above their surrounding averages. Pingjiang is the strongest contrast in the other direction: its GDPPC is much lower than the average among its queen-contiguous neighbours. These are local comparisons, not significance tests, but they identify places worth examining in a later spatial-autocorrelation analysis.
+
+## Assumptions and limitations
+
+- A queen link assumes that any shared edge or corner can support interaction. A different substantive process may call for rook, road-network or travel-time neighbours.
+- The distance methods use polygon centroids. Large or irregular counties are reduced to one representative point, and the 62 km threshold is a connectivity rule rather than an economic boundary.
+- Six-nearest-neighbour links impose equal outgoing neighbour counts even where settlement density differs. They can also be asymmetric.
+- Row standardisation gives every county the same total weight, which increases the individual influence of neighbours around counties with few links.
+- GDPPC is a county-level, cross-sectional indicator. A spatial lag describes context; it does not show that neighbouring GDPPC caused a county's value.
 
 ## Conclusion
 
-The nearest-neighbour and KDE results agree: childcare services are not distributed uniformly. The strongest fixed-KDE concentration is in Sengkang, and substantial local clustering remains in Choa Chu Kang and Tampines. These are descriptive first-order findings; a demand-adjusted study would add child population, capacity, transport access, and housing density.
+The same 88 counties produce noticeably different graphs under queen, rook, fixed-distance and k-nearest-neighbour rules. Queen contiguity is a defensible baseline here because counties are complete administrative polygons and the task is to compare directly adjacent areas. Row-standardised queen weights then give a readable neighbouring mean. That comparison supports the main finding: Hunan has broad local similarity, but a small set of counties—notably Lengshuijiang, Changsha, Zixing and Pingjiang—differ sharply from their immediate surroundings. The conclusion is supported by the transparent weights construction, complete data join, mapped lags and county-level differences, while remaining descriptive rather than causal.

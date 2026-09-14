@@ -1,6 +1,6 @@
 ---
-title: "Hands-on Exercise 1"
-subtitle: "Geospatial data science with R"
+title: "Hands-on Exercise 1a"
+subtitle: "Geospatial Data Wrangling with R"
 author: "Davin Cuaso"
 date: 2026-09-06
 date-modified: last-modified
