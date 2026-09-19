@@ -25,12 +25,7 @@ Hands-on Exercise 2a showed that childcare-centre intensity varies across Singap
 #| label: setup
 #| include: false
 
-library(sf)
-library(dplyr)
-library(ggplot2)
-library(knitr)
-library(spatstat.geom)
-library(spatstat.explore)
+pacman::p_load(sf, tidyverse, knitr, spatstat.geom, spatstat.explore)
 
 options(scipen = 999)
 data_path <- "../../data"

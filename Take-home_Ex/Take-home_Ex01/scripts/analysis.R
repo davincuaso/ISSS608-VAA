@@ -1,30 +1,7 @@
-required_packages <- c(
-  "sf", "dplyr", "tidyr", "ggplot2", "knitr", "spatstat.geom",
-  "spatstat.explore", "spatstat.random", "scales"
+pacman::p_load(
+  sf, tidyverse, knitr, spatstat.geom, spatstat.explore,
+  spatstat.random, scales
 )
-
-missing_packages <- required_packages[
-  !vapply(required_packages, requireNamespace, logical(1), quietly = TRUE)
-]
-
-if (length(missing_packages) > 0) {
-  stop(
-    "Install the following packages before rendering: ",
-    paste(missing_packages, collapse = ", ")
-  )
-}
-
-suppressPackageStartupMessages({
-  library(sf)
-  library(dplyr)
-  library(tidyr)
-  library(ggplot2)
-  library(knitr)
-  library(spatstat.geom)
-  library(spatstat.explore)
-  library(spatstat.random)
-  library(scales)
-})
 
 analysis_root <- if (file.exists(file.path("scripts", "analysis.R"))) {
   "."

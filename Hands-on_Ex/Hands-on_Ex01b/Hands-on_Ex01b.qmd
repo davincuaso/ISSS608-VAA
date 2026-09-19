@@ -29,12 +29,7 @@ I use the workflow in [Chapter 2: Thematic Mapping and GeoVisualisation with R](
 #| label: setup
 #| include: false
 
-library(sf)
-library(dplyr)
-library(ggplot2)
-library(classInt)
-library(knitr)
-library(tmap)
+pacman::p_load(sf, tidyverse, classInt, knitr, tmap)
 
 options(scipen = 999)
 theme_set(theme_minimal(base_size = 12))

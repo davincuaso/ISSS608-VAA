@@ -5,7 +5,7 @@ date-modified: last-modified
 toc: false
 ---
 
-This website is my learning portfolio for **ISSS608 Visual Analytics and Applications**. It records the methods, code, visualisations, and interpretations developed through the course's hands-on exercises.
+This website is my learning portfolio for **ISSS608 Visual Analytics and Applications**. It records the methods, code, visualisations, and interpretations developed through the course exercises.
 
 The portfolio is created with **R** and **Quarto**, version-controlled on GitHub, and published as a website through Vercel.
 
@@ -15,5 +15,6 @@ The portfolio is created with **R** and **Quarto**, version-controlled on GitHub
 - Thematic mapping and geovisualisation
 - First- and second-order spatial point-pattern analysis
 - Spatio-temporal point-pattern analysis
+- Spatial weights and geographically weighted summary statistics
 
-The worked pages are organised under the **Hands-on Exercises** and **Take-home Exercises** menus in the navigation bar.
+The worked pages are organised under the **Hands-on Exercises**, **In-Class Exercise**, and **Take-home Exercises** menus in the navigation bar.

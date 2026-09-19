@@ -25,8 +25,10 @@ website:
             text: "Hands-on Exercise 2b: Second-order SPPA"
           - href: Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.qmd
             text: "Hands-on Exercise 3: Spatio-temporal SPPA"
-          - href: Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd
-            text: "Hands-on Exercise 4: Spatial Weights"
+      - text: In-Class Exercise
+        menu:
+          - href: In-class_Ex/In-class_Ex04/In-class_Ex04.qmd
+            text: "In-Class Exercise 4: Spatial Weights"
       - text: Take-home Exercises
         menu:
           - href: Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd

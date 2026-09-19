@@ -1,4 +1,4 @@
-# Hands-on Exercise 4 data
+# In-Class Exercise 4 data
 
 Downloaded on 14 September 2026 from the official ISSS626 AY2026-27 August Lesson 4 repository:
 

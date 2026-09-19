@@ -1,5 +1,5 @@
 ---
-title: "Hands-on Exercise 4"
+title: "In-Class Exercise 4"
 subtitle: "Spatial Weights and Applications"
 author: "Davin Cuaso"
 date: 2026-09-14
@@ -19,24 +19,24 @@ execute:
 
 ## Overview
 
-I follow [Chapter 8: Spatial Weights and Applications](https://r4gdsa.netlify.app/chap08.html) and the [Lesson 4 outline](https://isss626-ay2026-27aug.netlify.app/outline/lesson04_outline). Using GDP per capita (GDPPC, measured in RMB) for 88 counties in Hunan, China, I answer three questions:
+I follow [Chapter 8: Spatial Weights and Applications](https://r4gdsa.netlify.app/chap08.html) and the [Lesson 4 outline](https://isss626-ay2026-27aug.netlify.app/outline/lesson04_outline). Using GDP per capita (GDPPC, measured in RMB) for 88 counties in Hunan, China, I answer four questions:
 
 1. How does the definition of a neighbour change the spatial weights matrix?
 2. How does row standardisation turn those links into comparable weights?
 3. Which counties stand out after their GDPPC is compared with neighbouring counties?
+4. How do local summary statistics vary across the province?
 
 ```{r}
 #| label: setup
 #| include: false
 
-library(sf)
-library(dplyr)
-library(ggplot2)
-library(knitr)
-library(spdep)
+pacman::p_load(
+  sf, ggstatsplot, tmap, tidyverse, knitr, GWmodel, spdep
+)
 
 options(scipen = 999)
 theme_set(theme_minimal(base_size = 12))
+tmap_mode("plot")
 data_path <- "data"
 ```
 
@@ -50,25 +50,26 @@ I use the files distributed with the current course's Lesson 4 rather than recre
 | Hunan 2012 development indicators | [Official Lesson 4 course file](https://github.com/tskam/ISSS626-AY2026-27Aug/blob/master/lesson/Lesson04/data/aspatial/Hunan_2012.csv) | County GDP per capita |
 | Hunan variable dictionary | [Professor-provided Lesson 4 dictionary](data/aspatial/Dictionary.xlsx) | Defines GDPPC as gross domestic product per capita in RMB |
 
-The dictionary identifies GDPPC as gross domestic product per capita in RMB and rates its data completeness as good. The shapefile and CSV both carry a `County` field. A left join keeps all 88 polygons and attaches the matching indicators. The checks immediately after the join make sure that no county was duplicated or left without GDPPC.
+The dictionary identifies GDPPC as gross domestic product per capita in RMB and rates its data completeness as good. The shapefile and CSV both carry a `County` field. I use that field as the join key instead of relying on row order. A left join keeps all 88 polygons and attaches the indicators. The final table retains the three administrative identifiers, the common county name and four development measures required later in the exercise.
 
 ```{r}
 #| label: import-and-join
 
 hunan_boundary <- st_read(
-  file.path(data_path, "geospatial", "Hunan.shp"),
+  dsn = file.path(data_path, "geospatial"),
+  layer = "Hunan",
   quiet = TRUE
 ) |>
   st_make_valid()
 
-hunan_2012 <- read.csv(
+hunan_2012 <- read_csv(
   file.path(data_path, "aspatial", "Hunan_2012.csv"),
-  check.names = FALSE
+  show_col_types = FALSE
 )
 
 hunan <- hunan_boundary |>
   left_join(hunan_2012, by = "County") |>
-  select(NAME_2, ID_3, NAME_3, ENGTYPE_3, County, GDPPC)
+  select(NAME_2, ID_3, NAME_3, County, GDPPC, GIO, Agri, Service)
 
 stopifnot(
   nrow(hunan_boundary) == 88,
@@ -83,6 +84,7 @@ input_summary <- data.frame(
     "County polygons",
     "Indicator rows",
     "Matched GDPPC values",
+    "Retained analysis fields",
     "Geometry type",
     "Coordinate reference system"
   ),
@@ -90,6 +92,7 @@ input_summary <- data.frame(
     nrow(hunan_boundary),
     nrow(hunan_2012),
     sum(!is.na(hunan$GDPPC)),
+    paste(setdiff(names(hunan), attr(hunan, "sf_column")), collapse = ", "),
     paste(unique(as.character(st_geometry_type(hunan))), collapse = ", "),
     st_crs(hunan)$input
   )
@@ -106,26 +109,29 @@ kable(input_summary, caption = "Input validation before constructing spatial wei
 #| fig-width: 8
 #| fig-height: 6
 
-ggplot(hunan) +
-  geom_sf(aes(fill = GDPPC), colour = "white", linewidth = 0.15) +
-  scale_fill_viridis_c(
-    option = "C",
-    labels = scales::label_comma(),
-    name = "GDPPC (RMB)"
+tm_shape(hunan) +
+  tm_polygons(
+    fill = "GDPPC",
+    fill.scale = tm_scale_intervals(
+      n = 5,
+      style = "quantile",
+      values = "brewer.purples"
+    ),
+    fill.legend = tm_legend(
+      title = "GDPPC (RMB)",
+      position = tm_pos_out("right", "center")
+    ),
+    col = "white",
+    lwd = 0.4
   ) +
-  labs(
-    title = "GDP per capita is uneven across Hunan",
-    subtitle = "County values in the 2012 course dataset",
-    caption = "Source: ISSS626 Lesson 4 course files and variable dictionary"
-  ) +
-  theme_void(base_size = 12) +
-  theme(
-    plot.title = element_text(face = "bold"),
-    legend.position = "right"
+  tm_title("GDP per capita by county, Hunan Province") +
+  tm_credits(
+    "Source: ISSS626 Lesson 4 course files and variable dictionary",
+    position = tm_pos_out("center", "bottom")
   )
 ```
 
-The county distribution is right-skewed: the median GDPPC is `r scales::comma(median(hunan$GDPPC))`, while the maximum is `r scales::comma(max(hunan$GDPPC))`. A few prosperous counties therefore sit well above most of the province. Spatial weights provide a consistent way to compare each county with a defined set of neighbours.
+The quantile classes follow the choropleth workflow used in Exercise 1b. They divide the counties into similarly sized groups, which makes the geographic ranking easy to read. The legend sits outside the map frame, so it does not cover any counties. The distribution is right-skewed: the median GDPPC is `r scales::comma(median(hunan$GDPPC))`, while the maximum is `r scales::comma(max(hunan$GDPPC))`.
 
 ## Contiguity-based neighbours
 
@@ -431,6 +437,145 @@ ggplot(st_drop_geometry(hunan), aes(x = lag_gdppc, y = GDPPC)) +
 
 Lengshuijiang, Changsha and Zixing sit well above their surrounding averages. Pingjiang is the strongest contrast in the other direction: its GDPPC is much lower than the average among its queen-contiguous neighbours. These local comparisons identify places worth examining in a later spatial-autocorrelation analysis. They are not significance tests.
 
+## Geographically weighted summary statistics
+
+`GWmodel` still expects an older `Spatial` object for these functions, so I convert the joined `sf` object only at this point. The main data object remains in `sf` format for importing, joining, mapping and spatial weights.
+
+The adaptive bandwidth is selected by leave-one-out cross-validation with `bw.gwr()`. I use the local regression `GDPPC ~ GIO + Agri + Service` because those four measures were retained during data preparation. The returned bandwidth is a neighbour count, not a distance in kilometres. I then use the same adaptive bisquare kernel for the local summary statistics.
+
+```{r}
+#| label: gwss-bandwidth
+
+hunan_sp <- as(hunan, "Spatial")
+
+adaptive_bw <- bw.gwr(
+  GDPPC ~ GIO + Agri + Service,
+  data = hunan_sp,
+  approach = "CV",
+  kernel = "bisquare",
+  adaptive = TRUE,
+  longlat = TRUE
+)
+
+gw_summary <- gwss(
+  hunan_sp,
+  vars = c("GDPPC", "GIO", "Agri", "Service"),
+  bw = adaptive_bw,
+  kernel = "bisquare",
+  adaptive = TRUE,
+  quantile = TRUE,
+  longlat = TRUE
+)
+
+gwss_df <- as.data.frame(gw_summary$SDF) |>
+  select(GDPPC_LM, GDPPC_Median, Corr_GDPPC.Agri)
+
+stopifnot(
+  nrow(gwss_df) == nrow(hunan),
+  identical(rownames(gwss_df), rownames(hunan_sp@data))
+)
+
+hunan_gwss <- bind_cols(hunan, gwss_df)
+
+bandwidth_check <- data.frame(
+  Item = c("Bandwidth method", "Kernel", "Adaptive nearest neighbours"),
+  Value = c("Leave-one-out cross-validation", "Bisquare", adaptive_bw)
+)
+
+kable(bandwidth_check, caption = "Bandwidth used for geographically weighted summaries")
+```
+
+Cross-validation selects `r adaptive_bw` nearest neighbours. This is a fairly broad local window for a dataset of 88 counties, so the estimates should be read as regional patterns rather than highly local detail. Strictly speaking, `bw.gwr()` optimises the predictive fit of the stated GWR equation. It does not directly optimise the local mean or median. Reusing the bandwidth keeps the kernel definition consistent, but it is still a modelling choice.
+
+```{r}
+#| label: gwss-maps
+#| fig-cap: "Observed GDPPC and geographically weighted GDPPC summaries"
+#| fig-width: 11
+#| fig-height: 6
+
+observed_map <- tm_shape(hunan_gwss) +
+  tm_polygons(
+    fill = "GDPPC",
+    fill.scale = tm_scale_intervals(
+      n = 5,
+      style = "quantile",
+      values = "brewer.oranges"
+    ),
+    fill.legend = tm_legend(
+      title = "Observed GDPPC",
+      position = tm_pos_out("center", "bottom")
+    ),
+    col = "white",
+    lwd = 0.3
+  ) +
+  tm_title("Observed GDPPC")
+
+local_mean_map <- tm_shape(hunan_gwss) +
+  tm_polygons(
+    fill = "GDPPC_LM",
+    fill.scale = tm_scale_intervals(
+      n = 5,
+      style = "quantile",
+      values = "brewer.blues"
+    ),
+    fill.legend = tm_legend(
+      title = "Local mean GDPPC",
+      position = tm_pos_out("center", "bottom")
+    ),
+    col = "white",
+    lwd = 0.3
+  ) +
+  tm_title("Geographically weighted mean")
+
+local_median_map <- tm_shape(hunan_gwss) +
+  tm_polygons(
+    fill = "GDPPC_Median",
+    fill.scale = tm_scale_intervals(
+      n = 5,
+      style = "quantile",
+      values = "brewer.greens"
+    ),
+    fill.legend = tm_legend(
+      title = "Local median GDPPC",
+      position = tm_pos_out("center", "bottom")
+    ),
+    col = "white",
+    lwd = 0.3
+  ) +
+  tm_title("Geographically weighted median")
+
+tmap_arrange(observed_map, local_mean_map, local_median_map, ncol = 3)
+```
+
+The local mean and median maps are smoother than the observed map because every estimate combines nearby counties. The median is less affected by unusually high GDPPC values. It is therefore a useful check on whether a local mean is being pulled upward by one prosperous county.
+
+```{r}
+#| label: gw-correlation-map
+#| fig-cap: "Local Pearson correlation between GDPPC and gross agricultural output"
+#| fig-width: 8
+#| fig-height: 6
+
+tm_shape(hunan_gwss) +
+  tm_polygons(
+    fill = "Corr_GDPPC.Agri",
+    fill.scale = tm_scale_intervals(
+      n = 7,
+      style = "pretty",
+      midpoint = 0,
+      values = "brewer.rd_bu"
+    ),
+    fill.legend = tm_legend(
+      title = "Local correlation",
+      position = tm_pos_out("right", "center")
+    ),
+    col = "white",
+    lwd = 0.3
+  ) +
+  tm_title("GDPPC and agriculture do not relate uniformly across Hunan")
+```
+
+The local correlation is descriptive. It shows where GDPPC and agricultural output move together within the adaptive kernel, but it does not show that one variable causes the other. Results can also change when the bandwidth, kernel or variables in the bandwidth-selection model change.
+
 ## Assumptions and limits
 
 - A queen link assumes that any shared edge or corner can support interaction. A different substantive process may call for rook, road-network or travel-time neighbours.
@@ -438,7 +583,9 @@ Lengshuijiang, Changsha and Zixing sit well above their surrounding averages. Pi
 - Six-nearest-neighbour links impose equal outgoing neighbour counts even where settlement density differs. They can also be asymmetric.
 - Row standardisation gives every county the same total weight, which increases the individual influence of neighbours around counties with few links.
 - GDPPC is a county-level, cross-sectional indicator. A spatial lag describes context; it does not show that neighbouring GDPPC caused a county's value.
+- The adaptive bandwidth is selected for the GWR equation and then reused for the summary statistics. A bandwidth chosen for a different equation could produce a different local pattern.
+- `GWmodel` requires the temporary conversion from `sf` to `Spatial`. Row order is preserved during the conversion and checked before the GWSS results are attached.
 
 ## What I found
 
-Changing the neighbour rule changes the graph, even though the 88 county values stay the same. I use queen contiguity as the main specification because the question concerns counties that touch. With row-standardised weights, each spatial lag is the mean among those neighbours. Most nearby counties have similar GDPPC, but Lengshuijiang, Changsha and Zixing are well above their surrounding averages, while Pingjiang is well below. These comparisons are descriptive; they do not show that one county's GDPPC caused another's.
+Changing the neighbour rule changes the graph, even though the 88 county values stay the same. I use queen contiguity as the main specification because the question concerns counties that touch. With row-standardised weights, each spatial lag is the mean among those neighbours. Lengshuijiang, Changsha and Zixing are well above their surrounding averages, while Pingjiang is well below. The geographically weighted mean and median add a broader regional view, using an adaptive bandwidth selected by cross-validation. All of these results are descriptive. They do not show that one county's GDPPC caused another's.

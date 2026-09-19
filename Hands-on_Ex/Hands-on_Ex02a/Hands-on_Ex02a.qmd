@@ -28,12 +28,7 @@ Using the workflow in [Chapter 4: First-order Spatial Point Patterns Analysis](h
 #| label: setup
 #| include: false
 
-library(sf)
-library(dplyr)
-library(ggplot2)
-library(knitr)
-library(spatstat.geom)
-library(spatstat.explore)
+pacman::p_load(sf, tidyverse, knitr, spatstat.geom, spatstat.explore)
 
 theme_set(theme_minimal(base_size = 12))
 options(scipen = 999)

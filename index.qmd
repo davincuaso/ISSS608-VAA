@@ -10,7 +10,7 @@ page-layout: full
 ::: {.hero-panel}
 This portfolio documents my hands-on work for **ISSS608 Visual Analytics and Applications**. It brings together geospatial data handling, thematic mapping, spatial point-pattern analysis, spatio-temporal analysis, and spatial weights using R.
 
-Use the **Hands-on Exercises** and **Take-home Exercises** menus in the navigation bar, or select an exercise below.
+Use the **Hands-on Exercises**, **In-Class Exercise**, and **Take-home Exercises** menus in the navigation bar, or select an exercise below.
 :::
 
 ## Hands-on exercises
@@ -56,17 +56,22 @@ Study spatial interaction across distances with G-, F-, K-, and L-functions.
 Analyse how event intensity and spatial patterns change over time.
 :::
 
-::: {.exercise-card}
-### [Hands-on Exercise 4](Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd)
-
-**Spatial Weights and Applications**
-
-Construct contiguity- and distance-based neighbours, standardise their weights, and calculate spatially lagged GDP per capita.
-:::
 :::
 
 ::: {.callout-note appearance="simple"}
 Each exercise page follows the corresponding course chapter and provides a dedicated place for the worked analysis, interpretation, and outputs.
+:::
+
+## In-Class Exercise
+
+::: {.exercise-grid}
+::: {.exercise-card}
+### [In-Class Exercise 4](In-class_Ex/In-class_Ex04/In-class_Ex04.qmd)
+
+**Spatial Weights and Applications**
+
+Construct contiguity and distance-based neighbours, calculate spatial lags, and compare geographically weighted summaries.
+:::
 :::
 
 ## Take-home exercises
