@@ -56,6 +56,14 @@ Study spatial interaction across distances with G-, F-, K-, and L-functions.
 Analyse how event intensity and spatial patterns change over time.
 :::
 
+::: {.exercise-card}
+### [Hands-on Exercise 4](Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd)
+
+**Spatial Weights and Applications**
+
+Construct contiguity and distance-based neighbours, standardise their weights, and calculate spatially lagged GDP per capita.
+:::
+
 :::
 
 ::: {.callout-note appearance="simple"}
