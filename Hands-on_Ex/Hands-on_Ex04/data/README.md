@@ -4,13 +4,15 @@ Downloaded on 14 September 2026 from the official ISSS626 AY2026-27 August Lesso
 
 - `Hunan_2012.csv`: <https://github.com/tskam/ISSS626-AY2026-27Aug/blob/master/lesson/Lesson04/data/aspatial/Hunan_2012.csv>
 - `Hunan.*`: <https://github.com/tskam/ISSS626-AY2026-27Aug/tree/master/lesson/Lesson04/data/geospatial>
+- `Dictionary.xlsx`: professor-provided Lesson 4 variable dictionary, added on 19 September 2026
 
-The CSV contains 88 rows and 29 attributes. The ESRI shapefile contains the matching 88 Hunan county polygons in WGS 84. `County` is the common join field.
+The CSV contains 88 rows and 29 attributes. The ESRI shapefile contains the matching 88 Hunan county polygons in WGS 84. `County` is the common join field. The dictionary defines GDPPC as gross domestic product per capita in RMB.
 
 SHA-256 checksums:
 
 ```text
 95acfed7c95249a57879d24ada4080750ba716f5aff8f8f1375478babf867037  Hunan_2012.csv
+62d5b79a355c28d88bfbe48c361044bf93c36fdc2ab4ea82bf52a0d9d6071d61  Dictionary.xlsx
 4db74d73ad63cd9776742f3caa3b8f967993d4657427fe8b17b57ec6ff247566  Hunan.dbf
 98aaf3d1c0ecadf1a424a4536de261c3daf4e373697cb86c40c43b989daf52eb  Hunan.prj
 1de411dcdeedce3219242306fc29bfa1d7fa08883e4ff6779baf798ec50d1657  Hunan.qpj

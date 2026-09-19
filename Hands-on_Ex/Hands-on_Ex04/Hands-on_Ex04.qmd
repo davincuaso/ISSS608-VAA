@@ -19,7 +19,7 @@ execute:
 
 ## Overview
 
-I follow [Chapter 8: Spatial Weights and Applications](https://r4gdsa.netlify.app/chap08.html) and the [Lesson 4 outline](https://isss626-ay2026-27aug.netlify.app/outline/lesson04_outline). Using GDP per capita (GDPPC) for 88 counties in Hunan, China, I answer three questions:
+I follow [Chapter 8: Spatial Weights and Applications](https://r4gdsa.netlify.app/chap08.html) and the [Lesson 4 outline](https://isss626-ay2026-27aug.netlify.app/outline/lesson04_outline). Using GDP per capita (GDPPC, measured in RMB) for 88 counties in Hunan, China, I answer three questions:
 
 1. How does the definition of a neighbour change the spatial weights matrix?
 2. How does row standardisation turn those links into comparable weights?
@@ -48,8 +48,9 @@ I use the files distributed with the current course's Lesson 4 rather than recre
 |---|---|---|
 | Hunan county boundary | [Official Lesson 4 course files](https://github.com/tskam/ISSS626-AY2026-27Aug/tree/master/lesson/Lesson04/data/geospatial) | Polygons and neighbourhood relationships |
 | Hunan 2012 development indicators | [Official Lesson 4 course file](https://github.com/tskam/ISSS626-AY2026-27Aug/blob/master/lesson/Lesson04/data/aspatial/Hunan_2012.csv) | County GDP per capita |
+| Hunan variable dictionary | [Professor-provided Lesson 4 dictionary](data/aspatial/Dictionary.xlsx) | Defines GDPPC as gross domestic product per capita in RMB |
 
-The shapefile and CSV both carry a `County` field. A left join keeps all 88 polygons and attaches the matching indicators. The checks immediately after the join make sure that no county was duplicated or left without GDPPC.
+The dictionary identifies GDPPC as gross domestic product per capita in RMB and rates its data completeness as good. The shapefile and CSV both carry a `County` field. A left join keeps all 88 polygons and attaches the matching indicators. The checks immediately after the join make sure that no county was duplicated or left without GDPPC.
 
 ```{r}
 #| label: import-and-join
@@ -110,12 +111,12 @@ ggplot(hunan) +
   scale_fill_viridis_c(
     option = "C",
     labels = scales::label_comma(),
-    name = "GDPPC"
+    name = "GDPPC (RMB)"
   ) +
   labs(
     title = "GDP per capita is uneven across Hunan",
     subtitle = "County values in the 2012 course dataset",
-    caption = "Source: ISSS626 Lesson 4 course files"
+    caption = "Source: ISSS626 Lesson 4 course files and variable dictionary"
   ) +
   theme_void(base_size = 12) +
   theme(
