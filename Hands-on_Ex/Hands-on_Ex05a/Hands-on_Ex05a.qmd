@@ -1,0 +1,415 @@
+---
+title: "Hands-on Exercise 5a"
+subtitle: "Global Spatial Autocorrelation"
+author: "Davin Cuaso"
+date: 2026-09-21
+date-modified: last-modified
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the R code"
+    code-tools: true
+    toc: true
+    toc-depth: 3
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Overview
+
+This exercise follows [Chapter 9: Global Measures of Spatial Autocorrelation](https://r4gdsa.netlify.app/chap09.html). I use the Hunan files supplied for the course and ask four questions:
+
+1. Is county GDP per capita spatially clustered across Hunan?
+2. Do Moran's I and Geary's C lead to the same conclusion?
+3. Is the result still convincing under a permutation test?
+4. How far does the association extend through higher-order neighbours?
+
+```{r}
+#| label: setup
+#| include: false
+
+pacman::p_load(sf, spdep, tmap, tidyverse, knitr)
+
+options(scipen = 999)
+theme_set(theme_minimal(base_size = 12))
+tmap_mode("plot")
+data_path <- "../Hands-on_Ex04/data"
+```
+
+## Data and preparation
+
+I reuse the verified Lesson 4 copy of the Hunan data. This keeps the analysis consistent with Hands-on Exercise 4 and avoids silently substituting another version.
+
+| Dataset | Source | Use |
+|---|---|---|
+| Hunan county boundary | [Official Lesson 4 course files](https://github.com/tskam/ISSS626-AY2026-27Aug/tree/master/lesson/Lesson04/data/geospatial) | Polygon geometry and contiguity |
+| Hunan 2012 indicators | [Official Lesson 4 course file](https://github.com/tskam/ISSS626-AY2026-27Aug/blob/master/lesson/Lesson04/data/aspatial/Hunan_2012.csv) | County GDP per capita |
+| Variable dictionary | [Professor-provided dictionary](../Hands-on_Ex04/data/aspatial/Dictionary.xlsx) | Confirms that GDPPC is measured in RMB |
+
+`st_read()` imports the shapefile. `left_join()` then matches the CSV to the polygons by the named `County` field. The final selection keeps only the fields needed here.
+
+```{r}
+#| label: import-and-join
+
+hunan_boundary <- st_read(
+  dsn = file.path(data_path, "geospatial"),
+  layer = "Hunan",
+  quiet = TRUE
+) |>
+  st_make_valid()
+
+hunan_2012 <- read_csv(
+  file.path(data_path, "aspatial", "Hunan_2012.csv"),
+  show_col_types = FALSE
+)
+
+hunan <- hunan_boundary |>
+  left_join(hunan_2012, by = "County") |>
+  select(NAME_2, ID_3, NAME_3, County, GDPPC)
+
+stopifnot(
+  nrow(hunan_boundary) == 88,
+  nrow(hunan_2012) == 88,
+  nrow(hunan) == 88,
+  n_distinct(hunan$County) == 88,
+  !anyNA(hunan$GDPPC)
+)
+
+input_check <- tibble(
+  Check = c("County polygons", "Distinct counties", "Matched GDPPC values"),
+  Result = c(nrow(hunan), n_distinct(hunan$County), sum(!is.na(hunan$GDPPC)))
+)
+
+kable(input_check, caption = "Checks completed after the join")
+```
+
+### GDP per capita
+
+```{r}
+#| label: gdppc-map
+#| fig-cap: "GDP per capita by Hunan county, 2012"
+#| fig-width: 8
+#| fig-height: 6
+
+tm_shape(hunan) +
+  tm_polygons(
+    fill = "GDPPC",
+    fill.scale = tm_scale_intervals(
+      n = 5,
+      style = "quantile",
+      values = "brewer.oranges"
+    ),
+    fill.legend = tm_legend(
+      title = "GDPPC (RMB)",
+      position = tm_pos_out("right", "center")
+    ),
+    col = "white",
+    lwd = 0.4
+  ) +
+  tm_title("GDP per capita by county") +
+  tm_credits(
+    "Source: ISSS626 Lesson 4 course files",
+    position = tm_pos_out("center", "bottom")
+  )
+```
+
+The map suggests that high and low values are not randomly scattered, but a map alone cannot test that claim. Global statistics compare the observed arrangement with the pattern expected under spatial randomness.
+
+## Queen-contiguity weights
+
+Two counties are queen neighbours when they share an edge or a corner. `nb2listw()` row-standardises the links, so every county's outgoing weights add to 1. This prevents a county with many neighbours from receiving a larger total weight only because of its location.
+
+```{r}
+#| label: spatial-weights
+
+queen_nb <- poly2nb(
+  hunan,
+  queen = TRUE,
+  row.names = hunan$County
+)
+
+queen_lw <- nb2listw(
+  queen_nb,
+  style = "W",
+  zero.policy = TRUE
+)
+
+weight_check <- tibble(
+  Measure = c(
+    "Directed neighbour links",
+    "Average neighbours per county",
+    "Minimum neighbours",
+    "Maximum neighbours",
+    "Counties with no neighbours"
+  ),
+  Result = c(
+    sum(card(queen_nb)),
+    round(mean(card(queen_nb)), 2),
+    min(card(queen_nb)),
+    max(card(queen_nb)),
+    sum(card(queen_nb) == 0)
+  )
+)
+
+kable(weight_check, caption = "Queen-contiguity weight checks")
+```
+
+The graph contains `r sum(card(queen_nb))` directed links, or `r round(mean(card(queen_nb)), 2)` neighbours per county on average. No county is isolated.
+
+## Moran's I
+
+Moran's I compares each county's deviation from the mean with the weighted deviations of its neighbours. A positive value means similar values tend to be near one another. A negative value points to neighbouring dissimilarity. Under the null hypothesis of spatial randomness, its expected value is slightly below zero.
+
+```{r}
+#| label: global-moran
+
+moran_analytical <- moran.test(
+  hunan$GDPPC,
+  queen_lw,
+  zero.policy = TRUE
+)
+
+set.seed(1234)
+moran_permutation <- moran.mc(
+  hunan$GDPPC,
+  queen_lw,
+  nsim = 999,
+  zero.policy = TRUE
+)
+
+moran_results <- tibble(
+  Method = c("Analytical test", "999 permutations"),
+  `Moran's I` = c(
+    unname(moran_analytical$estimate["Moran I statistic"]),
+    unname(moran_permutation$statistic)
+  ),
+  `Expected I` = c(
+    unname(moran_analytical$estimate["Expectation"]),
+    NA_real_
+  ),
+  `p-value` = c(moran_analytical$p.value, moran_permutation$p.value)
+)
+
+kable(
+  moran_results,
+  digits = 4,
+  caption = "Global Moran's I for county GDPPC"
+)
+```
+
+The observed Moran's I is `r round(unname(moran_permutation$statistic), 3)`, compared with an analytical expectation of `r round(unname(moran_analytical$estimate["Expectation"]), 3)`. The permutation p-value is `r format.pval(moran_permutation$p.value, digits = 3)`. I therefore reject spatial randomness at the 5% level. Counties with similar GDPPC values tend to occur beside one another.
+
+### Moran scatterplot
+
+The horizontal axis is standardised GDPPC. The vertical axis is the weighted average of neighbouring standardised values. The fitted slope is Moran's I when row-standardised weights are used.
+
+```{r}
+#| label: moran-scatterplot
+#| fig-cap: "Moran scatterplot for county GDPPC"
+#| fig-width: 8
+#| fig-height: 6
+
+moran_plot_data <- hunan |>
+  mutate(
+    GDPPC_z = as.numeric(scale(GDPPC)),
+    lag_GDPPC_z = lag.listw(
+      queen_lw,
+      GDPPC_z,
+      zero.policy = TRUE
+    )
+  ) |>
+  st_drop_geometry()
+
+ggplot(moran_plot_data, aes(GDPPC_z, lag_GDPPC_z)) +
+  geom_hline(yintercept = 0, colour = "grey65", linewidth = 0.4) +
+  geom_vline(xintercept = 0, colour = "grey65", linewidth = 0.4) +
+  geom_point(colour = "#2563eb", alpha = 0.75, size = 2.1) +
+  geom_smooth(method = "lm", se = FALSE, colour = "#b91c1c", linewidth = 0.9) +
+  labs(
+    x = "Standardised GDPPC",
+    y = "Spatially lagged standardised GDPPC",
+    caption = "Queen contiguity; row-standardised weights"
+  )
+```
+
+The upward slope matches the positive test statistic. Most counties fall into the high-high or low-low quadrants, although the global result does not identify which individual clusters are statistically significant.
+
+## Geary's C
+
+Geary's C focuses more directly on squared differences between neighbouring values. Its null expectation is 1. Values below 1 indicate positive spatial autocorrelation, while values above 1 indicate neighbouring dissimilarity.
+
+```{r}
+#| label: global-geary
+
+geary_analytical <- geary.test(
+  hunan$GDPPC,
+  queen_lw,
+  zero.policy = TRUE
+)
+
+set.seed(1234)
+geary_permutation <- geary.mc(
+  hunan$GDPPC,
+  queen_lw,
+  nsim = 999,
+  zero.policy = TRUE
+)
+
+geary_results <- tibble(
+  Method = c("Analytical test", "999 permutations"),
+  `Geary's C` = c(
+    unname(geary_analytical$estimate["Geary C statistic"]),
+    unname(geary_permutation$statistic)
+  ),
+  `Expected C` = c(
+    unname(geary_analytical$estimate["Expectation"]),
+    NA_real_
+  ),
+  `p-value` = c(geary_analytical$p.value, geary_permutation$p.value)
+)
+
+kable(
+  geary_results,
+  digits = 4,
+  caption = "Global Geary's C for county GDPPC"
+)
+```
+
+Geary's C is `r round(unname(geary_permutation$statistic), 3)`, which is below its null value of 1. Its permutation p-value is `r format.pval(geary_permutation$p.value, digits = 3)`. This agrees with Moran's I: neighbouring counties are more alike in GDPPC than expected under random rearrangement.
+
+### Permutation evidence
+
+The test repeatedly shuffles GDPPC across the fixed county geometry. This gives a reference distribution under the null hypothesis while preserving the observed values and spatial weights.
+
+```{r}
+#| label: permutation-distributions
+#| fig-cap: "Observed statistics against 999 random permutations"
+#| fig-width: 10
+#| fig-height: 5
+
+permutation_values <- bind_rows(
+  tibble(
+    Statistic = "Moran's I",
+    Value = head(moran_permutation$res, -1)
+  ),
+  tibble(
+    Statistic = "Geary's C",
+    Value = head(geary_permutation$res, -1)
+  )
+)
+
+observed_values <- tibble(
+  Statistic = c("Moran's I", "Geary's C"),
+  Observed = c(
+    unname(moran_permutation$statistic),
+    unname(geary_permutation$statistic)
+  )
+)
+
+ggplot(permutation_values, aes(Value)) +
+  geom_histogram(bins = 30, fill = "#93c5fd", colour = "white") +
+  geom_vline(
+    data = observed_values,
+    aes(xintercept = Observed),
+    colour = "#b91c1c",
+    linewidth = 0.9
+  ) +
+  facet_wrap(vars(Statistic), scales = "free_x") +
+  labs(x = "Statistic under random permutation", y = "Frequency")
+```
+
+The observed Moran value sits in the positive tail. The observed Geary value sits in the low tail, which also represents positive autocorrelation. Both are rare under the null model.
+
+## Spatial correlograms
+
+A first-order neighbour shares a boundary with the focal county. Higher orders move through the contiguity graph. They should not be read as exact kilometre bands.
+
+```{r}
+#| label: correlogram-calculation
+
+moran_corr <- sp.correlogram(
+  queen_nb,
+  hunan$GDPPC,
+  order = 6,
+  method = "I",
+  style = "W",
+  zero.policy = TRUE
+)
+
+geary_corr <- sp.correlogram(
+  queen_nb,
+  hunan$GDPPC,
+  order = 6,
+  method = "C",
+  style = "W",
+  zero.policy = TRUE
+)
+
+tidy_correlogram <- function(result, statistic) {
+  as.data.frame(result$res) |>
+    set_names(c("estimate", "expectation", "variance")) |>
+    rownames_to_column("Order") |>
+    as_tibble() |>
+    transmute(
+      Statistic = statistic,
+      Order = as.integer(Order),
+      Estimate = estimate,
+      Expected = expectation,
+      z = (estimate - expectation) / sqrt(variance),
+      `p-value` = 2 * pnorm(-abs(z))
+    )
+}
+
+correlogram_results <- bind_rows(
+  tidy_correlogram(moran_corr, "Moran's I"),
+  tidy_correlogram(geary_corr, "Geary's C")
+)
+
+kable(
+  correlogram_results,
+  digits = 4,
+  caption = "Autocorrelation through six neighbour orders"
+)
+```
+
+```{r}
+#| label: correlogram-plot
+#| fig-cap: "Moran's I and Geary's C by neighbour order"
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot(correlogram_results, aes(Order, Estimate)) +
+  geom_hline(
+    data = correlogram_results |> distinct(Statistic, Expected),
+    aes(yintercept = Expected),
+    colour = "grey55",
+    linetype = "dashed"
+  ) +
+  geom_line(colour = "#2563eb", linewidth = 0.8) +
+  geom_point(aes(colour = `p-value` <= 0.05), size = 2.8) +
+  scale_colour_manual(
+    values = c(`TRUE` = "#b91c1c", `FALSE` = "#64748b"),
+    labels = c(`TRUE` = "p <= 0.05", `FALSE` = "p > 0.05"),
+    name = NULL
+  ) +
+  scale_x_continuous(breaks = 1:6) +
+  facet_wrap(vars(Statistic), scales = "free_y") +
+  labs(x = "Neighbour order", y = "Statistic") +
+  theme(legend.position = "bottom")
+```
+
+The strongest positive association is at the first order. Moran's I remains positive at orders 2 and 3, then weakens; its fifth and sixth orders are negative. Geary's C gives a compatible picture, with the clearest local similarity at the first two orders and dissimilarity by the fifth order. This change suggests a regional pattern rather than one province-wide block of uniformly similar GDPPC.
+
+## Assumptions and limitations
+
+- The result depends on queen contiguity and row-standardised weights. A distance or k-nearest-neighbour graph can produce a different statistic.
+- A permutation test assumes GDPPC values are exchangeable across counties under the null hypothesis.
+- GDPPC is a county average. The result may change at another geographic scale, which is the modifiable areal unit problem.
+- Global statistics summarise the whole province. They can confirm overall autocorrelation but cannot locate individual clusters.
+- The data are cross-sectional for 2012, so the analysis describes association, not a causal process or a trend through time.
+
+## Conclusion
+
+Moran's I (`r round(unname(moran_permutation$statistic), 3)`) and Geary's C (`r round(unname(geary_permutation$statistic), 3)`) both reject spatial randomness in 999-permutation tests. The evidence supports positive global spatial autocorrelation in Hunan county GDPPC. The correlograms show that the relationship is strongest among immediate neighbours and does not remain uniformly positive at every graph distance. Hands-on Exercise 5b therefore moves to local statistics to identify where the clusters and spatial outliers occur.

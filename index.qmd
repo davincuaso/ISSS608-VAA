@@ -64,6 +64,22 @@ Analyse how event intensity and spatial patterns change over time.
 Construct contiguity and distance-based neighbours, standardise their weights, and calculate spatially lagged GDP per capita.
 :::
 
+::: {.exercise-card}
+### [Hands-on Exercise 5a](Hands-on_Ex/Hands-on_Ex05a/Hands-on_Ex05a.qmd)
+
+**Global Spatial Autocorrelation**
+
+Test province-wide GDPPC clustering with Moran's I, Geary's C, permutation tests, and spatial correlograms.
+:::
+
+::: {.exercise-card}
+### [Hands-on Exercise 5b](Hands-on_Ex/Hands-on_Ex05b/Hands-on_Ex05b.qmd)
+
+**Local Spatial Autocorrelation**
+
+Locate GDPPC clusters and spatial outliers with local Moran's I and Getis-Ord Gi* hot spot analysis.
+:::
+
 :::
 
 ::: {.callout-note appearance="simple"}

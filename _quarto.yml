@@ -27,6 +27,10 @@ website:
             text: "Hands-on Exercise 3: Spatio-temporal SPPA"
           - href: Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.qmd
             text: "Hands-on Exercise 4: Spatial Weights"
+          - href: Hands-on_Ex/Hands-on_Ex05a/Hands-on_Ex05a.qmd
+            text: "Hands-on Exercise 5a: Global Spatial Autocorrelation"
+          - href: Hands-on_Ex/Hands-on_Ex05b/Hands-on_Ex05b.qmd
+            text: "Hands-on Exercise 5b: Local Spatial Autocorrelation"
       - text: In-Class Exercise
         menu:
           - href: In-class_Ex/In-class_Ex04/In-class_Ex04.qmd
