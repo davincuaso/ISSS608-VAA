@@ -1,8 +1,8 @@
 ---
 title: "In-Class Exercise 4"
-subtitle: "Spatial Weights and Applications"
+subtitle: "Geographically Weighted Summary Statistics"
 author: "Davin Cuaso"
-date: 2026-09-14
+date: 2026-09-19
 date-modified: last-modified
 format:
   html:
@@ -19,38 +19,31 @@ execute:
 
 ## Overview
 
-I follow [Chapter 8: Spatial Weights and Applications](https://r4gdsa.netlify.app/chap08.html) and the [Lesson 4 outline](https://isss626-ay2026-27aug.netlify.app/outline/lesson04_outline). Using GDP per capita (GDPPC, measured in RMB) for 88 counties in Hunan, China, I answer four questions:
+This exercise follows the professor's [In-Class Exercise 4 slides](https://isss626-ay2026-27aug.netlify.app/in-class_ex/in-class_ex04/in-class_ex04#/title-slide). It uses geographically weighted summary statistics (GWSS) to describe how GDP per capita varies locally across Hunan Province.
 
-1. How does the definition of a neighbour change the spatial weights matrix?
-2. How does row standardisation turn those links into comparable weights?
-3. Which counties stand out after their GDPPC is compared with neighbouring counties?
-4. How do local summary statistics vary across the province?
+Unlike one province-wide mean or correlation, GWSS gives nearby counties more influence than distant counties. A kernel controls how those weights decline, while the bandwidth controls the size of the local neighbourhood.
+
+The exercise covers the same sequence as the slides:
+
+1. Import and join the Hunan boundary and 2012 development data.
+2. Map the geographic distribution of GDP per capita.
+3. Calculate adaptive and fixed-bandwidth local summary statistics.
+4. Examine the local relationship between GDP per capita and gross industrial output.
 
 ```{r}
 #| label: setup
 #| include: false
 
-pacman::p_load(
-  sf, ggstatsplot, tmap, tidyverse, knitr, GWmodel, spdep
-)
+pacman::p_load(sf, ggstatsplot, tmap, tidyverse, knitr, GWmodel)
 
 options(scipen = 999)
-theme_set(theme_minimal(base_size = 12))
 tmap_mode("plot")
 data_path <- "data"
 ```
 
-## Data and preparation
+## Preparing the data
 
-I use the files distributed with the current course's Lesson 4 rather than recreating the data from another source.
-
-| Dataset | Source | Use |
-|---|---|---|
-| Hunan county boundary | [Official Lesson 4 course files](https://github.com/tskam/ISSS626-AY2026-27Aug/tree/master/lesson/Lesson04/data/geospatial) | Polygons and neighbourhood relationships |
-| Hunan 2012 development indicators | [Official Lesson 4 course file](https://github.com/tskam/ISSS626-AY2026-27Aug/blob/master/lesson/Lesson04/data/aspatial/Hunan_2012.csv) | County GDP per capita |
-| Hunan variable dictionary | [Professor-provided Lesson 4 dictionary](data/aspatial/Dictionary.xlsx) | Defines GDPPC as gross domestic product per capita in RMB |
-
-The dictionary identifies GDPPC as gross domestic product per capita in RMB and rates its data completeness as good. The shapefile and CSV both carry a `County` field. I use that field as the join key instead of relying on row order. A left join keeps all 88 polygons and attaches the indicators. The final table retains the three administrative identifiers, the common county name and four development measures required later in the exercise.
+The exercise uses the Hunan shapefile and `Hunan_2012.csv` distributed with the course. `st_read()` imports the polygon layer and `read_csv()` imports the indicator table. I join them through the shared `County` field and retain the eight fields specified in the slides.
 
 ```{r}
 #| label: import-and-join
@@ -67,433 +60,34 @@ hunan_2012 <- read_csv(
   show_col_types = FALSE
 )
 
-hunan <- hunan_boundary |>
+hunan_sf <- hunan_boundary |>
   left_join(hunan_2012, by = "County") |>
   select(NAME_2, ID_3, NAME_3, County, GDPPC, GIO, Agri, Service)
 
 stopifnot(
-  nrow(hunan_boundary) == 88,
-  nrow(hunan_2012) == 88,
-  nrow(hunan) == 88,
-  n_distinct(hunan$County) == 88,
-  !anyNA(hunan$GDPPC)
+  nrow(hunan_sf) == 88,
+  n_distinct(hunan_sf$County) == 88,
+  !anyNA(hunan_sf$GDPPC),
+  !anyNA(hunan_sf$GIO)
 )
-
-input_summary <- data.frame(
-  Check = c(
-    "County polygons",
-    "Indicator rows",
-    "Matched GDPPC values",
-    "Retained analysis fields",
-    "Geometry type",
-    "Coordinate reference system"
-  ),
-  Result = c(
-    nrow(hunan_boundary),
-    nrow(hunan_2012),
-    sum(!is.na(hunan$GDPPC)),
-    paste(setdiff(names(hunan), attr(hunan, "sf_column")), collapse = ", "),
-    paste(unique(as.character(st_geometry_type(hunan))), collapse = ", "),
-    st_crs(hunan)$input
-  )
-)
-
-kable(input_summary, caption = "Input validation before constructing spatial weights")
 ```
 
-### GDP per capita
+### Mapping GDPPC
+
+The map uses quantile classes, following the choropleth workflow from Hands-on Exercise 1b. The basemap supplies county names, while the second panel shows GDPPC in RMB. Both legends sit outside the map area.
 
 ```{r}
 #| label: gdppc-map
-#| fig-cap: "GDP per capita by Hunan county, 2012"
-#| fig-width: 8
-#| fig-height: 6
-
-tm_shape(hunan) +
-  tm_polygons(
-    fill = "GDPPC",
-    fill.scale = tm_scale_intervals(
-      n = 5,
-      style = "quantile",
-      values = "brewer.purples"
-    ),
-    fill.legend = tm_legend(
-      title = "GDPPC (RMB)",
-      position = tm_pos_out("right", "center")
-    ),
-    col = "white",
-    lwd = 0.4
-  ) +
-  tm_title("GDP per capita by county, Hunan Province") +
-  tm_credits(
-    "Source: ISSS626 Lesson 4 course files and variable dictionary",
-    position = tm_pos_out("center", "bottom")
-  )
-```
-
-The quantile classes follow the choropleth workflow used in Exercise 1b. They divide the counties into similarly sized groups, which makes the geographic ranking easy to read. The legend sits outside the map frame, so it does not cover any counties. The distribution is right-skewed: the median GDPPC is `r scales::comma(median(hunan$GDPPC))`, while the maximum is `r scales::comma(max(hunan$GDPPC))`.
-
-## Contiguity-based neighbours
-
-`poly2nb()` derives neighbours directly from the polygon topology. Under the **queen** rule, counties are neighbours when their boundaries share either an edge or a corner. The stricter **rook** rule requires a shared edge.
-
-```{r}
-#| label: contiguity-weights
-
-queen_nb <- poly2nb(hunan, queen = TRUE, row.names = hunan$County)
-rook_nb <- poly2nb(hunan, queen = FALSE, row.names = hunan$County)
-
-neighbour_summary <- function(nb, method) {
-  counts <- card(nb)
-  data.frame(
-    Method = method,
-    `Directed links` = sum(counts),
-    `Average neighbours` = round(mean(counts), 2),
-    `Minimum neighbours` = min(counts),
-    `Maximum neighbours` = max(counts),
-    `Connected components` = n.comp.nb(nb)$nc,
-    check.names = FALSE
-  )
-}
-
-contiguity_summary <- bind_rows(
-  neighbour_summary(queen_nb, "Queen contiguity"),
-  neighbour_summary(rook_nb, "Rook contiguity")
-)
-
-kable(contiguity_summary, caption = "Contiguity neighbour structures")
-```
-
-Queen contiguity produces `r sum(card(queen_nb))` directed links and an average of `r round(mean(card(queen_nb)), 2)` neighbours per county. Rook contiguity produces `r sum(card(rook_nb))` links. The small difference means that most connections come from shared edges; only a few exist solely because two counties meet at a corner.
-
-```{r}
-#| label: contiguity-network
-#| fig-cap: "Queen contiguity (left) retains corner contacts that rook contiguity (right) excludes"
-#| fig-width: 10
-#| fig-height: 5
-
-centres <- suppressWarnings(st_centroid(hunan))
-coords <- st_coordinates(centres)
-
-old_par <- par(mfrow = c(1, 2), mar = c(0.4, 0.4, 2.2, 0.4))
-plot(st_geometry(hunan), col = "#f3f4f6", border = "white", main = "Queen contiguity")
-plot(queen_nb, coords, add = TRUE, col = "#2563eb", lwd = 0.6, pch = 19, cex = 0.35)
-plot(st_geometry(hunan), col = "#f3f4f6", border = "white", main = "Rook contiguity")
-plot(rook_nb, coords, add = TRUE, col = "#dc2626", lwd = 0.6, pch = 19, cex = 0.35)
-par(old_par)
-```
-
-### Reading one neighbour list
-
-The first polygon is Anxiang. Its list entry stores the row numbers of all counties connected under the queen rule.
-
-```{r}
-#| label: anxiang-neighbours
-
-anxiang_id <- match("Anxiang", hunan$County)
-anxiang_neighbour_ids <- queen_nb[[anxiang_id]]
-
-anxiang_neighbours <- data.frame(
-  County = hunan$County[anxiang_neighbour_ids],
-  GDPPC = hunan$GDPPC[anxiang_neighbour_ids]
-) |>
-  arrange(County)
-
-kable(
-  anxiang_neighbours,
-  format.args = list(big.mark = ","),
-  caption = "Anxiang's queen-contiguity neighbours"
-)
-```
-
-## Distance-based neighbours
-
-Contiguity may not represent every kind of interaction. The chapter therefore introduces two distance-based alternatives. I retain its **62 km fixed band**, which gives every county at least one neighbour and keeps the province in a single connected component. I also construct a **six-nearest-neighbour** graph, which gives every county the same number of outgoing links.
-
-```{r}
-#| label: distance-weights
-
-distance_62_nb <- dnearneigh(
-  coords,
-  d1 = 0,
-  d2 = 62,
-  row.names = hunan$County,
-  longlat = TRUE
-)
-
-knn6_nb <- knn2nb(
-  knearneigh(coords, k = 6, longlat = TRUE),
-  row.names = hunan$County
-)
-
-distance_summary <- bind_rows(
-  neighbour_summary(distance_62_nb, "Fixed distance: 62 km"),
-  neighbour_summary(knn6_nb, "Six nearest neighbours")
-)
-
-kable(distance_summary, caption = "Distance-based neighbour structures")
-```
-
-The 62 km band yields `r sum(card(distance_62_nb))` directed links, fewer than either contiguity rule. The six-nearest-neighbour graph yields `r sum(card(knn6_nb))` directed links because every county selects six neighbours. Its links are not necessarily symmetric: county A can rank B among its six closest counties even when B does not rank A among its own six.
-
-```{r}
-#| label: distance-network
-#| fig-cap: "A fixed distance band (left) versus six nearest neighbours (right)"
-#| fig-width: 10
-#| fig-height: 5
-
-old_par <- par(mfrow = c(1, 2), mar = c(0.4, 0.4, 2.2, 0.4))
-plot(st_geometry(hunan), col = "#f3f4f6", border = "white", main = "Within 62 km")
-plot(distance_62_nb, coords, add = TRUE, col = "#0f766e", lwd = 0.6, pch = 19, cex = 0.35)
-plot(st_geometry(hunan), col = "#f3f4f6", border = "white", main = "Six nearest neighbours")
-plot(knn6_nb, coords, add = TRUE, col = "#7c3aed", lwd = 0.6, pch = 19, cex = 0.35)
-par(old_par)
-```
-
-## From neighbours to weights
-
-A neighbour list only records who is connected. `nb2listw()` assigns numeric weights to those links. Binary weights give every neighbour a value of 1. Row-standardised weights divide each row by its number of neighbours, so the weights for each county add to 1. Inverse-distance weights give closer neighbours more influence before the same row standardisation is applied.
-
-```{r}
-#| label: weight-styles
-
-queen_binary <- nb2listw(queen_nb, style = "B", zero.policy = TRUE)
-queen_row <- nb2listw(queen_nb, style = "W", zero.policy = TRUE)
-
-queen_distances <- nbdists(queen_nb, coords, longlat = TRUE)
-inverse_distance <- lapply(queen_distances, function(x) 1 / x)
-queen_idw <- nb2listw(
-  queen_nb,
-  glist = inverse_distance,
-  style = "W",
-  zero.policy = TRUE
-)
-
-anxiang_weights <- data.frame(
-  County = hunan$County[anxiang_neighbour_ids],
-  `Distance (km)` = round(queen_distances[[anxiang_id]], 1),
-  Binary = queen_binary$weights[[anxiang_id]],
-  `Row-standardised` = round(queen_row$weights[[anxiang_id]], 3),
-  `Row-standardised inverse distance` = round(queen_idw$weights[[anxiang_id]], 3),
-  check.names = FALSE
-) |>
-  arrange(County)
-
-kable(anxiang_weights, caption = "How Anxiang's queen neighbours are weighted")
-```
-
-For Anxiang, ordinary row standardisation gives each of its `r card(queen_nb)[anxiang_id]` neighbours a weight of `r round(1 / card(queen_nb)[anxiang_id], 2)`. The inverse-distance version still sums to 1, but gives a larger share to nearer county centres. Row standardisation is useful for a neighbouring **average**; binary weights are appropriate when the desired quantity is a neighbouring **sum**.
-
-## Spatially lagged GDPPC
-
-The spatial lag is the weighted combination of neighbouring values. With row-standardised queen weights, it is the mean GDPPC among a county's neighbours.
-
-```{r}
-#| label: spatial-lags
-
-hunan$lag_gdppc <- lag.listw(
-  queen_row,
-  hunan$GDPPC,
-  zero.policy = TRUE
-)
-
-hunan$neighbour_sum <- lag.listw(
-  queen_binary,
-  hunan$GDPPC,
-  zero.policy = TRUE
-)
-
-queen_self_nb <- include.self(queen_nb)
-queen_self_row <- nb2listw(queen_self_nb, style = "W", zero.policy = TRUE)
-queen_self_binary <- nb2listw(queen_self_nb, style = "B", zero.policy = TRUE)
-
-hunan$window_average <- lag.listw(
-  queen_self_row,
-  hunan$GDPPC,
-  zero.policy = TRUE
-)
-
-hunan$window_sum <- lag.listw(
-  queen_self_binary,
-  hunan$GDPPC,
-  zero.policy = TRUE
-)
-
-hunan$own_minus_lag <- hunan$GDPPC - hunan$lag_gdppc
-
-lag_examples <- hunan |>
-  st_drop_geometry() |>
-  select(
-    County,
-    GDPPC,
-    lag_gdppc,
-    neighbour_sum,
-    window_average,
-    window_sum
-  ) |>
-  arrange(desc(abs(GDPPC - lag_gdppc))) |>
-  slice_head(n = 8) |>
-  mutate(across(where(is.numeric), round))
-
-kable(
-  lag_examples,
-  format.args = list(big.mark = ","),
-  caption = "Counties with the largest absolute gap from their neighbours"
-)
-```
-
-These four lags answer different questions:
-
-- `lag_gdppc` is the average among neighbours only.
-- `neighbour_sum` adds neighbouring GDPPC values, so it increases with both values and neighbour count.
-- `window_average` averages the county together with its neighbours.
-- `window_sum` adds the county to the neighbouring sum.
-
-The window average is less extreme than the neighbour-only comparison because it includes the county's own value. The sums should not be interpreted as local income totals; they are included to demonstrate how the choice of binary versus row-standardised weights changes the calculation.
-
-```{r}
-#| label: own-and-lag-map
-#| fig-cap: "Observed GDPPC and the row-standardised queen spatial lag use the same colour scale"
-#| fig-width: 10
-#| fig-height: 5.5
-
-map_comparison <- bind_rows(
-  hunan |>
-    select(County, value = GDPPC) |>
-    mutate(Measure = "County GDPPC"),
-  hunan |>
-    select(County, value = lag_gdppc) |>
-    mutate(Measure = "Average neighbour GDPPC")
-) |>
-  mutate(Measure = factor(
-    Measure,
-    levels = c("County GDPPC", "Average neighbour GDPPC")
-  ))
-
-ggplot(map_comparison) +
-  geom_sf(aes(fill = value), colour = "white", linewidth = 0.1) +
-  facet_wrap(~Measure) +
-  scale_fill_viridis_c(
-    option = "C",
-    limits = range(hunan$GDPPC),
-    breaks = c(20000, 50000, 80000),
-    labels = scales::label_comma(),
-    name = "GDPPC"
-  ) +
-  guides(fill = guide_colourbar(
-    title.position = "top",
-    barwidth = grid::unit(10, "cm"),
-    barheight = grid::unit(0.35, "cm")
-  )) +
-  theme_void(base_size = 11) +
-  theme(
-    strip.text = element_text(face = "bold"),
-    legend.position = "bottom"
-  )
-```
-
-The neighbour map is smoother because each value is an average of several counties. The correlation between own and neighbouring GDPPC is `r round(cor(hunan$GDPPC, hunan$lag_gdppc), 3)`: nearby counties tend to be similar, but the relationship is far from perfect.
-
-### Counties that differ from their neighbours
-
-```{r}
-#| label: lag-comparison
-#| fig-cap: "GDPPC compared with the average of queen-contiguous neighbours"
-#| fig-width: 8
-#| fig-height: 6
-
-label_counties <- hunan |>
-  st_drop_geometry() |>
-  slice_max(abs(own_minus_lag), n = 8)
-
-ggplot(st_drop_geometry(hunan), aes(x = lag_gdppc, y = GDPPC)) +
-  geom_abline(slope = 1, intercept = 0, colour = "grey55", linetype = "dashed") +
-  geom_point(aes(colour = own_minus_lag), size = 2.4, alpha = 0.85) +
-  geom_text(
-    data = label_counties,
-    aes(label = County),
-    colour = "grey20",
-    size = 3.1,
-    nudge_y = 1800,
-    check_overlap = TRUE
-  ) +
-  scale_colour_gradient2(
-    low = "#2563eb",
-    mid = "grey80",
-    high = "#dc2626",
-    midpoint = 0,
-    labels = scales::label_comma(),
-    name = "Own minus\nneighbour GDPPC"
-  ) +
-  scale_x_continuous(labels = scales::label_comma()) +
-  scale_y_continuous(labels = scales::label_comma()) +
-  labs(
-    x = "Average neighbour GDPPC",
-    y = "County GDPPC",
-    title = "Some counties are very different from their surroundings",
-    subtitle = "The dashed line marks equality between own and neighbouring GDPPC"
-  )
-```
-
-Lengshuijiang, Changsha and Zixing sit well above their surrounding averages. Pingjiang is the strongest contrast in the other direction: its GDPPC is much lower than the average among its queen-contiguous neighbours. These local comparisons identify places worth examining in a later spatial-autocorrelation analysis. They are not significance tests.
-
-## Geographically weighted summary statistics
-
-`GWmodel` still expects an older `Spatial` object for these functions, so I convert the joined `sf` object only at this point. The main data object remains in `sf` format for importing, joining, mapping and spatial weights.
-
-The adaptive bandwidth is selected by leave-one-out cross-validation with `bw.gwr()`. I use the local regression `GDPPC ~ GIO + Agri + Service` because those four measures were retained during data preparation. The returned bandwidth is a neighbour count, not a distance in kilometres. I then use the same adaptive bisquare kernel for the local summary statistics.
-
-```{r}
-#| label: gwss-bandwidth
-
-hunan_sp <- as(hunan, "Spatial")
-
-adaptive_bw <- bw.gwr(
-  GDPPC ~ GIO + Agri + Service,
-  data = hunan_sp,
-  approach = "CV",
-  kernel = "bisquare",
-  adaptive = TRUE,
-  longlat = TRUE
-)
-
-gw_summary <- gwss(
-  hunan_sp,
-  vars = c("GDPPC", "GIO", "Agri", "Service"),
-  bw = adaptive_bw,
-  kernel = "bisquare",
-  adaptive = TRUE,
-  quantile = TRUE,
-  longlat = TRUE
-)
-
-gwss_df <- as.data.frame(gw_summary$SDF) |>
-  select(GDPPC_LM, GDPPC_Median, Corr_GDPPC.Agri)
-
-stopifnot(
-  nrow(gwss_df) == nrow(hunan),
-  identical(rownames(gwss_df), rownames(hunan_sp@data))
-)
-
-hunan_gwss <- bind_cols(hunan, gwss_df)
-
-bandwidth_check <- data.frame(
-  Item = c("Bandwidth method", "Kernel", "Adaptive nearest neighbours"),
-  Value = c("Leave-one-out cross-validation", "Bisquare", adaptive_bw)
-)
-
-kable(bandwidth_check, caption = "Bandwidth used for geographically weighted summaries")
-```
-
-Cross-validation selects `r adaptive_bw` nearest neighbours. This is a fairly broad local window for a dataset of 88 counties, so the estimates should be read as regional patterns rather than highly local detail. Strictly speaking, `bw.gwr()` optimises the predictive fit of the stated GWR equation. It does not directly optimise the local mean or median. Reusing the bandwidth keeps the kernel definition consistent, but it is still a modelling choice.
-
-```{r}
-#| label: gwss-maps
-#| fig-cap: "Observed GDPPC and geographically weighted GDPPC summaries"
+#| fig-cap: "Hunan counties and the geographic distribution of GDP per capita"
 #| fig-width: 11
 #| fig-height: 6
 
-observed_map <- tm_shape(hunan_gwss) +
+basemap <- tm_shape(hunan_sf) +
+  tm_polygons(fill = "#f8fafc", col = "grey70", lwd = 0.4) +
+  tm_text("NAME_3", size = 0.45) +
+  tm_title("Hunan counties")
+
+gdppc_map <- tm_shape(hunan_sf) +
   tm_polygons(
     fill = "GDPPC",
     fill.scale = tm_scale_intervals(
@@ -502,90 +96,343 @@ observed_map <- tm_shape(hunan_gwss) +
       values = "brewer.oranges"
     ),
     fill.legend = tm_legend(
-      title = "Observed GDPPC",
-      position = tm_pos_out("center", "bottom")
+      title = "GDPPC (RMB)",
+      position = tm_pos_out("right", "center")
     ),
     col = "white",
-    lwd = 0.3
+    lwd = 0.35
   ) +
-  tm_title("Observed GDPPC")
+  tm_title("GDP per capita")
 
-local_mean_map <- tm_shape(hunan_gwss) +
+tmap_arrange(basemap, gdppc_map, ncol = 2)
+```
+
+The map shows a clear concentration of high GDPPC counties around Changsha and parts of eastern Hunan. Lower values are more common in the west and south-west. GWSS is used next to turn this visual impression into local summary measures.
+
+## Converting from `sf` to `Spatial`
+
+`GWmodel` uses the older `sp` data structure for `bw.gwr()` and `gwss()`. The joined data stay in `sf` format for preparation and mapping, then are converted immediately before the geographically weighted calculations.
+
+```{r}
+#| label: convert-spatial
+
+hunan_sp <- hunan_sf |>
+  as_Spatial()
+```
+
+## Adaptive-bandwidth GWSS
+
+An adaptive bandwidth contains a set number of nearest neighbours. It covers a smaller geographic area where counties are close together and a larger area where they are more dispersed.
+
+The slides compare cross-validation and corrected Akaike information criterion (AICc) for the intercept-only equation `GDPPC ~ 1`. The bisquare kernel gives the greatest weight to nearby counties and zero weight to counties outside the bandwidth.
+
+```{r}
+#| label: adaptive-bandwidth
+
+adaptive_bw_cv <- bw.gwr(
+  GDPPC ~ 1,
+  data = hunan_sp,
+  approach = "CV",
+  adaptive = TRUE,
+  kernel = "bisquare",
+  longlat = TRUE
+)
+
+adaptive_bw_aicc <- bw.gwr(
+  GDPPC ~ 1,
+  data = hunan_sp,
+  approach = "AICc",
+  adaptive = TRUE,
+  kernel = "bisquare",
+  longlat = TRUE
+)
+
+adaptive_bandwidths <- tibble(
+  Selection_method = c("Cross-validation", "AICc"),
+  Nearest_neighbours = c(adaptive_bw_cv, adaptive_bw_aicc)
+)
+
+kable(
+  adaptive_bandwidths,
+  caption = "Adaptive bandwidth selected for GDPPC"
+)
+```
+
+Both criteria select `r adaptive_bw_aicc` nearest neighbours. Following the slides, I use the AICc bandwidth for the adaptive GWSS calculation.
+
+```{r}
+#| label: adaptive-gwss
+
+adaptive_gwstat <- gwss(
+  data = hunan_sp,
+  vars = "GDPPC",
+  bw = adaptive_bw_aicc,
+  kernel = "bisquare",
+  quantile = TRUE,
+  adaptive = TRUE,
+  longlat = TRUE
+)
+
+adaptive_gwstat_df <- as.data.frame(adaptive_gwstat$SDF)
+
+stopifnot(nrow(adaptive_gwstat_df) == nrow(hunan_sf))
+
+hunan_adaptive <- cbind(hunan_sf, adaptive_gwstat_df)
+```
+
+With `quantile = TRUE`, `gwss()` returns the local mean, standard deviation, variance, skewness, coefficient of variation, median, interquartile range and quantile imbalance. The slide visualises the geographically weighted mean.
+
+```{r}
+#| label: adaptive-mean-map
+#| fig-cap: "Adaptive-bandwidth geographically weighted mean of GDPPC"
+#| fig-width: 8
+#| fig-height: 6
+
+tm_shape(hunan_adaptive) +
   tm_polygons(
     fill = "GDPPC_LM",
     fill.scale = tm_scale_intervals(
-      n = 5,
       style = "quantile",
+      n = 5,
       values = "brewer.blues"
     ),
     fill.legend = tm_legend(
       title = "Local mean GDPPC",
-      position = tm_pos_out("center", "bottom")
-    ),
-    col = "white",
-    lwd = 0.3
-  ) +
-  tm_title("Geographically weighted mean")
-
-local_median_map <- tm_shape(hunan_gwss) +
-  tm_polygons(
-    fill = "GDPPC_Median",
-    fill.scale = tm_scale_intervals(
-      n = 5,
-      style = "quantile",
-      values = "brewer.greens"
-    ),
-    fill.legend = tm_legend(
-      title = "Local median GDPPC",
-      position = tm_pos_out("center", "bottom")
-    ),
-    col = "white",
-    lwd = 0.3
-  ) +
-  tm_title("Geographically weighted median")
-
-tmap_arrange(observed_map, local_mean_map, local_median_map, ncol = 3)
-```
-
-The local mean and median maps are smoother than the observed map because every estimate combines nearby counties. The median is less affected by unusually high GDPPC values. It is therefore a useful check on whether a local mean is being pulled upward by one prosperous county.
-
-```{r}
-#| label: gw-correlation-map
-#| fig-cap: "Local Pearson correlation between GDPPC and gross agricultural output"
-#| fig-width: 8
-#| fig-height: 6
-
-tm_shape(hunan_gwss) +
-  tm_polygons(
-    fill = "Corr_GDPPC.Agri",
-    fill.scale = tm_scale_intervals(
-      n = 7,
-      style = "pretty",
-      midpoint = 0,
-      values = "brewer.rd_bu"
-    ),
-    fill.legend = tm_legend(
-      title = "Local correlation",
       position = tm_pos_out("right", "center")
     ),
     col = "white",
-    lwd = 0.3
+    lwd = 0.35
   ) +
-  tm_title("GDPPC and agriculture do not relate uniformly across Hunan")
+  tm_title("Adaptive geographically weighted mean")
 ```
 
-The local correlation is descriptive. It shows where GDPPC and agricultural output move together within the adaptive kernel, but it does not show that one variable causes the other. Results can also change when the bandwidth, kernel or variables in the bandwidth-selection model change.
+The adaptive local mean retains the high-value concentration around Changsha but is smoother than the original GDPPC map. Each estimate combines the focal county with a neighbourhood of `r adaptive_bw_aicc` nearby counties.
 
-## Assumptions and limits
+`gwss()` also supports Gaussian, exponential, tricube and boxcar kernels. These alternatives change how quickly a county's influence declines with distance. The slides retain the bisquare kernel for the worked adaptive and fixed-bandwidth results, so I use the same kernel below.
 
-- A queen link assumes that any shared edge or corner can support interaction. A different substantive process may call for rook, road-network or travel-time neighbours.
-- The distance methods use polygon centroids. Large or irregular counties are reduced to one representative point, and the 62 km threshold is a connectivity rule rather than an economic boundary.
-- Six-nearest-neighbour links impose equal outgoing neighbour counts even where settlement density differs. They can also be asymmetric.
-- Row standardisation gives every county the same total weight, which increases the individual influence of neighbours around counties with few links.
-- GDPPC is a county-level, cross-sectional indicator. A spatial lag describes context; it does not show that neighbouring GDPPC caused a county's value.
-- The adaptive bandwidth is selected for the GWR equation and then reused for the summary statistics. A bandwidth chosen for a different equation could produce a different local pattern.
-- `GWmodel` requires the temporary conversion from `sf` to `Spatial`. Row order is preserved during the conversion and checked before the GWSS results are attached.
+## Fixed-bandwidth GWSS
+
+A fixed bandwidth uses one distance threshold across the province. It can include many counties in dense areas and fewer counties in sparse areas.
+
+```{r}
+#| label: fixed-bandwidth
+
+fixed_bw_cv <- bw.gwr(
+  GDPPC ~ 1,
+  data = hunan_sp,
+  approach = "CV",
+  adaptive = FALSE,
+  kernel = "bisquare",
+  longlat = TRUE
+)
+
+fixed_bw_aicc <- bw.gwr(
+  GDPPC ~ 1,
+  data = hunan_sp,
+  approach = "AICc",
+  adaptive = FALSE,
+  kernel = "bisquare",
+  longlat = TRUE
+)
+
+fixed_bandwidths <- tibble(
+  Selection_method = c("Cross-validation", "AICc"),
+  Bandwidth_km = c(fixed_bw_cv, fixed_bw_aicc)
+)
+
+kable(
+  fixed_bandwidths,
+  digits = 2,
+  caption = "Fixed bandwidth selected for GDPPC"
+)
+```
+
+Cross-validation selects `r round(fixed_bw_cv, 2)` km, while AICc selects `r round(fixed_bw_aicc, 2)` km. I again follow the slides and use the AICc value for `gwss()`.
+
+```{r}
+#| label: fixed-gwss
+
+fixed_gwstat <- gwss(
+  data = hunan_sp,
+  vars = "GDPPC",
+  bw = fixed_bw_aicc,
+  kernel = "bisquare",
+  adaptive = FALSE,
+  quantile = TRUE,
+  longlat = TRUE
+)
+
+fixed_gwstat_df <- as.data.frame(fixed_gwstat$SDF)
+
+stopifnot(nrow(fixed_gwstat_df) == nrow(hunan_sf))
+
+hunan_fixed <- cbind(hunan_sf, fixed_gwstat_df)
+```
+
+```{r}
+#| label: fixed-mean-map
+#| fig-cap: "Fixed-bandwidth geographically weighted mean of GDPPC"
+#| fig-width: 8
+#| fig-height: 6
+
+tm_shape(hunan_fixed) +
+  tm_polygons(
+    fill = "GDPPC_LM",
+    fill.scale = tm_scale_intervals(
+      style = "quantile",
+      n = 5,
+      values = "brewer.blues"
+    ),
+    fill.legend = tm_legend(
+      title = "Local mean GDPPC",
+      position = tm_pos_out("right", "center")
+    ),
+    col = "white",
+    lwd = 0.35
+  ) +
+  tm_title("Fixed geographically weighted mean")
+```
+
+The fixed-bandwidth surface is smoother because the AICc distance of `r round(fixed_bw_aicc, 1)` km covers a broad area. The adaptive surface responds more closely to the changing spacing of counties.
+
+## Geographically weighted correlation
+
+The final part of the slides asks whether GDP per capita is related to gross industrial output. The slide's conventional scatterplot code refers to agriculture even though the business question and subsequent GWSS calculation use `GIO`. I use `GIO` throughout so that the global and local analyses answer the same question.
+
+### Conventional statistical view
+
+```{r}
+#| label: global-correlation
+#| fig-cap: "Global relationship between GDPPC and gross industrial output"
+#| fig-width: 9
+#| fig-height: 7
+
+global_correlation <- cor.test(
+  hunan_2012$GIO,
+  hunan_2012$GDPPC,
+  method = "pearson"
+)
+
+ggscatterstats(
+  data = hunan_2012,
+  x = GIO,
+  y = GDPPC,
+  xlab = "Gross industrial output",
+  ylab = "GDP per capita",
+  label.var = County,
+  label.expression = GIO > 90000 & GDPPC > 50000,
+  point.label.args = list(alpha = 0.7, size = 3.5, color = "grey40"),
+  xfill = "#CC79A7",
+  yfill = "#009E73",
+  title = "GDPPC and gross industrial output"
+)
+```
+
+The global Pearson correlation is `r round(unname(global_correlation$estimate), 3)` with p-value `r format.pval(global_correlation$p.value, digits = 3, eps = 0.001)`. Counties with greater industrial output generally have higher GDPPC, but a single coefficient assumes that this relationship is the same across Hunan.
+
+### Local correlation
+
+The slides select an adaptive AICc bandwidth from `GDPPC ~ GIO`, then use `gwss()` to calculate local Pearson and Spearman correlations. Because the bandwidth is adaptive, its value is a neighbour count.
+
+```{r}
+#| label: correlation-bandwidth
+
+correlation_bw <- bw.gwr(
+  GDPPC ~ GIO,
+  data = hunan_sp,
+  approach = "AICc",
+  kernel = "bisquare",
+  adaptive = TRUE
+)
+
+correlation_bandwidth <- tibble(
+  Selection_method = "AICc",
+  Kernel = "Bisquare",
+  Adaptive_neighbours = correlation_bw
+)
+
+kable(
+  correlation_bandwidth,
+  caption = "Bandwidth used for geographically weighted correlation"
+)
+```
+
+The selected bandwidth is `r correlation_bw` nearest neighbours, matching the calculation shown in the slides.
+
+```{r}
+#| label: local-correlation
+
+correlation_gwstat <- gwss(
+  data = hunan_sp,
+  vars = c("GDPPC", "GIO"),
+  bw = correlation_bw,
+  kernel = "bisquare",
+  adaptive = TRUE,
+  longlat = TRUE
+)
+
+correlation_gwstat_df <- as.data.frame(correlation_gwstat$SDF) |>
+  select(Corr_GDPPC.GIO, Spearman_rho_GDPPC.GIO) |>
+  rename(
+    gwCorr = Corr_GDPPC.GIO,
+    gwSpearman = Spearman_rho_GDPPC.GIO
+  )
+
+stopifnot(nrow(correlation_gwstat_df) == nrow(hunan_sf))
+
+hunan_correlation <- cbind(hunan_sf, correlation_gwstat_df)
+```
+
+```{r}
+#| label: local-correlation-maps
+#| fig-cap: "Local Pearson and Spearman correlations between GDPPC and GIO"
+#| fig-width: 11
+#| fig-height: 6
+
+pearson_map <- tm_shape(hunan_correlation) +
+  tm_polygons(
+    fill = "gwCorr",
+    fill.scale = tm_scale_intervals(
+      style = "quantile",
+      n = 5,
+      values = "brewer.blues"
+    ),
+    fill.legend = tm_legend(
+      title = "Local Pearson r",
+      position = tm_pos_out("right", "center")
+    ),
+    col = "white",
+    lwd = 0.35
+  ) +
+  tm_title("Local Pearson correlation")
+
+spearman_map <- tm_shape(hunan_correlation) +
+  tm_polygons(
+    fill = "gwSpearman",
+    fill.scale = tm_scale_intervals(
+      style = "quantile",
+      n = 5,
+      values = "brewer.blues"
+    ),
+    fill.legend = tm_legend(
+      title = "Local Spearman rho",
+      position = tm_pos_out("right", "center")
+    ),
+    col = "white",
+    lwd = 0.35
+  ) +
+  tm_title("Local Spearman correlation")
+
+tmap_arrange(pearson_map, spearman_map, ncol = 2)
+```
+
+The local Pearson coefficients range from `r round(min(hunan_correlation$gwCorr), 3)` to `r round(max(hunan_correlation$gwCorr), 3)`. The local Spearman coefficients range from `r round(min(hunan_correlation$gwSpearman), 3)` to `r round(max(hunan_correlation$gwSpearman), 3)`. The relationship is positive throughout Hunan, but its strength is not spatially uniform. These are descriptive correlations and do not establish that industrial output causes GDPPC.
 
 ## What I found
 
-Changing the neighbour rule changes the graph, even though the 88 county values stay the same. I use queen contiguity as the main specification because the question concerns counties that touch. With row-standardised weights, each spatial lag is the mean among those neighbours. Lengshuijiang, Changsha and Zixing are well above their surrounding averages, while Pingjiang is well below. The geographically weighted mean and median add a broader regional view, using an adaptive bandwidth selected by cross-validation. All of these results are descriptive. They do not show that one county's GDPPC caused another's.
+The adaptive and fixed calculations tell a consistent story: local GDPPC is higher around Changsha and eastern Hunan and lower across much of the west and south-west. The adaptive bandwidth of `r adaptive_bw_aicc` neighbours preserves more local detail, while the fixed AICc bandwidth of `r round(fixed_bw_aicc, 1)` km produces a broader surface. GDPPC and gross industrial output have a strong positive global correlation, and the local correlation maps show that the strength of this relationship changes across the province.
+
+## References
+
+- Brunsdon, C., Fotheringham, A. S., and Charlton, M. (2002). Geographically weighted summary statistics: a framework for localised exploratory data analysis. *Computers, Environment and Urban Systems*, 26, 501-525.
+- Harris, P., and Brunsdon, C. (2010). Exploring spatial variation and spatial relationships in a freshwater acidification critical load data set for Great Britain using geographically weighted summary statistics. *Computers & Geosciences*, 36, 54-70.

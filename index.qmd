@@ -92,9 +92,9 @@ Each exercise page follows the corresponding course chapter and provides a dedic
 ::: {.exercise-card}
 ### [In-Class Exercise 4](In-class_Ex/In-class_Ex04/In-class_Ex04.qmd)
 
-**Spatial Weights and Applications**
+**Geographically Weighted Summary Statistics**
 
-Construct contiguity and distance-based neighbours, calculate spatial lags, and compare geographically weighted summaries.
+Calculate adaptive and fixed-bandwidth local summaries, then map the local relationship between GDP per capita and gross industrial output.
 :::
 :::
 

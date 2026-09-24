@@ -34,7 +34,7 @@ website:
       - text: In-Class Exercise
         menu:
           - href: In-class_Ex/In-class_Ex04/In-class_Ex04.qmd
-            text: "In-Class Exercise 4: Spatial Weights"
+            text: "In-Class Exercise 4: Geographically Weighted Summary Statistics"
       - text: Take-home Exercises
         menu:
           - href: Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd
