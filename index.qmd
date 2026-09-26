@@ -96,6 +96,14 @@ Each exercise page follows the corresponding course chapter and provides a dedic
 
 Calculate adaptive and fixed-bandwidth local summaries, then map the local relationship between GDP per capita and gross industrial output.
 :::
+
+::: {.exercise-card}
+### [In-Class Exercise 5](In-class_Ex/In-class_Ex05/In-class_Ex05.qmd)
+
+**Emerging Hot Spot Analysis**
+
+Build a Hunan space-time cube, calculate annual local Gi*, test county trends with Mann-Kendall, and map emerging hot spot and cold spot histories.
+:::
 :::
 
 ## Take-home exercises

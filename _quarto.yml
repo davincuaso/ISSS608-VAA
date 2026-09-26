@@ -35,6 +35,8 @@ website:
         menu:
           - href: In-class_Ex/In-class_Ex04/In-class_Ex04.qmd
             text: "In-Class Exercise 4: Geographically Weighted Summary Statistics"
+          - href: In-class_Ex/In-class_Ex05/In-class_Ex05.qmd
+            text: "In-Class Exercise 5: Emerging Hot Spot Analysis"
       - text: Take-home Exercises
         menu:
           - href: Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd
