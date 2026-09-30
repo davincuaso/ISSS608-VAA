@@ -8,7 +8,7 @@ page-layout: full
 ---
 
 ::: {.hero-panel}
-This portfolio documents my hands-on work for **ISSS608 Visual Analytics and Applications**. It brings together geospatial data handling, thematic mapping, spatial point-pattern analysis, spatio-temporal analysis, and spatial weights using R.
+This portfolio documents my hands-on work for **ISSS608 Visual Analytics and Applications**. It brings together geospatial data handling, thematic mapping, spatial point-pattern analysis, spatio-temporal analysis, spatial autocorrelation, and geographical segmentation using R.
 
 Use the **Hands-on Exercises**, **In-Class Exercise**, and **Take-home Exercises** menus in the navigation bar, or select an exercise below.
 :::
@@ -78,6 +78,14 @@ Test province-wide GDPPC clustering with Moran's I, Geary's C, permutation tests
 **Local Spatial Autocorrelation**
 
 Locate GDPPC clusters and spatial outliers with local Moran's I and Getis-Ord Gi* hot spot analysis.
+:::
+
+::: {.exercise-card}
+### [Hands-on Exercise 6](Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.qmd)
+
+**Geographical Segmentation**
+
+Compare Ward clustering, SKATER, and ClustGeo for grouping Shan townships by household ICT access.
 :::
 
 :::

@@ -1,0 +1,637 @@
+---
+title: "Hands-on Exercise 6"
+subtitle: "Geographical Segmentation with Spatially Constrained Clustering"
+author: "Davin Cuaso"
+date: 2026-10-01
+date-modified: last-modified
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the R code"
+    code-tools: true
+    toc: true
+    toc-depth: 3
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Overview
+
+This exercise follows [Chapter 12: Geographical Segmentation with Spatially Constrained Clustering Techniques](https://r4gdsa.netlify.app/chap12.html). The aim is to group Shan State townships by household access to information and communication technology (ICT), while also asking whether the groups make geographical sense.
+
+I compare three approaches:
+
+1. Ward hierarchical clustering, which uses the ICT profiles only.
+2. SKATER, which requires every cluster to remain spatially connected.
+3. ClustGeo, which balances similarity in ICT access against geographical proximity.
+
+```{r}
+#| label: setup
+#| include: false
+
+pacman::p_load(
+  sf, spdep, tmap, ClustGeo, cluster,
+  factoextra, corrplot, tidyverse, knitr
+)
+
+options(scipen = 999)
+theme_set(theme_minimal(base_size = 12))
+tmap_mode("plot")
+data_path <- "data"
+```
+
+## Data and preparation
+
+The boundary and ICT tables are the files used by the chapter. The ICT counts come from the 2014 Myanmar Population and Housing Census, while the township boundary was distributed by the Myanmar Information Management Unit (MIMU). A local [data record](data/README.md) documents the copies used here.
+
+| Dataset | Source | Use |
+|---|---|---|
+| Myanmar township boundary | [MIMU](https://themimu.info/) via the [course-file mirror](https://github.com/endurrus/IS415-GAA/tree/master/Hands-on_Ex/Hands-On_Ex07/data/geospatial) | Township geometry and contiguity |
+| Shan ICT table | [2014 Myanmar Census](https://myanmar.unfpa.org/en/publications/2014-population-and-housing-census-myanmar-data-sheet) via the [course-file mirror](https://github.com/endurrus/IS415-GAA/tree/master/Hands-on_Ex/Hands-On_Ex07/data/aspatial) | Household ICT counts |
+
+`st_read()` imports the polygon layer. I keep the three Shan subdivisions and the six location fields used by the chapter. The CSV column names are then made explicit before a named `left_join()` matches each record to its township polygon.
+
+```{r}
+#| label: import-and-join
+
+shan_boundary <- st_read(
+  dsn = file.path(data_path, "geospatial"),
+  layer = "myanmar_township_boundaries",
+  quiet = TRUE
+) |>
+  filter(ST %in% c("Shan (East)", "Shan (North)", "Shan (South)")) |>
+  select(ST, ST_PCODE, DT, DT_PCODE, TS, TS_PCODE) |>
+  st_make_valid()
+
+ict <- read_csv(
+  file.path(data_path, "aspatial", "Shan-ICT.csv"),
+  show_col_types = FALSE
+) |>
+  rename(
+    DT_PCODE = `District Pcode`,
+    DISTRICT = `District Name`,
+    TS_PCODE = `Township Pcode`,
+    TOWNSHIP = `Township Name`,
+    TT_HOUSEHOLDS = `Total households`,
+    RADIO = Radio,
+    TV = Television,
+    LLPHONE = `Land line phone`,
+    MPHONE = `Mobile phone`,
+    COMPUTER = Computer,
+    INTERNET = `Internet at home`
+  )
+
+ict_derived <- ict |>
+  mutate(
+    across(
+      RADIO:INTERNET,
+      ~ .x / TT_HOUSEHOLDS * 1000,
+      .names = "{.col}_PR"
+    )
+  )
+
+shan_ict_sf <- shan_boundary |>
+  left_join(
+    ict_derived |> select(-DT_PCODE, -DISTRICT, -TOWNSHIP),
+    by = "TS_PCODE"
+  )
+
+stopifnot(
+  nrow(shan_boundary) == 55,
+  nrow(ict) == 55,
+  nrow(shan_ict_sf) == 55,
+  n_distinct(shan_ict_sf$TS_PCODE) == 55,
+  !anyNA(shan_ict_sf$RADIO_PR),
+  all(st_is_valid(shan_ict_sf))
+)
+
+input_check <- tibble(
+  Check = c(
+    "Shan township polygons",
+    "ICT table records",
+    "Distinct township codes",
+    "Unmatched ICT records",
+    "Valid geometries"
+  ),
+  Result = c(
+    nrow(shan_boundary),
+    nrow(ict),
+    n_distinct(shan_ict_sf$TS_PCODE),
+    sum(is.na(shan_ict_sf$RADIO_PR)),
+    sum(st_is_valid(shan_ict_sf))
+  )
+)
+
+kable(input_check, caption = "Checks completed after importing and joining the data")
+```
+
+### Why rates are needed
+
+The raw columns are household counts. A large township can have more radios simply because it has more households. I therefore convert every count to the number of households with the item per 1,000 households. The two maps below show why the denominator matters.
+
+```{r}
+#| label: count-rate-comparison
+#| fig-cap: "Radio ownership as a count and as a rate per 1,000 households"
+#| fig-width: 11
+#| fig-height: 6
+
+radio_count_map <- tm_shape(shan_ict_sf) +
+  tm_polygons(
+    fill = "RADIO",
+    fill.scale = tm_scale_intervals(
+      n = 5,
+      style = "quantile",
+      values = "brewer.blues"
+    ),
+    fill.legend = tm_legend(
+      title = "Households",
+      position = tm_pos_out("center", "bottom")
+    ),
+    col = "white",
+    lwd = 0.35
+  ) +
+  tm_title("Radio count")
+
+radio_rate_map <- tm_shape(shan_ict_sf) +
+  tm_polygons(
+    fill = "RADIO_PR",
+    fill.scale = tm_scale_intervals(
+      n = 5,
+      style = "quantile",
+      values = "brewer.blues"
+    ),
+    fill.legend = tm_legend(
+      title = "Per 1,000 households",
+      position = tm_pos_out("center", "bottom")
+    ),
+    col = "white",
+    lwd = 0.35
+  ) +
+  tm_title("Radio penetration rate")
+
+tmap_arrange(radio_count_map, radio_rate_map, ncol = 2)
+```
+
+The rate map measures access rather than population size. This is the quantity used in the clustering.
+
+## Exploring the ICT indicators
+
+```{r}
+#| label: rate-distributions
+#| fig-cap: "Distribution of the six ICT penetration rates"
+#| fig-width: 10
+#| fig-height: 7
+
+rate_variables <- c(
+  "RADIO_PR", "TV_PR", "LLPHONE_PR",
+  "MPHONE_PR", "COMPUTER_PR", "INTERNET_PR"
+)
+
+shan_ict_sf |>
+  st_drop_geometry() |>
+  select(all_of(rate_variables)) |>
+  pivot_longer(everything(), names_to = "Indicator", values_to = "Rate") |>
+  mutate(
+    Indicator = recode(
+      Indicator,
+      RADIO_PR = "Radio",
+      TV_PR = "Television",
+      LLPHONE_PR = "Land-line phone",
+      MPHONE_PR = "Mobile phone",
+      COMPUTER_PR = "Computer",
+      INTERNET_PR = "Internet at home"
+    )
+  ) |>
+  ggplot(aes(Rate)) +
+  geom_histogram(bins = 12, fill = "#2563eb", colour = "white") +
+  facet_wrap(~ Indicator, scales = "free", ncol = 3) +
+  labs(x = "Households per 1,000", y = "Townships")
+```
+
+The indicators have different ranges and several have long right tails. This makes standardisation important. Without it, a variable with a wide numerical range would contribute more to Euclidean distance even if it were not more important.
+
+### Correlation screening
+
+```{r}
+#| label: correlation-screening
+#| fig-cap: "Correlations among ICT penetration rates"
+#| fig-width: 8
+#| fig-height: 7
+
+ict_cor <- shan_ict_sf |>
+  st_drop_geometry() |>
+  select(all_of(rate_variables)) |>
+  cor()
+
+corrplot.mixed(
+  ict_cor,
+  lower = "number",
+  upper = "circle",
+  tl.col = "black",
+  tl.cex = 0.8,
+  number.cex = 0.7
+)
+```
+
+Computer and home-internet penetration have the strongest pairwise relationship, with a correlation of `r round(ict_cor["COMPUTER_PR", "INTERNET_PR"], 2)`. Keeping both would give this shared dimension extra influence. I therefore omit `INTERNET_PR` and cluster the remaining five indicators.
+
+```{r}
+#| label: prepare-cluster-variables
+
+cluster_variables <- c(
+  "RADIO_PR", "TV_PR", "LLPHONE_PR",
+  "MPHONE_PR", "COMPUTER_PR"
+)
+
+shan_ict <- shan_ict_sf |>
+  st_drop_geometry() |>
+  select(all_of(cluster_variables)) |>
+  as.data.frame()
+
+rownames(shan_ict) <- shan_ict_sf$TS
+
+min_max <- function(x) {
+  (x - min(x)) / (max(x) - min(x))
+}
+
+shan_ict_scaled <- shan_ict |>
+  lapply(min_max) |>
+  as.data.frame()
+
+stopifnot(
+  all(vapply(shan_ict_scaled, min, numeric(1)) == 0),
+  all(vapply(shan_ict_scaled, max, numeric(1)) == 1)
+)
+```
+
+Min-max standardisation places every indicator between 0 and 1. It preserves the ordering of townships and gives each variable a comparable opportunity to affect the distance calculation.
+
+## Ward hierarchical clustering
+
+The first method ignores location and groups townships only by their standardised ICT profiles. Euclidean distance measures profile dissimilarity. I compare four agglomeration rules using the agglomerative coefficient. Values nearer 1 indicate a stronger clustering structure.
+
+```{r}
+#| label: agglomerative-methods
+
+attribute_distance <- dist(shan_ict_scaled, method = "euclidean")
+
+agglomerative_results <- tibble(
+  Method = c("Average", "Single", "Complete", "Ward"),
+  Coefficient = c(
+    agnes(shan_ict_scaled, method = "average")$ac,
+    agnes(shan_ict_scaled, method = "single")$ac,
+    agnes(shan_ict_scaled, method = "complete")$ac,
+    agnes(shan_ict_scaled, method = "ward")$ac
+  )
+)
+
+kable(
+  agglomerative_results,
+  digits = 3,
+  caption = "Agglomerative coefficients for four linkage rules"
+)
+```
+
+Ward has the largest coefficient at `r round(max(agglomerative_results$Coefficient), 3)`. It is therefore used for the conventional hierarchy. `ward.D2` is paired with Euclidean distance because it applies Ward's minimum-variance criterion correctly.
+
+```{r}
+#| label: ward-dendrogram
+#| fig-cap: "Ward hierarchical clustering of Shan townships"
+#| fig-width: 11
+#| fig-height: 7
+
+ward_fit <- hclust(attribute_distance, method = "ward.D2")
+
+plot(
+  ward_fit,
+  cex = 0.55,
+  hang = -1,
+  main = "Ward dendrogram",
+  xlab = "Township",
+  sub = "Euclidean distance on min-max standardised ICT rates"
+)
+rect.hclust(ward_fit, k = 6, border = 2:7)
+```
+
+### Number of clusters
+
+```{r}
+#| label: gap-statistic
+#| fig-cap: "Gap statistic for one to ten clusters"
+#| fig-width: 8
+#| fig-height: 5
+
+set.seed(1234)
+gap_stat <- clusGap(
+  shan_ict_scaled,
+  FUN = factoextra::hcut,
+  nstart = 25,
+  K.max = 10,
+  B = 50
+)
+
+fviz_gap_stat(gap_stat)
+```
+
+The gap statistic does not produce a sharp, stable elbow. I retain six clusters because the chapter uses six, it keeps the comparison among methods consistent, and it remains readable on a map. This is an analytical choice rather than proof that six is the only correct answer.
+
+```{r}
+#| label: conventional-cluster-map
+#| fig-cap: "Six Ward clusters based only on ICT similarity"
+#| fig-width: 8
+#| fig-height: 7
+
+ward_groups <- cutree(ward_fit, k = 6)
+shan_ward <- cbind(
+  shan_ict_sf,
+  WARD_CLUSTER = factor(ward_groups)
+)
+
+tm_shape(shan_ward) +
+  tm_polygons(
+    fill = "WARD_CLUSTER",
+    fill.scale = tm_scale_categorical(values = "brewer.set2"),
+    fill.legend = tm_legend(
+      title = "Ward cluster",
+      position = tm_pos_out("right", "center")
+    ),
+    col = "white",
+    lwd = 0.4
+  ) +
+  tm_title("Conventional hierarchical clusters")
+```
+
+The groups are internally similar, but several are split into separate pieces. That is expected because longitude, latitude, and contiguity were not included.
+
+## SKATER spatial clustering
+
+SKATER begins with a queen-contiguity graph. Two townships are neighbours if they share an edge or a corner. Edge costs are based on the same five standardised ICT variables. A minimum spanning tree links all 55 townships with the smallest possible total cost, and five edges are cut to form six connected regions.
+
+```{r}
+#| label: skater-calculation
+
+queen_nb <- poly2nb(
+  shan_ict_sf,
+  queen = TRUE,
+  row.names = shan_ict_sf$TS
+)
+
+stopifnot(all(card(queen_nb) > 0))
+
+link_costs <- nbcosts(queen_nb, shan_ict_scaled)
+cost_weights <- nb2listw(
+  queen_nb,
+  glist = link_costs,
+  style = "B",
+  zero.policy = TRUE
+)
+
+shan_mst <- mstree(cost_weights)
+
+skater_fit <- skater(
+  edges = shan_mst[, 1:2],
+  data = shan_ict_scaled,
+  method = "euclidean",
+  ncuts = 5
+)
+
+shan_skater <- cbind(
+  shan_ict_sf,
+  SKATER_CLUSTER = factor(skater_fit$groups)
+)
+```
+
+```{r}
+#| label: skater-map
+#| fig-cap: "Six spatially connected SKATER clusters"
+#| fig-width: 8
+#| fig-height: 7
+
+tm_shape(shan_skater) +
+  tm_polygons(
+    fill = "SKATER_CLUSTER",
+    fill.scale = tm_scale_categorical(values = "brewer.set2"),
+    fill.legend = tm_legend(
+      title = "SKATER cluster",
+      position = tm_pos_out("right", "center")
+    ),
+    col = "white",
+    lwd = 0.4
+  ) +
+  tm_title("SKATER clusters")
+```
+
+Every SKATER region is connected by construction. The cost is that the split produces three one-township groups in this data. The method is honouring topology, but those singleton regions are a warning that six clusters may be too detailed for a stable policy segmentation.
+
+## ClustGeo compromise
+
+ClustGeo combines two dissimilarity matrices. The first is the ICT profile distance already used above. The second is the distance between townships. I transform the polygons to EPSG 32647 before measuring distance, so the calculation uses metres rather than angular degrees.
+
+The mixing parameter `alpha` controls the balance. At 0, the result is driven only by ICT similarity. At 1, it is driven only by geography.
+
+```{r}
+#| label: alpha-selection
+#| fig-cap: "Loss of attribute and spatial homogeneity across alpha values"
+#| fig-width: 9
+#| fig-height: 5
+
+spatial_distance <- shan_ict_sf |>
+  st_transform(32647) |>
+  st_distance() |>
+  units::drop_units() |>
+  as.dist()
+
+alpha_choice <- choicealpha(
+  D0 = attribute_distance,
+  D1 = spatial_distance,
+  range.alpha = seq(0, 1, 0.1),
+  K = 6,
+  graph = TRUE
+)
+```
+
+I use `alpha = 0.2`, following the chapter. At this setting, attribute homogeneity is still the main priority, while geography has enough influence to reduce fragmentation. It is a compromise, not a universal optimum.
+
+```{r}
+#| label: clustgeo-calculation
+
+clustgeo_fit <- hclustgeo(
+  D0 = attribute_distance,
+  D1 = spatial_distance,
+  alpha = 0.2
+)
+
+clustgeo_groups <- cutree(clustgeo_fit, k = 6)
+
+shan_clustgeo <- cbind(
+  shan_ict_sf,
+  CLUSTGEO_CLUSTER = factor(clustgeo_groups)
+)
+```
+
+```{r}
+#| label: clustgeo-map
+#| fig-cap: "Six ClustGeo clusters with alpha equal to 0.2"
+#| fig-width: 8
+#| fig-height: 7
+
+tm_shape(shan_clustgeo) +
+  tm_polygons(
+    fill = "CLUSTGEO_CLUSTER",
+    fill.scale = tm_scale_categorical(values = "brewer.set2"),
+    fill.legend = tm_legend(
+      title = "ClustGeo cluster",
+      position = tm_pos_out("right", "center")
+    ),
+    col = "white",
+    lwd = 0.4
+  ) +
+  tm_title("ClustGeo compromise")
+```
+
+## Comparing the methods
+
+A map can make a method look convincing without showing what was lost. I compare two diagnostics:
+
+- Within-cluster sum of squares (SSE) measures ICT compactness. Lower is better.
+- Connected components count measures spatial fragmentation. Six is the minimum possible because there are six clusters.
+
+```{r}
+#| label: method-diagnostics
+
+component_count <- function(groups, neighbours) {
+  sum(
+    vapply(
+      sort(unique(groups)),
+      function(group_id) {
+        keep <- groups == group_id
+        if (sum(keep) == 1) {
+          return(1L)
+        }
+        suppressWarnings(
+          spdep::n.comp.nb(spdep::subset.nb(neighbours, keep))$nc
+        )
+      },
+      integer(1)
+    )
+  )
+}
+
+within_sse <- function(groups, values) {
+  sum(
+    vapply(
+      split(seq_len(nrow(values)), groups),
+      function(rows) {
+        centred <- scale(values[rows, , drop = FALSE], scale = FALSE)
+        sum(centred^2)
+      },
+      numeric(1)
+    )
+  )
+}
+
+method_comparison <- tibble(
+  Method = c("Ward", "SKATER", "ClustGeo, alpha = 0.2"),
+  `Within-cluster SSE` = c(
+    within_sse(ward_groups, shan_ict_scaled),
+    within_sse(skater_fit$groups, shan_ict_scaled),
+    within_sse(clustgeo_groups, shan_ict_scaled)
+  ),
+  `Connected components` = c(
+    component_count(ward_groups, queen_nb),
+    component_count(skater_fit$groups, queen_nb),
+    component_count(clustgeo_groups, queen_nb)
+  ),
+  `Smallest cluster` = c(
+    min(table(ward_groups)),
+    min(table(skater_fit$groups)),
+    min(table(clustgeo_groups))
+  )
+)
+
+ward_components <- method_comparison[["Connected components"]][1]
+clustgeo_components <- method_comparison[["Connected components"]][3]
+
+kable(
+  method_comparison,
+  digits = 3,
+  caption = "Attribute compactness and spatial fragmentation by method"
+)
+```
+
+Ward has the lowest SSE, but its six clusters break into `r ward_components` separate map pieces. SKATER reaches the minimum of six components, although its SSE is larger and its smallest clusters are single townships. ClustGeo sits between them. Its SSE is lower than SKATER's and its `r clustgeo_components` components are less fragmented than Ward's, but ClustGeo does not guarantee contiguity.
+
+### Interpreting the ClustGeo profiles
+
+```{r}
+#| label: clustgeo-profiles
+
+clustgeo_profiles <- shan_clustgeo |>
+  st_drop_geometry() |>
+  group_by(CLUSTGEO_CLUSTER) |>
+  summarise(
+    Townships = n(),
+    across(all_of(cluster_variables), ~ mean(.x))
+  ) |>
+  rename(
+    Cluster = CLUSTGEO_CLUSTER,
+    Radio = RADIO_PR,
+    Television = TV_PR,
+    `Land-line phone` = LLPHONE_PR,
+    `Mobile phone` = MPHONE_PR,
+    Computer = COMPUTER_PR
+  )
+
+kable(
+  clustgeo_profiles,
+  digits = 1,
+  caption = "Mean ICT penetration rates per 1,000 households by ClustGeo cluster"
+)
+```
+
+```{r}
+#| label: clustgeo-profile-chart
+#| fig-cap: "Mean ICT profile of each ClustGeo cluster"
+#| fig-width: 10
+#| fig-height: 6
+
+clustgeo_profiles |>
+  pivot_longer(
+    cols = -c(Cluster, Townships),
+    names_to = "Indicator",
+    values_to = "Rate"
+  ) |>
+  ggplot(aes(Indicator, Rate, colour = Cluster, group = Cluster)) +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 2) +
+  scale_colour_brewer(palette = "Set2") +
+  labs(
+    x = NULL,
+    y = "Mean households per 1,000",
+    colour = "Cluster"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 25, hjust = 1),
+    legend.position = "bottom"
+  )
+```
+
+Cluster 3 records the highest mean television, mobile-phone, and computer penetration. Cluster 5 has the lowest mean television, land-line, mobile-phone, and computer penetration. Cluster numbers are labels only. They do not represent a ranking, and they should not be compared with the same numbers on the Ward or SKATER maps.
+
+## Assumptions and limitations
+
+- The census counts and township polygons refer to a fixed historical snapshot. The clusters do not describe current ICT access.
+- Penetration rates assume that total households are the correct denominator for every indicator.
+- Euclidean distance treats a given standardised change in each retained variable as equally important.
+- Dropping internet penetration reduces duplication, but it also removes a distinct aspect of access.
+- Six clusters and `alpha = 0.2` are defensible choices for this exercise, not uniquely optimal values.
+- SKATER guarantees contiguity, but it can create very small clusters. ClustGeo encourages nearby units to group together but does not guarantee connected regions.
+- Cluster boundaries describe similarity in these five variables. They do not establish causes, service needs, or policy priorities by themselves.
+
+## Conclusion
+
+The three methods answer different versions of the segmentation problem. Ward gives the most compact ICT profiles but ignores geography. SKATER produces six connected regions, although the result includes unstable singleton groups. ClustGeo gives a more balanced result: it retains stronger ICT similarity than SKATER and reduces much of Ward's spatial fragmentation.
+
+The evidence therefore supports ClustGeo as the most useful descriptive compromise for this dataset, provided that the remaining disconnected pieces and the sensitivity to `alpha` are reported. If strict administrative contiguity is non-negotiable, SKATER is the appropriate method, but its singleton clusters should be reviewed before the result is used.
