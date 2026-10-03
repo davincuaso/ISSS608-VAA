@@ -1,0 +1,480 @@
+---
+title: "In-Class Exercise 6"
+subtitle: "Emerging Hot Spot Analysis"
+author: "Davin Cuaso"
+date: 2026-10-03
+date-modified: last-modified
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the R code"
+    code-tools: true
+    toc: true
+    toc-depth: 3
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Overview
+
+This exercise works through [Chapter 11: Emerging Hot Spot Analysis](https://r4gdsa.netlify.app/chap11), using the supplied Hunan county and GDP-per-capita files. Code is adapted for the installed package versions, with extra checks and explanations. Emerging Hot Spot Analysis (EHSA) looks beyond a single map. It identifies where local hot spots and cold spots occur in each year, tests whether those local patterns are changing, and gives each county a final pattern label.
+
+The workflow has four parts:
+
+1. organise the county records as a space-time cube;
+2. calculate local Getis-Ord Gi* for every county and year;
+3. test each county's Gi* series for a monotonic trend with the Mann-Kendall test; and
+4. classify the history of each county as a hot spot, cold spot, or no detected pattern.
+
+```{r}
+#| label: setup
+#| include: false
+
+library(sf)
+library(sfdep)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(plotly)
+library(Kendall)
+library(stringr)
+
+options(scipen = 999)
+theme_set(theme_minimal(base_size = 12))
+set.seed(6262026)
+data_path <- "data"
+```
+
+## Data and preparation
+
+The two datasets are the files distributed with the course exercise.
+
+| Dataset | Source | Use |
+|---|---|---|
+| Hunan county boundary | [Official In-Class Exercise 6 files](https://github.com/tskam/ISSS626-AY2026-27Aug/tree/master/In-class_Ex/In-class_Ex05/data/geospatial) | County geometry and spatial relationships |
+| Hunan_GDPPC.csv | [Official In-Class Exercise 6 file](https://github.com/tskam/ISSS626-AY2026-27Aug/blob/master/In-class_Ex/In-class_Ex05/data/aspatial/Hunan_GDPPC.csv) | Annual county GDP per capita from 2005 to 2021 |
+
+`st_read()` imports the polygons and `st_transform()` places them in EPSG 32650, a projected coordinate system measured in metres. `read.csv()` imports the time-series table.
+
+```{r}
+#| label: import-data
+
+hunan <- st_read(
+  dsn = file.path(data_path, "geospatial"),
+  layer = "Hunan",
+  quiet = TRUE
+) %>%
+  st_transform(crs = 32650)
+
+GDPPC <- read.csv(file.path(data_path, "aspatial", "Hunan_GDPPC.csv"))
+# Sort keys before constructing the cube and its aligned neighbour columns.
+GDPPC <- arrange(GDPPC, Year, County)
+hunan <- arrange(hunan, County)
+```
+
+Before continuing, I check that every county has one record in every year and that the names in the attribute table match the names in the boundary file.
+
+```{r}
+#| label: data-checks
+
+data_checks <- tibble(
+  Check = c(
+    "County polygons",
+    "Counties in the time series",
+    "Years",
+    "County-year records",
+    "Unmatched county names",
+    "Missing GDPPC values"
+  ),
+  Result = c(
+    nrow(hunan),
+    n_distinct(GDPPC$County),
+    n_distinct(GDPPC$Year),
+    nrow(GDPPC),
+    sum(!unique(GDPPC$County) %in% hunan$County),
+    sum(is.na(GDPPC$GDPPC))
+  )
+)
+
+knitr::kable(data_checks, caption = "Checks on the two input datasets")
+
+stopifnot(
+  nrow(hunan) == 88,
+  n_distinct(GDPPC$County) == 88,
+  n_distinct(GDPPC$Year) == 17,
+  nrow(GDPPC) == 88 * 17,
+  all(unique(GDPPC$County) %in% hunan$County),
+  !anyNA(GDPPC$GDPPC),
+  !anyDuplicated(GDPPC[c("County", "Year")]),
+  setequal(GDPPC$County, hunan$County),
+  all(is.finite(GDPPC$GDPPC)),
+  all(st_is_valid(hunan))
+)
+```
+
+The checks confirm a balanced dataset: 88 counties observed in each of 17 years, for 1,496 county-year records.
+
+## Creating the space-time cube
+
+`spacetime()` links the yearly GDPPC records to the matching county geometry. The county field is the location key and Year is the time key.
+
+```{r}
+#| label: create-cube
+
+GDPPC_st <- spacetime(
+  GDPPC,
+  hunan,
+  .loc_col = "County",
+  .time_col = "Year"
+)
+
+cube_check <- tibble(
+  Test = "Is GDPPC_st a valid space-time cube?",
+  Result = is_spacetime_cube(GDPPC_st)
+)
+
+knitr::kable(cube_check, caption = "Space-time cube validation")
+```
+
+The `TRUE` result means that the location and time identifiers form a regular cube. This matters because the EHSA functions expect every time slice to use the same locations in the same order.
+
+## Computing local Gi*
+
+### Deriving spatial weights
+
+The chapter workflow first activates the cube's geometry context. `st_contiguity()` finds counties that touch, while `include_self()` includes the county itself as required by Gi*. `st_inverse_distance()` gives closer neighbours more influence. `set_nbs()` and `set_wts()` then copy the same spatial structure to every annual slice.
+
+```{r}
+#| label: spatial-weights
+
+GDPPC_nb <- GDPPC_st %>%
+  activate("geometry") %>%
+  mutate(
+    nb = include_self(st_contiguity(geometry)),
+    wt = st_inverse_distance(
+      nb,
+      geometry,
+      scale = 1,
+      alpha = 1
+    ),
+    .before = 1
+  ) %>%
+  set_nbs("nb") %>%
+  set_wts("wt")
+
+weight_check <- GDPPC_nb %>%
+  activate("geometry") %>%
+  st_drop_geometry() %>%
+  summarise(
+    `Minimum links, including self` = min(lengths(nb)),
+    `Average links, including self` = round(mean(lengths(nb)), 2),
+    `Maximum links, including self` = max(lengths(nb))
+  )
+
+knitr::kable(weight_check, caption = "Neighbour-list check")
+```
+
+In sfdep 0.2.5, a zero-distance inverse weight is set to zero. The self-link is therefore present but contributes no GDPPC to this intermediate weighted sum. I retain that setting to reproduce the chapter, but it differs from the usual positive-self-weight Gi*. The final EHSA call below uses its own contiguity weights with a positive self-weight.
+
+The order of the records must not be changed after `set_nbs()` and `set_wts()`. These list-columns are aligned to the rows of each time slice.
+
+### Calculating Gi* for each year
+
+For each year, `local_gstar_perm()` compares a county and its neighbours with the province-wide pattern. A positive Gi* value points towards a local concentration of high GDPPC values. A negative value points towards a concentration of low values. The permutation procedure evaluates how unusual the observed local statistic is under spatial randomness.
+
+```{r}
+#| label: local-gstar
+
+set.seed(6262026)
+
+# Preserve the nb object's class: newer dplyr versions strip it in grouped list-columns.
+geo_context <- GDPPC_nb |> activate("geometry")
+annual_nb <- geo_context$nb
+annual_wt <- geo_context$wt
+stopifnot(inherits(annual_nb, "nb"))
+gi_stars <- as.data.frame(GDPPC) |>
+  group_by(Year) |>
+  group_modify(~bind_cols(.x, local_gstar_perm(
+    .x$GDPPC, annual_nb, annual_wt, nsim = 999, iseed = 6262026
+  ))) |>
+  ungroup()
+
+gi_preview <- gi_stars %>%
+  ungroup() %>%
+  select(Year, County, GDPPC, gi_star, p_value, p_folded_sim) %>%
+  slice_head(n = 8)
+
+knitr::kable(
+  gi_preview,
+  digits = 4,
+  caption = "First eight county-year Gi* results"
+)
+```
+
+The Gi* statistic describes the local spatial context of GDPPC. It is not a direct measure of how quickly a county's own GDPPC grew.
+
+## Mann-Kendall trend test
+
+The Mann-Kendall test asks whether a sequence tends to move consistently upward or downward through time.
+
+- **Null hypothesis:** there is no monotonic trend in the county's Gi* series.
+- **Alternative hypothesis:** a monotonic trend is present.
+- **Tau:** values near 1 indicate an upward trend, while values near -1 indicate a downward trend.
+- **p-value:** a value below 0.05 provides evidence against the null hypothesis.
+
+### Changsha example
+
+The chapter uses Changsha to demonstrate the calculation.
+
+```{r}
+#| label: changsha-series
+
+cbg <- gi_stars %>%
+  ungroup() %>%
+  filter(County == "Changsha") %>%
+  select(County, Year, gi_star)
+```
+
+```{r}
+#| label: changsha-plot
+#| fig-cap: "Local Gi* series for Changsha"
+#| fig-width: 8
+#| fig-height: 5
+
+p <- ggplot(cbg, aes(x = Year, y = gi_star)) +
+  geom_hline(yintercept = 0, colour = "grey70", linewidth = 0.5) +
+  geom_line(colour = "#2c7fb8", linewidth = 0.9) +
+  geom_point(colour = "#2c7fb8", size = 2) +
+  scale_x_continuous(breaks = seq(min(cbg$Year), max(cbg$Year), by = 2)) +
+  labs(x = NULL, y = "Gi* statistic") +
+  theme_light(base_size = 12)
+
+p
+```
+
+The same chart can be explored interactively by hovering over each year.
+
+```{r}
+#| label: changsha-interactive
+
+ggplotly(p)
+```
+
+```{r}
+#| label: changsha-mann-kendall
+
+changsha_mk <- cbg %>%
+  summarise(
+    mk = list(unclass(Kendall::MannKendall(gi_star)))
+  ) %>%
+  tidyr::unnest_wider(mk)
+
+knitr::kable(
+  changsha_mk,
+  digits = 5,
+  caption = "Mann-Kendall test for Changsha's Gi* series"
+)
+```
+
+For Changsha, tau is `r round(changsha_mk$tau, 3)` and the p-value, reported as `sl`, is `r format.pval(changsha_mk$sl, digits = 3)`. The positive tau indicates an upward trend in the local Gi* series. At the 5% level, the result is `r ifelse(changsha_mk$sl < .05, "statistically significant", "not statistically significant")`. Tau describes the direction of ordering; it is not an annual growth rate.
+
+### Testing all counties
+
+The same test is repeated for each county. Sorting by the p-value brings the strongest evidence of monotonic change to the top.
+
+```{r}
+#| label: all-county-mann-kendall
+
+county_mk <- gi_stars %>%
+  group_by(County) %>%
+  summarise(
+    mk = list(unclass(Kendall::MannKendall(gi_star))),
+    .groups = "drop"
+  ) %>%
+  tidyr::unnest_wider(mk)
+
+emerging <- county_mk %>%
+  arrange(sl, desc(abs(tau))) %>%
+  slice_head(n = 10) %>%
+  transmute(
+    County,
+    Tau = tau,
+    `p-value` = sl,
+    Direction = if_else(tau > 0, "Upward Gi* trend", "Downward Gi* trend")
+  )
+
+knitr::kable(
+  emerging,
+  digits = 6,
+  caption = "Ten strongest monotonic Gi* trends"
+)
+```
+
+The three smallest p-values belong to `r paste(emerging$County[1:3], collapse = ", ")`. This table identifies a change in local spatial association, not yet a complete EHSA class. The final classification also considers which individual years were significant hot spots or cold spots.
+
+## Performing Emerging Hot Spot Analysis
+
+`emerging_hotspot_analysis()` combines the annual Gi* histories with the Mann-Kendall trend. Following the chapter, one time lag and 99 simulations are used. The package’s classification threshold is explicitly set to 0.01, its current default. This final call builds its own row-standardised contiguity weights; it does **not** inherit the inverse-distance weights used above. Its output `p_value` is the Mann–Kendall trend p-value. The internal bin test uses a folded simulation tail; it should not be described as a two-sided 5% test or as FDR-adjusted. The chapter introduces FDR conceptually, but this call does not apply it.
+
+```{r}
+#| label: run-ehsa
+
+set.seed(6262026)
+
+ehsa <- emerging_hotspot_analysis(
+  x = GDPPC_st,
+  .var = "GDPPC",
+  k = 1,
+  nsim = 99,
+  threshold = 0.01,
+  include_gi = TRUE
+)
+
+ehsa_display <- ehsa %>%
+  mutate(
+    classification = classification %>%
+      str_replace("^oscilating", "oscillating") %>%
+      str_to_sentence()
+  )
+```
+
+### Distribution of EHSA classes
+
+```{r}
+#| label: ehsa-class-chart
+#| fig-cap: "Distribution of EHSA classes across Hunan counties"
+#| fig-width: 9
+#| fig-height: 5.5
+
+class_counts <- ehsa_display %>%
+  count(classification, sort = TRUE)
+
+ggplot(
+  class_counts,
+  aes(x = reorder(classification, n), y = n)
+) +
+  geom_col(fill = "#3182bd", width = 0.72) +
+  geom_text(aes(label = n), hjust = -0.25, size = 3.8) +
+  coord_flip(clip = "off") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.10))) +
+  labs(x = NULL, y = "Number of counties") +
+  theme(panel.grid.major.y = element_blank())
+```
+
+The largest class is **`r class_counts$classification[1]`**, with `r class_counts$n[1]` counties. These labels depend on the simulation seed, threshold and package implementation. The count chart includes all counties; the map below applies an additional trend filter.
+
+### Mapping significant EHSA results
+
+The EHSA table is joined to the county polygons by the named county field. In keeping with the chapter, only counties with Mann-Kendall p-values below 0.05 are coloured. The legend is placed outside the map so it does not cover any county.
+
+```{r}
+#| label: join-ehsa
+
+hunan_ehsa <- hunan %>%
+  left_join(
+    ehsa_display,
+    by = join_by(County == location)
+  )
+
+ehsa_sig <- hunan_ehsa %>%
+  filter(p_value < 0.05)
+
+stopifnot(
+  nrow(hunan_ehsa) == nrow(hunan),
+  nrow(ehsa_sig) == sum(ehsa_display$p_value < 0.05)
+)
+```
+
+```{r}
+#| label: ehsa-map
+#| fig-cap: "Significant emerging hot spot and cold spot histories in Hunan"
+#| fig-width: 10
+#| fig-height: 7
+
+ehsa_colours <- c(
+  "Consecutive hotspot" = "#b2182b",
+  "Sporadic hotspot" = "#ef8a62",
+  "Oscillating hotspot" = "#fddbc7",
+  "Sporadic coldspot" = "#67a9cf",
+  "Oscillating coldspot" = "#2166ac",
+  "No pattern detected" = "#bdbdbd"
+)
+
+# ggplot2 provides the same categorical map without tmap version dependencies.
+# Neutral background counties remain visible; only trend-significant classes are coloured.
+ggplot(hunan_ehsa) +
+  geom_sf(fill = "#f0f2f4", colour = "#9e9e9e", linewidth = 0.2) +
+  geom_sf(data = ehsa_sig, aes(fill = classification), colour = "white", linewidth = 0.25) +
+  scale_fill_manual(values = ehsa_colours, name = "EHSA class") +
+  coord_sf(datum = NA) +
+  labs(title = "Emerging GDPPC hot and cold spot patterns",
+       caption = "Only counties with Mann–Kendall p < 0.05 are coloured; grey is not evidence of no clustering.") +
+  theme(legend.position = "bottom", axis.text = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+```
+
+There are `r nrow(ehsa_sig)` counties with a Mann-Kendall p-value below 0.05. The coloured counties pass the trend filter. A county can still have significant hot years yet remain grey if its overall trend is not significant. This distinction matters especially for persistent patterns, which need not have a trend.
+
+### Reading the class labels
+
+The labels summarise both the timing of significant Gi* results and the trend in their intensity.
+
+- **New:** significant only in the final period, with no earlier significant result of the same type.
+- **Consecutive:** an uninterrupted run at the end of the series, covering fewer than 90% of all periods.
+- **Intensifying or diminishing:** significant in at least 90% of periods, including the last period, with a significant upward or downward intensity trend.
+- **Persistent:** significant in at least 90% of periods without a clear upward or downward intensity trend.
+- **Sporadic:** significant in some, but fewer than 90%, of the periods and never significant as the opposite type.
+- **Oscillating:** significant in the final period but was also significant as the opposite type in an earlier period.
+- **Historical:** significant in at least 90% of periods, but not significant in the final period.
+- **No pattern detected:** none of the defined histories applies.
+
+The hot spot and cold spot versions use the same timing rules. Their difference is the sign of the underlying local Gi* pattern.
+
+## Assumptions and limitations
+
+- County boundaries and neighbour relationships are treated as constant from 2005 to 2021.
+- Inverse-distance weights assume that nearby contiguous counties exert more spatial influence than farther contiguous counties.
+- The Mann-Kendall test detects a monotonic direction. It does not require a straight-line trend, but its usual p-value assumes independent observations. Serial dependence can make apparent trends look more convincing than they are.
+- GDPPC is analysed as supplied. Without a price adjustment, changes in the raw values may include inflation. The Gi* trend should therefore be read as a change in relative local clustering, not as a pure measure of real economic growth.
+- With 99 simulations, the permutation p-values have fairly coarse resolution. More simulations would provide more stable tail probabilities at the cost of longer computation.
+- Statistical significance does not explain why a county became a hot spot or cold spot. Policy, industry, population, and measurement changes would need separate investigation.
+
+## Multiple-testing check
+
+Testing 88 counties creates more opportunities for false positives. Benjamini–Hochberg adjustment is added here for the annual-Gi* trend tests. This is a separate check; it does not silently change the chapter’s EHSA labels or correct the internal bin tests.
+
+```{r}
+#| label: trend-fdr-check
+county_mk <- county_mk |> mutate(q_value = p.adjust(sl, method = "BH"))
+knitr::kable(data.frame(
+  Rule = c("Unadjusted p < 0.05", "BH-adjusted q < 0.05"),
+  Counties = c(sum(county_mk$sl < .05), sum(county_mk$q_value < .05))
+))
+```
+
+## What this exercise shows
+
+The checks establish `r nrow(GDPPC)` observations covering `r nrow(hunan)` counties and `r n_distinct(GDPPC$Year)` years. Changsha’s annual Gi* trend has tau `r round(changsha_mk$tau, 3)` and p = `r format.pval(changsha_mk$sl, digits=3)`. Across all counties, `r sum(county_mk$sl < .05)` annual-Gi* trend tests pass the unadjusted 5% threshold and `r sum(county_mk$q_value < .05)` pass BH adjustment.
+
+An increasing Gi* series means the county’s local spatial context is becoming more concentrated toward high values relative to the reference distribution. It does not establish a causal explanation or measure GDP growth. The final EHSA adds a temporal neighbourhood and classifies the history; that is a different calculation from testing independently computed annual maps.
+
+## Reproducing the page
+
+Run `Rscript setup.R` once, then `quarto render In-class_Ex06.qmd`. The setup file installs the required packages. The labelled chunks execute from imports through the final maps; none depends on a hidden RStudio session.
+
+```{r}
+#| label: reproducibility-record
+sessionInfo()
+```
+
+## References and adaptation notes
+
+- [Kam, Chapter 11: Emerging Hot Spot Analysis](https://r4gdsa.netlify.app/chap11): exercise sequence and Hunan example.
+- [sfdep source and documentation](https://github.com/JosiahParry/sfdep): cube construction, local statistics and EHSA implementation.
+- [spdep Gi and Gi* documentation](https://r-spatial.github.io/spdep/reference/localG.html): permutation statistics and self-neighbours.
+- [Mann–Kendall test, Pacific Northwest National Laboratory](https://vsp.pnnl.gov/help/vsample/design_trend_mann_kendall.htm): interpretation and assumptions.
+
+The interactive chart uses plotly. The categorical map uses ggplot2 rather than tmap; this changes the drawing code, not the EHSA results. The annual permutation count is increased to 999 for a more stable demonstration, while the final EHSA retains the chapter’s 99 simulations so that its computational choices remain visible.
