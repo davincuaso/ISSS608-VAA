@@ -3,6 +3,7 @@ title: "Recorded violence in Myanmar"
 subtitle: "Township patterns · January 2021–September 2025"
 author: "Davin Cuaso · ISSS626 Take-home Exercise 2"
 date: 2026-10-03
+date-modified: last-modified
 format:
   revealjs:
     theme: simple
@@ -205,7 +206,7 @@ Start with the **27 robust event hot spots**, then assess local needs and report
 - Do not treat cold spots as places with no need.
 - Trend tests are exploratory: reporting, multiplicity and serial dependence matter.
 
-[Technical report](Take-home_Ex02.html) · [ACLED definitions](https://acleddata.com/methodology/acled-codebook) · [MIMU boundaries](https://geonode.themimu.info/layers/geonode%3Ammr_polbnda_adm3_250k_mimu_1)
+[Submission hub](Take-home_Ex02.html) · [Technical report](Take-home_Ex02-report.html) · [ACLED definitions](https://acleddata.com/methodology/acled-codebook) · [MIMU boundaries](https://geonode.themimu.info/layers/geonode%3Ammr_polbnda_adm3_250k_mimu_1)
 
 ::: notes
 This is the tenth substantive slide. The title slide is additional. The technical report contains sources, code, full maps, FDR checks and reproducibility instructions. No analysis here supports operational deployment, present-day travel advice or causal claims about conflict drivers.

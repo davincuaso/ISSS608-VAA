@@ -116,9 +116,9 @@ Build a Hunan space-time cube, calculate annual local Gi*, test county trends wi
 ::: {.exercise-card}
 ### [In-Class Exercise 6](In-class_Ex/In-class_Ex06/In-class_Ex06.qmd)
 
-**Emerging Hot Spot Analysis · Chapter 11**
+**EHSA Method Audit · Chapter 11**
 
-Work through the Hunan cube, interactive Gi* chart, trend tests, EHSA classes, and a multiple-testing check.
+Re-run the Hunan cube with explicit positive-self Gi* weights, an interactive Gi* chart, EHSA classes, and a multiple-testing check.
 :::
 
 :::
@@ -139,7 +139,7 @@ Submission hub for the executive summary, technical report, data record, and rep
 
 **Myanmar conflict geography**
 
-Read the [technical report](Take-home_Ex/Take-home_Ex02/Take-home_Ex02.qmd), [ten-slide summary](Take-home_Ex/Take-home_Ex02/Executive-summary.qmd), and [reproducible project](https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex02).
+Open the submission hub for the [technical report](Take-home_Ex/Take-home_Ex02/Take-home_Ex02-report.qmd), [ten-slide summary](Take-home_Ex/Take-home_Ex02/Executive-summary.qmd), and [reproducible project](https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex02).
 :::
 
 ::: {.exercise-card}

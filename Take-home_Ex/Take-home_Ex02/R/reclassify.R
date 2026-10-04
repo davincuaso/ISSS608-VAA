@@ -1,6 +1,5 @@
 # Reuse the already computed permutation results; no new random draws.
-library(dplyr)
-library(Kendall)
+pacman::p_load(dplyr, Kendall)
 source("R/classify.R")
 for (metric in c("events", "fatalities")) {
     eh <- read.csv(paste0("results/ehsa-", metric, ".csv"))

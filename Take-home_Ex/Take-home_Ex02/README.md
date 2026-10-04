@@ -1,8 +1,10 @@
-# Take-home Exercise 2 — Myanmar conflict geography
+# Take-home Exercise 2: Myanmar conflict geography
 
-Open `Take-home_Ex02.html` for the technical report and `Executive-summary.html`
-for the ten-slide executive summary (plus cover). Both HTML files embed their
-figures and styles. Keep them together for the slide-to-report link.
+Open `Take-home_Ex02.html` for the submission hub, `Take-home_Ex02-report.html`
+for the technical report, and `Executive-summary.html`
+for the ten-slide executive summary (plus cover). On the coursework site, the
+report uses the shared site styles and linked figure assets. The slides embed
+their figures and styles. Keep the files together for the slide-to-report link.
 
 ## Reproduce
 
@@ -10,12 +12,12 @@ figures and styles. Keep them together for the slide-to-report link.
 2. Restore the course-supplied `ACLED_Data_Myanmar_Jan2021-Sep2025.csv` under
    `data/private/`. Alternatively, set `ACLED_CSV` to the authorised local file path.
    The shareable ZIP intentionally excludes this file.
-3. From this directory run `quarto render Take-home_Ex02.qmd`.
+3. From this directory run `quarto render Take-home_Ex02-report.qmd`.
    The default recomputes all analyses and figures from the raw input.
 4. Run `quarto render Executive-summary.qmd`.
 
 For presentation-only edits after a successful full run:
-`quarto render Take-home_Ex02.qmd -P recompute:false`.
+`quarto render Take-home_Ex02-report.qmd -P recompute:false`.
 This mode reads existing results and redraws figures; it does not recompute permutations.
 
 The local verified run uses R 4.6.1, sf 1.1.2, spdep 1.4-2 and Kendall 2.2.2.
@@ -48,7 +50,8 @@ not an exact reproduction of ArcGIS's EHSA tool.
 
 ## Publication
 
-- [Technical report](https://isss-608-vaa-snowy.vercel.app/Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html)
+- [Submission hub](https://isss-608-vaa-snowy.vercel.app/Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html)
+- [Technical report](https://isss-608-vaa-snowy.vercel.app/Take-home_Ex/Take-home_Ex02/Take-home_Ex02-report.html)
 - [Executive summary](https://isss-608-vaa-snowy.vercel.app/Take-home_Ex/Take-home_Ex02/Executive-summary.html)
 - [Reproducible source](https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex02)
 

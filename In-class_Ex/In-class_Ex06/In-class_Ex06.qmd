@@ -1,6 +1,6 @@
 ---
 title: "In-Class Exercise 6"
-subtitle: "Emerging Hot Spot Analysis"
+subtitle: "Emerging Hot Spot Analysis: Method Audit"
 author: "Davin Cuaso"
 date: 2026-10-03
 date-modified: last-modified
@@ -19,7 +19,7 @@ execute:
 
 ## Overview
 
-This exercise works through [Chapter 11: Emerging Hot Spot Analysis](https://r4gdsa.netlify.app/chap11), using the supplied Hunan county and GDP-per-capita files. Code is adapted for the installed package versions, with extra checks and explanations. Emerging Hot Spot Analysis (EHSA) looks beyond a single map. It identifies where local hot spots and cold spots occur in each year, tests whether those local patterns are changing, and gives each county a final pattern label.
+This exercise works through [Chapter 11: Emerging Hot Spot Analysis](https://r4gdsa.netlify.app/chap11), using the supplied Hunan county and GDP-per-capita files. It is a method-audit extension of In-Class Exercise 5, so it records the weighting choice, package-version behaviour and multiple-testing check more explicitly. Emerging Hot Spot Analysis (EHSA) looks beyond a single map. It identifies where local hot spots and cold spots occur in each year, tests whether those local patterns are changing, and gives each county a final pattern label.
 
 The workflow has four parts:
 
@@ -32,17 +32,11 @@ The workflow has four parts:
 #| label: setup
 #| include: false
 
-library(sf)
-library(sfdep)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(plotly)
-library(Kendall)
-library(stringr)
+pacman::p_load(sf, sfdep, tmap, plotly, tidyverse, Kendall, knitr)
 
 options(scipen = 999)
 theme_set(theme_minimal(base_size = 12))
+tmap_mode("plot")
 set.seed(6262026)
 data_path <- "data"
 ```
@@ -56,7 +50,7 @@ The two datasets are the files distributed with the course exercise.
 | Hunan county boundary | [Course Hunan boundary file](https://github.com/tskam/ISSS626-AY2026-27Aug/tree/master/In-class_Ex/In-class_Ex05/data/geospatial) | County geometry and spatial relationships |
 | Hunan_GDPPC.csv | [Course Hunan GDPPC file](https://github.com/tskam/ISSS626-AY2026-27Aug/blob/master/In-class_Ex/In-class_Ex05/data/aspatial/Hunan_GDPPC.csv) | Annual county GDP per capita from 2005 to 2021 |
 
-`st_read()` imports the polygons and `st_transform()` places them in EPSG 32650, a projected coordinate system measured in metres. `read.csv()` imports the time-series table.
+`st_read()` imports the polygons and `st_transform()` places them in EPSG 32650, a projected coordinate system measured in metres. `read_csv()` imports the time-series table.
 
 ```{r}
 #| label: import-data
@@ -68,7 +62,10 @@ hunan <- st_read(
 ) %>%
   st_transform(crs = 32650)
 
-GDPPC <- read.csv(file.path(data_path, "aspatial", "Hunan_GDPPC.csv"))
+GDPPC <- read_csv(
+  file.path(data_path, "aspatial", "Hunan_GDPPC.csv"),
+  show_col_types = FALSE
+)
 # Sort keys before constructing the cube and its aligned neighbour columns.
 GDPPC <- arrange(GDPPC, Year, County)
 hunan <- arrange(hunan, County)
@@ -144,7 +141,7 @@ The `TRUE` result means that the location and time identifiers form a regular cu
 
 ### Deriving spatial weights
 
-The chapter workflow first activates the cube's geometry context. `st_contiguity()` finds counties that touch, while `include_self()` includes the county itself as required by Gi*. `st_inverse_distance()` gives closer neighbours more influence. `set_nbs()` and `set_wts()` then copy the same spatial structure to every annual slice.
+The chapter workflow first activates the cube's geometry context. `st_contiguity()` finds counties that share an edge or corner. `include_self()` adds each county to its own neighbour list, which is required for Gi*. `st_weights(style = "W")` gives every county a positive self-weight and row-standardises the list so that its weights add to 1. `set_nbs()` and `set_wts()` then copy the same spatial structure to every annual slice.
 
 ```{r}
 #| label: spatial-weights
@@ -153,12 +150,7 @@ GDPPC_nb <- GDPPC_st %>%
   activate("geometry") %>%
   mutate(
     nb = include_self(st_contiguity(geometry)),
-    wt = st_inverse_distance(
-      nb,
-      geometry,
-      scale = 1,
-      alpha = 1
-    ),
+    wt = st_weights(nb, style = "W"),
     .before = 1
   ) %>%
   set_nbs("nb") %>%
@@ -176,7 +168,7 @@ weight_check <- GDPPC_nb %>%
 knitr::kable(weight_check, caption = "Neighbour-list check")
 ```
 
-In sfdep 0.2.5, a zero-distance inverse weight is set to zero. The self-link is therefore present but contributes no GDPPC to this intermediate weighted sum. I retain that setting to reproduce the chapter, but it differs from the usual positive-self-weight Gi*. The final EHSA call below uses its own contiguity weights with a positive self-weight.
+This is a genuine Gi* specification because the self-link has a positive weight. It also keeps the annual calculation conceptually aligned with the contiguity weights used inside the final EHSA function.
 
 The order of the records must not be changed after `set_nbs()` and `set_wts()`. These list-columns are aligned to the rows of each time slice.
 
@@ -316,7 +308,7 @@ The three smallest p-values belong to `r paste(emerging$County[1:3], collapse = 
 
 ## Performing Emerging Hot Spot Analysis
 
-`emerging_hotspot_analysis()` combines the annual Gi* histories with the Mann-Kendall trend. Following the chapter, one time lag and 99 simulations are used. The package’s classification threshold is explicitly set to 0.01, its current default. This final call builds its own row-standardised contiguity weights; it does **not** inherit the inverse-distance weights used above. Its output `p_value` is the Mann–Kendall trend p-value. The internal bin test uses a folded simulation tail; it should not be described as a two-sided 5% test or as FDR-adjusted. The chapter introduces FDR conceptually, but this call does not apply it.
+`emerging_hotspot_analysis()` combines the annual Gi* histories with the Mann-Kendall trend. Following the chapter, one time lag and 99 simulations are used. The package's classification threshold is explicitly set to 0.01, its current default. This final call builds its own row-standardised contiguity weights rather than inheriting the stored list-columns above. Its output `p_value` is the Mann-Kendall trend p-value. The internal bin test uses a folded simulation tail; it should not be described as a two-sided 5% test or as FDR-adjusted. The chapter introduces FDR conceptually, but this call does not apply it.
 
 ```{r}
 #| label: run-ehsa
@@ -402,17 +394,24 @@ ehsa_colours <- c(
   "No pattern detected" = "#bdbdbd"
 )
 
-# ggplot2 provides the same categorical map without tmap version dependencies.
-# Neutral background counties remain visible; only trend-significant classes are coloured.
-ggplot(hunan_ehsa) +
-  geom_sf(fill = "#f0f2f4", colour = "#9e9e9e", linewidth = 0.2) +
-  geom_sf(data = ehsa_sig, aes(fill = classification), colour = "white", linewidth = 0.25) +
-  scale_fill_manual(values = ehsa_colours, name = "EHSA class") +
-  coord_sf(datum = NA) +
-  labs(title = "Emerging GDPPC hot and cold spot patterns",
-       caption = "Only counties with Mann–Kendall p < 0.05 are coloured; grey is not evidence of no clustering.") +
-  theme(legend.position = "bottom", axis.text = element_blank(),
-        axis.title = element_blank(), panel.grid = element_blank())
+tm_shape(hunan_ehsa) +
+  tm_polygons(fill = "#f0f2f4", col = "#9e9e9e", lwd = 0.5) +
+  tm_shape(ehsa_sig) +
+  tm_polygons(
+    fill = "classification",
+    fill.scale = tm_scale_categorical(values = ehsa_colours),
+    fill.legend = tm_legend(
+      title = "EHSA class",
+      position = tm_pos_out("right", "center")
+    ),
+    col = "white",
+    lwd = 0.6
+  ) +
+  tm_title("Emerging GDPPC hot and cold spot patterns") +
+  tm_credits(
+    "Only counties with Mann-Kendall p < 0.05 are coloured; grey is not evidence of no clustering.",
+    position = tm_pos_out("center", "bottom")
+  )
 
 ```
 
@@ -433,7 +432,7 @@ The labels summarise both the timing of significant Gi* results and the trend in
 
 The hot spot and cold spot versions use the same timing rules. Their difference is the sign of the underlying local Gi* pattern.
 
-The classification follows the [sfdep implementation](https://github.com/JosiahParry/sfdep). The [spdep Gi* documentation](https://r-spatial.github.io/spdep/reference/localG.html) explains the local statistic and self-neighbour convention; the [Mann–Kendall reference](https://vsp.pnnl.gov/help/vsample/design_trend_mann_kendall.htm) explains the trend test. The chart and map use plotly and ggplot2 for display; their drawing code does not affect the statistics.
+The classification follows the [sfdep implementation](https://github.com/JosiahParry/sfdep). The [spdep Gi* documentation](https://r-spatial.github.io/spdep/reference/localG.html) explains the local statistic and self-neighbour convention; the [Mann-Kendall reference](https://vsp.pnnl.gov/help/vsample/design_trend_mann_kendall.htm) explains the trend test. The chart and map use plotly and tmap for display; their drawing code does not affect the statistics.
 
 ## Multiple-testing check
 
@@ -451,7 +450,7 @@ knitr::kable(data.frame(
 ## Assumptions and limitations
 
 - County boundaries and neighbour relationships are treated as constant from 2005 to 2021.
-- Inverse-distance weights assume that nearby contiguous counties exert more spatial influence than farther contiguous counties. The final EHSA instead uses its own contiguity weights, so the annual-Gi* trend results and EHSA classes should be compared with that difference in mind.
+- Queen contiguity treats every touching county as a neighbour, whether it shares a boundary segment or only a corner. Row standardisation gives each county the same total outgoing weight, but individual links from counties with many neighbours are smaller.
 - The Mann-Kendall test detects a monotonic direction. It does not require a straight-line trend, but its usual p-value assumes independent observations. Serial dependence can make apparent trends look more convincing than they are.
 - GDPPC is analysed as supplied. Without a price adjustment, changes in the raw values may include inflation. The Gi* trend should therefore be read as a change in relative local clustering, not as a pure measure of real economic growth.
 - With 99 simulations in the EHSA step, the permutation p-values have fairly coarse resolution. More simulations would provide more stable tail probabilities at the cost of longer computation.

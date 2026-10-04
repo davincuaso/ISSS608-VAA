@@ -1,7 +1,4 @@
-library(sf)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
+pacman::p_load(sf, dplyr, tidyr, ggplot2, scales)
 a <- readRDS("results/analysis.rds")
 b <- a$boundaries
 cube <- a$cube
