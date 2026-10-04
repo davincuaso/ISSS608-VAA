@@ -1096,7 +1096,7 @@
     "href": "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html#references-and-acknowledgements",
     "title": "Where recorded violence clusters in Myanmar",
     "section": "References and acknowledgements",
-    "text": "References and acknowledgements\n\nISSS626 Take-home Exercise 2 brief: task, period and submission requirements.\nACLED codebook: event definitions and measurement fields. Data: user-supplied course extract, accessed 3 October 2026.\nMIMU v9.4 township boundaries: official polygon layer, downloaded 3 October 2026.\nspdep Local Moran and Gi*: implemented statistics and conditional permutations.\nKendall package: Mann–Kendall trend test implementation.\nEsri EHSA definitions: history categories, adapted as documented above.\n\nI reviewed the submissions by Christover Manafe, Teng Kok Wai, and Matthew Ho. They informed the use of explicit data checks, short interpretations beside maps and comparisons between assumptions. The Myanmar analysis, code and interpretations here were developed for the supplied data rather than copied from those submissions."
+    "text": "References and acknowledgements\n\nISSS626 Take-home Exercise 2 brief: task, period and submission requirements.\nACLED codebook: event definitions and measurement fields. Data: user-supplied course extract, accessed 3 October 2026.\nMIMU v9.4 township boundaries: official polygon layer, downloaded 3 October 2026.\nspdep Local Moran and Gi*: implemented statistics and conditional permutations.\nKendall package: Mann–Kendall trend test implementation.\nEsri EHSA definitions: history categories, adapted as documented above."
   },
   {
     "objectID": "Take-home_Ex/Take-home_Ex02/Executive-summary.html#what-the-analysis-asks",

@@ -340,5 +340,3 @@ cat(readLines("results/session-info.txt"), sep="\n")
 - [spdep Local Moran](https://r-spatial.github.io/spdep/reference/localmoran.html) and [Gi*](https://r-spatial.github.io/spdep/reference/localG.html): implemented statistics and conditional permutations.
 - [Kendall package](https://cran.r-project.org/package=Kendall): Mann–Kendall trend test implementation.
 - [Esri EHSA definitions](https://doc.esri.com/en/arcgis-pro/latest/tool-reference/space-time-pattern-mining/learnmoreemerging.html): history categories, adapted as documented above.
-
-I reviewed the submissions by [Christover Manafe](https://isss626-camanafe.netlify.app/take_home_ex/take_home_ex02/take_home_ex02), [Teng Kok Wai](https://isss626-gaa.netlify.app/take-home_ex/take-home_ex02/take-home_ex02), and [Matthew Ho](https://is415-gaa-matthew-ho.netlify.app/takehomeex/takehomeex2/the2). They informed the use of explicit data checks, short interpretations beside maps and comparisons between assumptions. The Myanmar analysis, code and interpretations here were developed for the supplied data rather than copied from those submissions.
