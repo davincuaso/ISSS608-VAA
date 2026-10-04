@@ -1,6 +1,6 @@
 ---
-title: "Where recorded violence clusters in Myanmar"
-subtitle: "ISSS626 Take-home Exercise 2 · January 2021–September 2025"
+title: "Take-home Exercise 2: Technical Report"
+subtitle: "Recorded violence in Myanmar, January 2021–September 2025"
 author: "Davin Cuaso"
 date: 2026-10-03
 date-modified: last-modified
