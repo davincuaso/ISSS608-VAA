@@ -52,6 +52,5 @@ not an exact reproduction of ArcGIS's EHSA tool.
 - [Executive summary](https://isss-608-vaa-snowy.vercel.app/Take-home_Ex/Take-home_Ex02/Executive-summary.html)
 - [Reproducible source](https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex02)
 
-The coursework site uses the repository's connected Vercel deployment. The live
-links should be checked after the Git push completes. Submission through eLearn
-remains the student's own step.
+The coursework site uses the repository's connected Vercel deployment. The report and slides were checked on the live site on 4 October 2026. Submission
+through eLearn remains the student's own step.
