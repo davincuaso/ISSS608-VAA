@@ -1,0 +1,67 @@
+{
+  "visual_commentary_word_counts": [
+    {
+      "figure": "fig-geographical-reference",
+      "words": 51
+    },
+    {
+      "figure": "fig-monthly",
+      "words": 61
+    },
+    {
+      "figure": "fig-event-distribution",
+      "words": 69
+    },
+    {
+      "figure": "fig-fatality-distribution",
+      "words": 53
+    },
+    {
+      "figure": "fig-lisa-events",
+      "words": 62
+    },
+    {
+      "figure": "fig-lisa-fatalities",
+      "words": 61
+    },
+    {
+      "figure": "fig-gi-events",
+      "words": 71
+    },
+    {
+      "figure": "fig-gi-fatalities",
+      "words": 70
+    },
+    {
+      "figure": "fig-ehsa-events-significant",
+      "words": 78
+    },
+    {
+      "figure": "fig-ehsa-fatalities-significant",
+      "words": 57
+    },
+    {
+      "figure": "fig-trajectories",
+      "words": 67
+    },
+    {
+      "figure": "fig-robustness",
+      "words": 81
+    },
+    {
+      "figure": "fig-centre-shift",
+      "words": 88
+    },
+    {
+      "figure": "fig-full-history-events",
+      "words": 52
+    },
+    {
+      "figure": "fig-full-history-fatalities",
+      "words": 41
+    }
+  ],
+  "substantive_slides": 10,
+  "full_pipeline": "Successful raw-data render on 2026-10-03; later changes only affected presentation.",
+  "statistical_checks": "R/validate.R passed."
+}

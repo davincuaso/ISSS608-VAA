@@ -1,0 +1,15 @@
+.Rhistory
+.RData
+.Rproj.user/
+.Rlibrary/
+.quarto/
+*_files/
+*.rmarkdown
+*.knit.md
+data/private/*
+!data/private/README.md
+results/excluded-spatial-records.csv
+.DS_Store
+
+/.quarto/
+**/*.quarto_ipynb

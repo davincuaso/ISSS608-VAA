@@ -1,0 +1,331 @@
+"TS_PCODE","TS","ST","tau","mk_p","hot_months","cold_months","classification","fdr_classification","mk_q","sen_z_per_year"
+"MMR001001","Myitkyina","Kachin",0.0736086666584015,0.424414873123169,7,2,"No pattern detected","No pattern detected",0.482954855622916,0.0998513412116916
+"MMR001002","Waingmaw","Kachin",0.0183261018246412,0.847026348114014,6,0,"No pattern detected","No pattern detected",0.873495921492577,0.0136787781366989
+"MMR001003","Injangyang","Kachin",0.120723351836205,0.192523956298828,0,2,"No pattern detected","No pattern detected",0.244089029301172,0.0773136678240266
+"MMR001004","Tanai","Kachin",-0.0568198077380657,0.539817631244659,1,3,"No pattern detected","No pattern detected",0.584064978067992,-0.0723241620290389
+"MMR001005","Chipwi","Kachin",0.227175638079643,0.013859748840332,1,3,"No pattern detected","No pattern detected",0.0241191951852096,0.151269848815552
+"MMR001006","Tsawlaw","Kachin",0.0789027884602547,0.42101514339447,0,31,"No pattern detected","No pattern detected",0.480743935363928,0
+"MMR001007","Mohnyin","Kachin",0.0679679363965988,0.461219906806946,15,1,"Oscillating hot spot","No pattern detected",0.514197869075311,0.103489218898165
+"MMR001008","Mogaung","Kachin",0.0334925316274166,0.720163464546204,10,0,"Sporadic hot spot","Consecutive hot spot",0.756859692039004,0.0483807094214882
+"MMR001009","Hpakant","Kachin",0.143760725855827,0.117923855781555,0,2,"No pattern detected","No pattern detected",0.160143507851495,0.239635035645009
+"MMR001010","Bhamo","Kachin",0.135779410600662,0.140382766723633,6,2,"No pattern detected","No pattern detected",0.187555923153032,0.19484234718623
+"MMR001011","Shwegu","Kachin",0.0682706832885742,0.460993051528931,0,2,"No pattern detected","No pattern detected",0.514197869075311,0.0730658801948364
+"MMR001012","Momauk","Kachin",0.212690979242325,0.0206347703933716,8,0,"No pattern detected","No pattern detected",0.0338779812428489,0.337179965274368
+"MMR001013","Mansi","Kachin",0.159372359514236,0.0826550722122192,7,1,"No pattern detected","No pattern detected",0.117618136172151,0.197218473371428
+"MMR001014","Puta-O","Kachin",-0.343834578990936,0.000240541630773805,0,23,"Sporadic cold spot","No pattern detected",0.000596832617709441,-0.112991158575984
+"MMR001015","Sumprabum","Kachin",-0.365229368209839,7.59200411266647e-05,0,17,"No pattern detected","No pattern detected",0.000203687915217881,-0.141461602359179
+"MMR001016","Machanbaw","Kachin",-0.284422278404236,0.00302553293295205,0,36,"Sporadic cold spot","No pattern detected",0.0061253120728477,-0.0446709231579488
+"MMR001017","Nawngmun","Kachin",-0.297365069389343,0.00245650601573288,0,31,"No pattern detected","No pattern detected",0.00513067712146742,-0.0265118644884311
+"MMR001018","Khaunglanhpu","Kachin",-0.182822033762932,0.0558290109038353,0,44,"No pattern detected","No pattern detected",0.0822480964208288,-0.02248180929072
+"MMR002001","Loikaw","Kayah",-0.10327585786581,0.261637777090073,8,4,"No pattern detected","No pattern detected",0.316474964985481,-0.168756378067758
+"MMR002002","Demoso","Kayah",-0.266123622655869,0.00366115127690136,19,3,"No pattern detected","No pattern detected",0.00715634468722449,-0.64028323193058
+"MMR002003","Hpruso","Kayah",-0.113801375031471,0.215191528201103,16,4,"No pattern detected","No pattern detected",0.266966933482572,-0.215876464212016
+"MMR002004","Shadaw","Kayah",-0.1621373295784,0.0788907557725906,0,3,"No pattern detected","No pattern detected",0.113191084369369,-0.137203549699411
+"MMR002005","Bawlake","Kayah",-0.249058380723,0.00652944389730692,8,4,"No pattern detected","No pattern detected",0.0122427073074505,-0.535558219822651
+"MMR002006","Hpasawng","Kayah",-0.0859157219529152,0.352380961179733,0,0,"No pattern detected","No pattern detected",0.413828175050932,-0.0751811041872425
+"MMR002007","Mese","Kayah",-0.0759532600641251,0.4122414290905,0,0,"No pattern detected","No pattern detected",0.472359970832864,-0.0645400667294261
+"MMR003001","Hpa-An","Kayin",0.337226301431656,0.000235080718994141,20,0,"Sporadic hot spot","No pattern detected",0.000592188070748598,0.457294381127663
+"MMR003002","Hlaingbwe","Kayin",0.303722560405731,0.000923633575439453,31,0,"Sporadic hot spot","Sporadic hot spot",0.00207346312853755,0.688334506371906
+"MMR003003","Hpapun","Kayin",0.565684735774994,0,10,0,"No pattern detected","No pattern detected",0,0.787289324742503
+"MMR003004","Thandaunggyi","Kayin",0.445981293916702,1.07288360595703e-06,16,1,"No pattern detected","No pattern detected",3.93390655517578e-06,0.774997345452892
+"MMR003005","Myawaddy","Kayin",0.420095175504684,4.29153442382812e-06,24,0,"Sporadic hot spot","Sporadic hot spot",1.41620635986328e-05,1.13784810918717
+"MMR003006","Kawkareik","Kayin",0.449627846479416,9.5367431640625e-07,18,2,"Oscillating hot spot","Oscillating hot spot",3.53609577993329e-06,0.988253308145461
+"MMR003007","Kyainseikgyi","Kayin",0.39196103811264,1.78813934326172e-05,28,1,"Oscillating hot spot","Oscillating hot spot",5.26862485068185e-05,0.879442971498305
+"MMR004001","Falam","Chin",-0.159170866012573,0.0826891139149666,13,1,"No pattern detected","No pattern detected",0.117618136172151,-0.295372438714593
+"MMR004002","Hakha","Chin",-0.21830178797245,0.0174793023616076,18,2,"No pattern detected","No pattern detected",0.0295803578427205,-0.51668015280634
+"MMR004003","Thantlang","Chin",-0.12752890586853,0.166183203458786,1,2,"No pattern detected","No pattern detected",0.215907311580313,-0.153390073111619
+"MMR004004","Tedim","Chin",-0.0630930066108704,0.495268225669861,11,1,"No pattern detected","No pattern detected",0.541187134010113,-0.114239579068981
+"MMR004005","Tonzang","Chin",-0.0226559769362211,0.809537827968597,17,1,"No pattern detected","No pattern detected",0.842736540156584,-0.0484103422231703
+"MMR004006","Mindat","Chin",-0.20019568502903,0.02948834374547,3,3,"No pattern detected","No pattern detected",0.0465605427560053,-0.292263520779345
+"MMR004007","Matupi","Chin",-0.189938455820084,0.0382069125771523,7,1,"No pattern detected","No pattern detected",0.0586431681416756,-0.392930609701483
+"MMR004008","Kanpetlet","Chin",-0.112900614738464,0.220179200172424,3,2,"No pattern detected","No pattern detected",0.272131595718727,-0.132847054899702
+"MMR004009","Paletwa","Chin",-0.077987976372242,0.397013157606125,7,4,"No pattern detected","No pattern detected",0.456495965191712,-0.101253826840655
+"MMR005001","Sagaing","Sagaing",0.17200280725956,0.0601643323898315,29,5,"No pattern detected","No pattern detected",0.0878505738435593,0.515588955252382
+"MMR005002","Myinmu","Sagaing",0.0464533120393753,0.615250825881958,41,3,"No pattern detected","No pattern detected",0.657063988805975,0.220210653871191
+"MMR005003","Myaung","Sagaing",0.101354598999023,0.270537853240967,40,3,"No pattern detected","No pattern detected",0.32464542388916,0.308550651968289
+"MMR005004","Shwebo","Sagaing",-0.0415885671973228,0.654366195201874,33,4,"No pattern detected","No pattern detected",0.692118091078905,-0.17753727029798
+"MMR005005","Khin-U","Sagaing",0.123349212110043,0.179324269294739,39,3,"Oscillating hot spot","No pattern detected",0.230260734892077,0.389684694372465
+"MMR005006","Wetlet","Sagaing",0.178504958748817,0.0513442754745483,44,4,"No pattern detected","No pattern detected",0.076667922654303,0.697433711829238
+"MMR005007","Kanbalu","Sagaing",-0.0948196947574615,0.301713883876801,27,4,"No pattern detected","No pattern detected",0.35814957438613,-0.308205103080235
+"MMR005008","Kyunhla","Sagaing",-0.147078037261963,0.108644187450409,3,5,"No pattern detected","No pattern detected",0.149385757744312,-0.271283585427593
+"MMR005009","Ye-U","Sagaing",-0.269558072090149,0.00320912222377956,36,4,"No pattern detected","No pattern detected",0.00641824444755912,-0.99382536358048
+"MMR005010","Tabayin","Sagaing",-0.0866836905479431,0.345544815063477,35,3,"No pattern detected","No pattern detected",0.407249246324812,-0.270597837384097
+"MMR005011","Taze","Sagaing",-0.164620459079742,0.073310911655426,13,4,"No pattern detected","No pattern detected",0.105644545180308,-0.320141615965292
+"MMR005012","Monywa","Sagaing",-0.133166253566742,0.14628192782402,43,3,"Oscillating hot spot","No pattern detected",0.194649339443253,-0.541195674768183
+"MMR005013","Budalin","Sagaing",-0.230892136693001,0.0117239942774177,37,2,"Oscillating hot spot","No pattern detected",0.0209130708732315,-0.73065880194835
+"MMR005014","Ayadaw","Sagaing",-0.0502514131367207,0.586491584777832,42,3,"Oscillating hot spot","No pattern detected",0.628383840833391,-0.270597837384069
+"MMR005015","Chaung-U","Sagaing",-0.102821335196495,0.261811107397079,41,3,"No pattern detected","No pattern detected",0.316474964985481,-0.514717216631003
+"MMR005016","Yinmarbin","Sagaing",-0.190507277846336,0.037568636238575,41,2,"Oscillating hot spot","No pattern detected",0.057932943732382,-0.730658801948358
+"MMR005017","Kani","Sagaing",-0.281947284936905,0.00203911052085459,27,3,"No pattern detected","No pattern detected",0.00434133207665816,-0.782963844996186
+"MMR005018","Salingyi","Sagaing",-0.050863541662693,0.58177125453949,48,3,"Oscillating hot spot","No pattern detected",0.625356723120624,-0.350432603071946
+"MMR005019","Pale","Sagaing",-0.100629650056362,0.27357006072998,41,2,"Oscillating hot spot","No pattern detected",0.327094637829324,-0.397407412158207
+"MMR005020","Katha","Sagaing",-0.131150141358376,0.153922364115715,1,2,"No pattern detected","No pattern detected",0.203177520632744,-0.255150692743872
+"MMR005021","Indaw","Sagaing",-0.119648866355419,0.193052232265472,5,4,"No pattern detected","No pattern detected",0.244089029301172,-0.206332219819306
+"MMR005022","Tigyaing","Sagaing",0.078542560338974,0.393219828605652,11,4,"No pattern detected","No pattern detected",0.455307169964439,0.202507653681313
+"MMR005023","Banmauk","Sagaing",0.118096508085728,0.200068116188049,1,2,"No pattern detected","No pattern detected",0.251994192145253,0.123350442755606
+"MMR005024","Kawlin","Sagaing",0.00188859505578876,0.98901104927063,5,4,"No pattern detected","No pattern detected",0.992017161882395,0
+"MMR005025","Wuntho","Sagaing",-0.0698780193924904,0.448747605085373,4,3,"No pattern detected","No pattern detected",0.505415391393082,-0.138354439808709
+"MMR005026","Pinlebu","Sagaing",0.042393684387207,0.649301528930664,1,9,"No pattern detected","No pattern detected",0.688969467997168,0.0268783576192413
+"MMR005027","Kale","Sagaing",-0.221525222063065,0.015375898219645,6,3,"No pattern detected","No pattern detected",0.0262903959196003,-0.452869075101846
+"MMR005028","Kalewa","Sagaing",-0.214108496904373,0.0195632446557283,10,1,"No pattern detected","No pattern detected",0.0322793536819518,-0.358558609881126
+"MMR005029","Mingin","Sagaing",-0.274584800004959,0.00268172053620219,27,2,"No pattern detected","No pattern detected",0.00553104860591702,-0.67502551227103
+"MMR005030","Tamu","Sagaing",0.0641919374465942,0.486728549003601,10,1,"No pattern detected","No pattern detected",0.5336226616983,0.0974211735931175
+"MMR005031","Mawlaik","Sagaing",-0.0012578705791384,0.994505763053894,9,2,"No pattern detected","No pattern detected",0.994505763053894,0
+"MMR005032","Paungbyin","Sagaing",0.114307314157486,0.214995622634888,1,5,"No pattern detected","No pattern detected",0.266966933482572,0.135298918692046
+"MMR005033","Hkamti","Sagaing",0.181477382779121,0.0480866432189941,1,1,"No pattern detected","No pattern detected",0.0721299648284912,0.21231522625521
+"MMR005034","Homalin","Sagaing",0.277432978153229,0.00249755382537842,4,3,"Oscillating hot spot","No pattern detected",0.00518360227908728,0.376842172438031
+"MMR005035","Layshi","Sagaing",0.0675253048539162,0.472543358802795,1,4,"No pattern detected","No pattern detected",0.523286269815176,0.0201708816683209
+"MMR005036","Lahe","Sagaing",-0.208372011780739,0.0451290123164654,0,28,"Sporadic cold spot","No pattern detected",0.0680026212987834,0
+"MMR005037","Nanyun","Sagaing",-0.306519478559494,0.00140185328200459,0,15,"No pattern detected","No pattern detected",0.00308407722041011,-0.0511300243705386
+"MMR006001","Dawei","Tanintharyi",0.412321329116821,6.43730163574219e-06,36,3,"Oscillating hot spot","Oscillating hot spot",2.04260532672589e-05,1.13760535419564
+"MMR006002","Launglon","Tanintharyi",0.268230468034744,0.00349485874176025,16,1,"Oscillating hot spot","Sporadic hot spot",0.00694761075169207,0.521375676706386
+"MMR006003","Thayetchaung","Tanintharyi",0.253151804208755,0.0057518482208252,23,1,"No pattern detected","No pattern detected",0.0109086776601857,0.513678384373794
+"MMR006004","Yebyu","Tanintharyi",0.192128732800484,0.0362986326217651,23,1,"Oscillating hot spot","No pattern detected",0.0562373181463967,0.395689577489784
+"MMR006005","Myeik","Tanintharyi",0.496069371700287,1.19209289550781e-07,20,4,"No pattern detected","No pattern detected",5.38891308928189e-07,0.823193392365689
+"MMR006006","Kyunsu","Tanintharyi",0.679312348365784,0,5,6,"No pattern detected","No pattern detected",0,0.715820341187556
+"MMR006007","Palaw","Tanintharyi",0.43172225356102,2.38418579101562e-06,29,1,"Oscillating hot spot","Sporadic hot spot",8.19563865661621e-06,0.918349092654729
+"MMR006008","Tanintharyi","Tanintharyi",0.453605532646179,7.15255737304688e-07,9,3,"No pattern detected","No pattern detected",2.74458596872729e-06,0.835038630798127
+"MMR006009","Kawthoung","Tanintharyi",0.382065266370773,4.9591064453125e-05,0,0,"No pattern detected","No pattern detected",0.000137521439239758,0.134962022592729
+"MMR006010","Bokpyin","Tanintharyi",0.693674385547638,0,3,7,"No pattern detected","No pattern detected",0,0.75856540612478
+"MMR007001","Bago","Bago (East)",0.495120376348495,1.19209289550781e-07,0,24,"No pattern detected","No pattern detected",5.38891308928189e-07,0.258782328629628
+"MMR007002","Thanatpin","Bago (East)",-0.208649814128876,0.0268288943916559,0,9,"No pattern detected","No pattern detected",0.0429783259672158,-0.052377098135675
+"MMR007003","Kawa","Bago (East)",-0.431518852710724,3.71918940800242e-06,0,16,"No pattern detected","No pattern detected",1.23972980266747e-05,-0.115321859931823
+"MMR007004","Waw","Bago (East)",0.527122676372528,0,2,1,"No pattern detected","No pattern detected",0,0.505697893950057
+"MMR007005","Nyaunglebin","Bago (East)",0.553501427173615,0,3,6,"No pattern detected","No pattern detected",0,0.738252990662435
+"MMR007006","Kyauktaga","Bago (East)",0.653680145740509,0,21,9,"No pattern detected","No pattern detected",0,1.32706525968602
+"MMR007007","Daik-U","Bago (East)",0.430567860603333,2.74181365966797e-06,3,3,"No pattern detected","No pattern detected",9.23263783357581e-06,0.435517328212524
+"MMR007008","Shwegyin","Bago (East)",0.591338098049164,0,29,0,"No pattern detected","No pattern detected",0,1.22527444958704
+"MMR007009","Taungoo","Bago (East)",0.547647297382355,0,1,6,"No pattern detected","No pattern detected",0,0.542703409722567
+"MMR007010","Yedashe","Bago (East)",0.549473166465759,0,0,7,"No pattern detected","No pattern detected",0,0.436418544315437
+"MMR007011","Kyaukkyi","Bago (East)",0.623980939388275,0,15,0,"No pattern detected","No pattern detected",0,1.1479975190899
+"MMR007012","Phyu","Bago (East)",0.616311490535736,0,14,6,"No pattern detected","No pattern detected",0,1.18386553855541
+"MMR007013","Oktwin","Bago (East)",0.647708654403687,0,2,4,"No pattern detected","No pattern detected",0,0.552971882121868
+"MMR007014","Htantabin","Bago (East)",0.631850063800812,0,15,0,"No pattern detected","No pattern detected",0,1.06041665598558
+"MMR008001","Pyay","Bago (West)",0.519499182701111,0,0,18,"No pattern detected","No pattern detected",0,0.213203322253668
+"MMR008002","Paukkhaung","Bago (West)",0.635224640369415,0,2,8,"No pattern detected","No pattern detected",0,0.659894938005545
+"MMR008003","Padaung","Bago (West)",0.335730761289597,0.000291943550109863,2,29,"No pattern detected","No pattern detected",0.00070839243776658,0.176349561914081
+"MMR008004","Paungde","Bago (West)",0.60625833272934,0,0,4,"No pattern detected","No pattern detected",0,0.357910170593778
+"MMR008005","Thegon","Bago (West)",0.560883522033691,0,0,4,"No pattern detected","No pattern detected",0,0.271630298797414
+"MMR008006","Shwedaung","Bago (West)",0.339304238557816,0.00026702880859375,0,14,"No pattern detected","No pattern detected",0.000652737087673611,0.135298918692054
+"MMR008007","Thayarwady","Bago (West)",0.233238577842712,0.0128417015075684,0,7,"No pattern detected","No pattern detected",0.0225412845611572,0.0640283231930577
+"MMR008008","Letpadan","Bago (West)",0.719887316226959,0,0,20,"No pattern detected","No pattern detected",0,0.611389969318196
+"MMR008009","Minhla","Bago (West)",0.785712480545044,0,0,8,"No pattern detected","No pattern detected",0,0.569673688195092
+"MMR008010","Okpho","Bago (West)",0.756816387176514,0,2,15,"No pattern detected","No pattern detected",0,0.888048120175461
+"MMR008011","Zigon","Bago (West)",0.534988164901733,0,0,4,"No pattern detected","No pattern detected",0,0.258285679899225
+"MMR008012","Nattalin","Bago (West)",0.645236492156982,0,1,16,"No pattern detected","No pattern detected",0,0.634016705142579
+"MMR008013","Monyo","Bago (West)",0.748758792877197,0,0,19,"No pattern detected","No pattern detected",0,0.485216866180551
+"MMR008014","Gyobingauk","Bago (West)",0.723966300487518,0,2,9,"No pattern detected","No pattern detected",0,0.599712123272595
+"MMR009001","Magway","Magway",0.283016383647919,0.00211930274963379,0,20,"No pattern detected","No pattern detected",0.00448314043191763,0.155760403654953
+"MMR009002","Yenangyaung","Magway",0.492425411939621,1.19209289550781e-07,1,6,"No pattern detected","No pattern detected",5.38891308928189e-07,0.412339561728143
+"MMR009003","Chauk","Magway",0.746388614177704,0,5,4,"No pattern detected","No pattern detected",0,0.861904222778964
+"MMR009004","Taungdwingyi","Magway",-0.0406495556235313,0.668249249458313,0,34,"No pattern detected","No pattern detected",0.704543937128573,0
+"MMR009005","Myothit","Magway",0.0853620171546936,0.359096169471741,0,11,"No pattern detected","No pattern detected",0.42021892172225,0.034904912463844
+"MMR009006","Natmauk","Magway",0.301264077425003,0.00115907192230225,0,22,"No pattern detected","No pattern detected",0.00256707204268283,0.12656728355082
+"MMR009007","Minbu","Magway",0.23411351442337,0.0119365453720093,1,9,"No pattern detected","No pattern detected",0.0210997664972263,0.128056646386117
+"MMR009008","Pwintbyu","Magway",0.396475702524185,1.60932540893555e-05,1,14,"No pattern detected","No pattern detected",4.8722695866856e-05,0.336499999968255
+"MMR009009","Ngape","Magway",0.451998651027679,9.5367431640625e-07,2,10,"No pattern detected","No pattern detected",3.53609577993329e-06,0.33650963480895
+"MMR009010","Salin","Magway",0.503482162952423,0,0,5,"No pattern detected","No pattern detected",0,0.463882006944159
+"MMR009011","Sidoktaya","Magway",0.495441436767578,1.19209289550781e-07,5,4,"No pattern detected","No pattern detected",5.38891308928189e-07,0.620380589849089
+"MMR009012","Thayet","Magway",0.383962720632553,3.57627868652344e-05,0,15,"No pattern detected","No pattern detected",0.000102623649265455,0.116905408311737
+"MMR009013","Minhla","Magway",0.498596340417862,0,1,16,"No pattern detected","No pattern detected",0,0.318325984468896
+"MMR009014","Mindon","Magway",0.522961676120758,0,3,15,"No pattern detected","No pattern detected",0,0.269781711488625
+"MMR009015","Kamma","Magway",0.526565492153168,0,0,18,"No pattern detected","No pattern detected",0,0.292263520779345
+"MMR009016","Aunglan","Magway",0.527329325675964,0,0,15,"No pattern detected","No pattern detected",0,0.290184490969681
+"MMR009017","Sinbaungwe","Magway",0.0680114552378654,0.468419909477234,0,18,"No pattern detected","No pattern detected",0.520466566085815,0.0169123648365037
+"MMR009018","Pakokku","Magway",0.340667933225632,0.00019526481628418,43,4,"Oscillating hot spot","Oscillating hot spot",0.000495672225952148,0.880217926512503
+"MMR009019","Yesagyo","Magway",0.253380954265594,0.00563657283782959,46,3,"Oscillating hot spot","No pattern detected",0.0107518441415247,1.01253826840649
+"MMR009020","Myaing","Magway",0.0822607949376106,0.370760917663574,47,4,"Oscillating hot spot","No pattern detected",0.432336052399221,0.395251618577781
+"MMR009021","Pauk","Magway",0.0433554947376251,0.63962984085083,41,3,"Oscillating hot spot","No pattern detected",0.680896282196045,0.148264532159532
+"MMR009022","Seikphyu","Magway",0.56891679763794,0,21,4,"Oscillating hot spot","No pattern detected",0,0.755730427505412
+"MMR009023","Gangaw","Magway",-0.265788018703461,0.0036649159155786,35,3,"Oscillating hot spot","No pattern detected",0.00715634468722449,-0.765820219846423
+"MMR009024","Tilin","Magway",-0.192090719938278,0.0357400737702847,18,2,"No pattern detected","No pattern detected",0.0558967978397817,-0.392550023007554
+"MMR009025","Saw","Magway",0.220685318112373,0.0162293910980225,1,4,"No pattern detected","No pattern detected",0.0276066961976671,0.243384198591054
+"MMR010001","Aungmyaythazan","Mandalay",-0.379895031452179,4.17120027123019e-05,0,0,"No pattern detected","No pattern detected",0.000117649238419313,-0.241066634572608
+"MMR010002","Chanayethazan","Mandalay",-0.440600842237473,1.72418037891475e-06,0,1,"No pattern detected","No pattern detected",5.98925815833546e-06,-0.357910170593778
+"MMR010003","Mahaaungmyay","Mandalay",-0.55294269323349,1.731355392387e-09,1,2,"No pattern detected","No pattern detected",1.14269455897542e-08,-0.512226585544467
+"MMR010004","Chanmyathazi","Mandalay",-0.500025629997253,5.42552669458018e-08,0,2,"Sporadic cold spot","No pattern detected",2.79753720189291e-07,-0.488731598602476
+"MMR010005","Pyigyitagon","Mandalay",-0.446736454963684,1.26261659261218e-06,0,0,"No pattern detected","No pattern detected",4.52895082132628e-06,-0.357910170593778
+"MMR010006","Amarapura","Mandalay",-0.192494794726372,0.0362602509558201,0,3,"No pattern detected","No pattern detected",0.0562373181463967,-0.272606456878683
+"MMR010007","Patheingyi","Mandalay",-0.0597677193582058,0.517443358898163,4,3,"No pattern detected","No pattern detected",0.561698383014453,-0.0863633405490025
+"MMR010008","Pyinoolwin","Mandalay",0.707775592803955,0,15,4,"No pattern detected","No pattern detected",0,1.16905408311738
+"MMR010009","Madaya","Mandalay",0.653690695762634,0,28,4,"No pattern detected","No pattern detected",0,1.88289034325871
+"MMR010010","Singu","Mandalay",0.524334073066711,0,47,4,"Oscillating hot spot","Oscillating hot spot",0,1.82168017798765
+"MMR010011","Mogoke","Mandalay",0.526788532733917,0,17,0,"Sporadic hot spot","Sporadic hot spot",0,1.20567697503755
+"MMR010012","Thabeikkyin","Mandalay",0.458544164896011,4.76837158203125e-07,27,3,"No pattern detected","No pattern detected",1.91897880740282e-06,1.25683597256738
+"MMR010013","Kyaukse","Mandalay",0.58520519733429,0,8,11,"No pattern detected","No pattern detected",0,0.750433262603632
+"MMR010014","Sintgaing","Mandalay",-0.216590195894241,0.0193956233561039,0,6,"Sporadic cold spot","No pattern detected",0.0321635965201723,-0.0974211735931147
+"MMR010015","Myittha","Mandalay",0.443268686532974,1.43051147460938e-06,0,6,"No pattern detected","No pattern detected",5.07600845829133e-06,0.324737245310383
+"MMR010016","Tada-U","Mandalay",0.394456565380096,1.71661376953125e-05,1,4,"No pattern detected","No pattern detected",5.10344634184966e-05,0.461479667032256
+"MMR010017","Myingyan","Mandalay",0.413839429616928,6.07967376708984e-06,38,4,"No pattern detected","No pattern detected",1.9478566438249e-05,0.876790562338031
+"MMR010018","Taungtha","Mandalay",0.612147271633148,0,36,3,"No pattern detected","No pattern detected",0,1.09269000074463
+"MMR010019","Natogyi","Mandalay",0.71738874912262,0,6,3,"No pattern detected","No pattern detected",0,0.890846169111016
+"MMR010020","Kyaukpadaung","Mandalay",0.60752660036087,0,0,5,"No pattern detected","No pattern detected",0,0.467812151893602
+"MMR010021","Ngazun","Mandalay",0.304553300142288,0.000861167907714844,33,3,"No pattern detected","No pattern detected",0.00195989937617861,0.816157993400421
+"MMR010022","Nyaung-U","Mandalay",0.725630402565002,0,5,1,"No pattern detected","No pattern detected",0,0.83236820150976
+"MMR010023","Yamethin","Mandalay",0.251058399677277,0.006600022315979,0,21,"No pattern detected","No pattern detected",0.0123051263518253,0.10491003203887
+"MMR010024","Pyawbwe","Mandalay",0.377694338560104,5.56707382202148e-05,0,8,"No pattern detected","No pattern detected",0.000151829286055131,0.0907220101368024
+"MMR010028","Meiktila","Mandalay",0.401047497987747,1.37090682983398e-05,0,12,"No pattern detected","No pattern detected",4.18888198004829e-05,0.17523392211244
+"MMR010029","Mahlaing","Mandalay",0.641005098819733,0,0,3,"No pattern detected","No pattern detected",0,0.584527041558689
+"MMR010030","Thazi","Mandalay",0.204156339168549,0.0273653268814087,0,28,"No pattern detected","No pattern detected",0.0436258834341298,0.0660351044612935
+"MMR010031","Wundwin","Mandalay",0.539152562618256,0,0,9,"No pattern detected","No pattern detected",0,0.344182507455805
+"MMR011001","Mawlamyine","Mon",0.0159412436187267,0.86852240562439,0,1,"No pattern detected","No pattern detected",0.890100602037418,0
+"MMR011002","Kyaikmaraw","Mon",0.548431575298309,0,14,0,"Sporadic hot spot","No pattern detected",0,0.862287553101394
+"MMR011003","Chaungzon","Mon",-0.334625512361526,0.000581224856432527,0,0,"No pattern detected","No pattern detected",0.00134128813022891,-0.0513243135730505
+"MMR011004","Thanbyuzayat","Mon",0.115496881306171,0.209964513778687,6,1,"No pattern detected","No pattern detected",0.26307363063097,0.124342929956286
+"MMR011005","Mudon","Mon",0.20773845911026,0.0242291688919067,1,2,"No pattern detected","No pattern detected",0.0391942437957315,0.177856453314051
+"MMR011006","Ye","Mon",0.17376022040844,0.0598322153091431,8,1,"No pattern detected","No pattern detected",0.0877539157867432,0.253578186224612
+"MMR011007","Thaton","Mon",-0.0309647917747498,0.740891575813293,1,0,"No pattern detected","No pattern detected",0.776172127042498,-0.0409374378130127
+"MMR011008","Paung","Mon",-0.224074825644493,0.0152593953534961,0,1,"No pattern detected","No pattern detected",0.0262903959196003,-0.139187288564247
+"MMR011009","Kyaikto","Mon",0.430621951818466,2.74181365966797e-06,5,0,"No pattern detected","No pattern detected",9.23263783357581e-06,0.626342798539111
+"MMR011010","Bilin","Mon",0.15249140560627,0.0969452857971191,19,0,"No pattern detected","No pattern detected",0.134419934088442,0.219197640584505
+"MMR012001","Sittwe","Rakhine",0.470104724168777,4.76837158203125e-07,1,0,"No pattern detected","No pattern detected",1.91897880740282e-06,0.369200433201285
+"MMR012002","Ponnagyun","Rakhine",0.329659193754196,0.000355124473571777,6,7,"No pattern detected","No pattern detected",0.000849210697671641,0.280123913969631
+"MMR012003","Mrauk-U","Rakhine",0.26888445019722,0.00355267524719238,5,13,"No pattern detected","No pattern detected",0.00702025647648794,0.160070807982647
+"MMR012004","Kyauktaw","Rakhine",0.226738929748535,0.0138868093490601,6,8,"No pattern detected","No pattern detected",0.0241191951852096,0.123131390755881
+"MMR012005","Minbya","Rakhine",0.323447406291962,0.000430941581726074,5,14,"No pattern detected","No pattern detected",0.00102309871920579,0.253134567101638
+"MMR012006","Myebon","Rakhine",0.347617328166962,0.000194549560546875,8,8,"No pattern detected","No pattern detected",0.000495672225952148,0.206628543919378
+"MMR012007","Pauktaw","Rakhine",0.343605577945709,0.000238656997680664,4,12,"No pattern detected","No pattern detected",0.00059664249420166,0.166989598759336
+"MMR012008","Rathedaung","Rakhine",0.315685212612152,0.000625729560852051,15,2,"No pattern detected","No pattern detected",0.00143396357695262,0.417561865692742
+"MMR012009","Maungdaw","Rakhine",0.323821038007736,0.000468254089355469,11,0,"No pattern detected","No pattern detected",0.0010959138261511,0.392677062129759
+"MMR012010","Buthidaung","Rakhine",0.292233258485794,0.00149214267730713,13,10,"No pattern detected","No pattern detected",0.00326097406298909,0.363589737160012
+"MMR012011","Kyaukpyu","Rakhine",0.551482498645782,0,6,11,"No pattern detected","No pattern detected",0,0.895390356983975
+"MMR012012","Munaung","Rakhine",0.324279427528381,0.00166070461273193,0,0,"No pattern detected","No pattern detected",0.00359296798706055,0
+"MMR012013","Ramree","Rakhine",0.551944971084595,0,13,19,"Oscillating hot spot","No pattern detected",0,0.773177740321172
+"MMR012014","Ann","Rakhine",0.596172213554382,0,6,28,"No pattern detected","No pattern detected",0,0.905738150203689
+"MMR012015","Thandwe","Rakhine",0.415205061435699,9.05990600585938e-06,6,32,"No pattern detected","No pattern detected",2.84739903041295e-05,0.15941646587964
+"MMR012016","Toungup","Rakhine",0.558684408664703,0,8,17,"No pattern detected","No pattern detected",0,0.323882673612193
+"MMR012017","Gwa","Rakhine",0.218855008482933,0.0180149078369141,1,32,"No pattern detected","No pattern detected",0.0303312223784778,0.30839523635759
+"MMR013001","Insein","Yangon",-0.421271294355392,4.60160754300887e-06,0,3,"No pattern detected","No pattern detected",1.50349553385438e-05,-0.334015452319251
+"MMR013002","Mingaladon","Yangon",-0.35864669084549,0.000101179895864334,0,2,"No pattern detected","No pattern detected",0.000269269077703469,-0.239647104349964
+"MMR013003","Hmawbi","Yangon",-0.330827325582504,0.000346187938703224,0,9,"No pattern detected","No pattern detected",0.000833883356000467,-0.140032347782103
+"MMR013004","Hlegu","Yangon",-0.468861490488052,3.41299681849705e-07,0,29,"Sporadic cold spot","No pattern detected",1.40786118763003e-06,-0.263107742361426
+"MMR013005","Taikkyi","Yangon",-0.220758438110352,0.0186634678393602,0,40,"Sporadic cold spot","Sporadic cold spot",0.0312636770913141,-0.0418130759281666
+"MMR013006","Htantabin","Yangon",-0.277357548475266,0.00307926721870899,0,28,"Sporadic cold spot","No pattern detected",0.00619608647667053,-0.0901992791280299
+"MMR013007","Shwepyithar","Yangon",-0.384780645370483,3.12631309498101e-05,0,4,"No pattern detected","No pattern detected",9.04985369599767e-05,-0.160080701154141
+"MMR013009","Thingangyun","Yangon",-0.560410499572754,1.24774779397541e-09,0,24,"No pattern detected","No pattern detected",8.40319942881396e-09,-0.337512756135504
+"MMR013010","Yankin","Yangon",-0.544484376907349,3.88097376458063e-09,0,17,"No pattern detected","No pattern detected",2.41645536285209e-08,-0.292263520779315
+"MMR013011","South Okkalapa","Yangon",-0.518746018409729,2.12383728381837e-08,0,8,"No pattern detected","No pattern detected",1.16811050610011e-07,-0.253445445972523
+"MMR013012","North Okkalapa","Yangon",-0.370474517345428,6.29192218184471e-05,0,2,"No pattern detected","No pattern detected",0.000170191337705636,-0.200001935474088
+"MMR013013","Thaketa","Yangon",-0.489077359437943,1.26846060766184e-07,0,13,"No pattern detected","No pattern detected",5.65664865578927e-07,-0.256113292772232
+"MMR013014","Dawbon","Yangon",-0.507494688034058,4.74797303695595e-08,0,20,"No pattern detected","No pattern detected",2.48703349554836e-07,-0.213427743976863
+"MMR013015","Tamwe","Yangon",-0.530335247516632,1.10488214133397e-08,0,29,"No pattern detected","No pattern detected",6.5109126185752e-08,-0.204584464545542
+"MMR013016","Pazundaung","Yangon",-0.529093265533447,6.7433298056585e-08,0,24,"No pattern detected","No pattern detected",3.42353667056509e-07,-0.0787156357788134
+"MMR013017","Botahtaung","Yangon",-0.517869293689728,7.22807271813508e-08,0,36,"Sporadic cold spot","No pattern detected",3.61403635906754e-07,-0.106713871988434
+"MMR013018","Dagon Myothit (South)","Yangon",-0.473084419965744,2.82936667872491e-07,0,19,"No pattern detected","No pattern detected",1.19703974869131e-06,-0.283483448688097
+"MMR013019","Dagon Myothit (North)","Yangon",-0.443292737007141,1.59209241701319e-06,0,11,"No pattern detected","No pattern detected",5.58926061291865e-06,-0.303746072463645
+"MMR013020","Dagon Myothit (East)","Yangon",-0.38016265630722,4.04809798055794e-05,0,1,"No pattern detected","No pattern detected",0.000115161408067597,-0.21342774397684
+"MMR013021","Dagon Myothit (Seikkan)","Yangon",-0.481087744235992,2.11327190413613e-07,0,10,"No pattern detected","No pattern detected",9.17604905743318e-07,-0.265215358324189
+"MMR013022","Mingalartaungnyunt","Yangon",-0.524124979972839,1.87493576220277e-08,0,43,"Sporadic cold spot","Sporadic cold spot",1.04869288394392e-07,-0.169549982719538
+"MMR013023","Thanlyin","Yangon",-0.47682574391365,3.34128685608448e-07,0,33,"Sporadic cold spot","No pattern detected",1.39572742089605e-06,-0.182664700487091
+"MMR013024","Kyauktan","Yangon",-0.481606930494308,5.7909790029953e-07,0,15,"No pattern detected","No pattern detected",2.30243743492584e-06,-0.085501466449398
+"MMR013025","Thongwa","Yangon",-0.468511193990707,7.92250318681909e-07,0,23,"Sporadic cold spot","No pattern detected",3.00508741569e-06,-0.109093694945608
+"MMR013026","Kayan","Yangon",-0.456883609294891,1.22106462185911e-06,0,26,"No pattern detected","No pattern detected",4.42803654080778e-06,-0.128056646386116
+"MMR013027","Twantay","Yangon",-0.399039328098297,1.62672986334655e-05,0,43,"Sporadic cold spot","Sporadic cold spot",4.88018959003966e-05,-0.16982590316319
+"MMR013028","Kawhmu","Yangon",-0.242461279034615,0.0102524543181062,0,34,"Sporadic cold spot","Sporadic cold spot",0.0185896149723903,-0.0671242591680029
+"MMR013029","Kungyangon","Yangon",-0.25666743516922,0.0119565343484282,0,0,"No pattern detected","No pattern detected",0.0210997664972263,0
+"MMR013030","Dala","Yangon",-0.37331959605217,0.000147169266710989,0,33,"Sporadic cold spot","No pattern detected",0.0003854433175764,-0.0477213560791713
+"MMR013031","Seikgyikanaungto","Yangon",-0.503289520740509,1.2972812157841e-07,0,22,"Sporadic cold spot","No pattern detected",5.70803734945002e-07,-0.105769360996147
+"MMR013032","Cocokyun","Yangon",-0.185231670737267,0.0832235291600227,0,0,"No pattern detected","No pattern detected",0.11787023443265,0
+"MMR013033","Kyauktada","Yangon",-0.580637097358704,2.17441487038172e-09,0,35,"Sporadic cold spot","Sporadic cold spot",1.40697432789406e-08,-0.106713871988432
+"MMR013034","Pabedan","Yangon",-0.56706291437149,3.7981560119249e-09,0,42,"Sporadic cold spot","Sporadic cold spot",2.41036823833696e-08,-0.0835038630798168
+"MMR013035","Lanmadaw","Yangon",-0.537393510341644,1.69845648656519e-08,0,44,"Sporadic cold spot","No pattern detected",9.83316913274585e-08,-0.0944151150003204
+"MMR013036","Latha","Yangon",-0.462357074022293,4.83681787954993e-06,0,41,"Sporadic cold spot","No pattern detected",1.5648528433838e-05,-0.035791017059382
+"MMR013037","Ahlone","Yangon",-0.543457746505737,8.55291482082521e-09,0,25,"Sporadic cold spot","No pattern detected",5.13174889249512e-08,-0.137203549699413
+"MMR013038","Kyeemyindaing","Yangon",-0.499151527881622,7.5138849808809e-08,0,27,"No pattern detected","No pattern detected",3.64644418189808e-07,-0.270597837384093
+"MMR013039","Sanchaung","Yangon",-0.501487791538239,9.70753575302297e-08,0,30,"Sporadic cold spot","No pattern detected",4.6427344905762e-07,-0.167007726159626
+"MMR013040","Hlaing","Yangon",-0.463315010070801,6.02414957029396e-07,0,2,"No pattern detected","No pattern detected",2.36663018832977e-06,-0.324598185019031
+"MMR013041","Kamaryut","Yangon",-0.54547917842865,4.34120561720874e-09,0,23,"Sporadic cold spot","No pattern detected",2.65295898829423e-08,-0.262397902917907
+"MMR013042","Mayangone","Yangon",-0.494962066411972,7.36340695084436e-08,0,12,"No pattern detected","No pattern detected",3.62675267728155e-07,-0.431816702745
+"MMR013043","Dagon","Yangon",-0.511398196220398,4.60575328986579e-08,0,40,"Sporadic cold spot","Sporadic cold spot",2.45144933170276e-07,-0.15911350547848
+"MMR013044","Bahan","Yangon",-0.521090567111969,1.75266468005475e-08,0,34,"Sporadic cold spot","No pattern detected",9.97205766238047e-08,-0.253134567101636
+"MMR013046","Hlaingtharya (East)","Yangon",-0.510992169380188,2.98109448237938e-08,0,13,"No pattern detected","No pattern detected",1.61272324456589e-07,-0.36079711651212
+"MMR013047","Hlaingtharya (West)","Yangon",-0.460125893354416,6.41764472675277e-07,0,3,"No pattern detected","No pattern detected",2.49155618803343e-06,-0.292263520779344
+"MMR014001","Taunggyi","Shan (South)",0.208974719047546,0.0237574577331543,2,18,"No pattern detected","No pattern detected",0.0386204977928124,0.142954982989886
+"MMR014002","Nyaungshwe","Shan (South)",0.235262185335159,0.0103942155838013,2,4,"No pattern detected","No pattern detected",0.018743667446199,0.263432180366256
+"MMR014003","Hopong","Shan (South)",0.147504642605782,0.111224770545959,1,18,"No pattern detected","No pattern detected",0.151894146745855,0.0739634088849852
+"MMR014004","Hsihseng","Shan (South)",0.14684297144413,0.11138904094696,0,6,"No pattern detected","No pattern detected",0.151894146745855,0.125375384405152
+"MMR014005","Kalaw","Shan (South)",0.265666574239731,0.00389361381530762,0,18,"Sporadic cold spot","No pattern detected",0.00755819152383243,0.178683223836448
+"MMR014006","Pindaya","Shan (South)",0.189421609044075,0.0417876243591309,0,13,"No pattern detected","No pattern detected",0.06325649558951,0.0753274390506568
+"MMR014007","Ywangan","Shan (South)",0.249379858374596,0.00677239894866943,0,15,"No pattern detected","No pattern detected",0.0124933399967641,0.114367507028367
+"MMR014008","Lawksawk","Shan (South)",0.342052131891251,0.000189304351806641,11,6,"Oscillating hot spot","Oscillating hot spot",0.000488050282001495,0.71763823456195
+"MMR014009","Pinlaung","Shan (South)",0.288243472576141,0.00168514251708984,0,10,"Sporadic cold spot","No pattern detected",0.00361101967947824,0.253134567101636
+"MMR014010","Pekon","Shan (South)",-0.169919833540916,0.0639643222093582,14,4,"No pattern detected","No pattern detected",0.0925799400398606,-0.285869918031166
+"MMR014011","Loilen","Shan (South)",0.377460181713104,5.38825988769531e-05,2,32,"No pattern detected","No pattern detected",0.000148177146911621,0.116905408311744
+"MMR014012","Laihka","Shan (South)",-0.237617090344429,0.0110167693346739,0,31,"Sporadic cold spot","Sporadic cold spot",0.0197583363067521,-0.0584527041558666
+"MMR014013","Nansang","Shan (South)",-0.10681776702404,0.261136382818222,0,45,"Sporadic cold spot","Sporadic cold spot",0.316474964985481,-0.0142419914412679
+"MMR014014","Kunhing","Shan (South)",-0.354050725698471,0.000259329244727269,0,50,"Sporadic cold spot","Sporadic cold spot",0.000638646647462677,-0.0389684694372479
+"MMR014015","Kyethi","Shan (South)",-0.142694726586342,0.124062523245811,0,22,"Sporadic cold spot","No pattern detected",0.16710462314742,-0.0562521260225849
+"MMR014016","Mongkaing","Shan (South)",0.0615729689598083,0.508148789405823,0,7,"No pattern detected","No pattern detected",0.553429374600401,0.0292263520779351
+"MMR014017","Monghsu","Shan (South)",-0.247401282191277,0.00983998458832502,0,49,"Sporadic cold spot","Sporadic cold spot",0.0179767422892606,-0.0338247296730112
+"MMR014018","Langkho","Shan (South)",-0.00336788059212267,0.977667689323425,0,44,"Sporadic cold spot","Sporadic cold spot",0.989663611891811,0
+"MMR014019","Mongnai","Shan (South)",0.017204562202096,0.865526676177979,0,55,"Persistent cold spot","Sporadic cold spot",0.889793779248389,0
+"MMR014020","Mawkmai","Shan (South)",0.0910856872797012,0.324456930160522,0,11,"No pattern detected","No pattern detected",0.383766261480188,0.0437089500958102
+"MMR014021","Mongpan","Shan (South)",-0.22856605052948,0.0300377774983644,0,51,"Sporadic cold spot","Sporadic cold spot",0.0472022217831441,0
+"MMR015001","Lashio","Shan (North)",-0.0785855948925018,0.396467715501785,4,14,"Oscillating cold spot","No pattern detected",0.456495965191712,-0.0438991806869802
+"MMR015002","Hseni","Shan (North)",-0.0643957778811455,0.48659074306488,7,0,"No pattern detected","No pattern detected",0.5336226616983,-0.0692198088573605
+"MMR015003","Mongyai","Shan (North)",-0.0114222392439842,0.90671956539154,5,3,"No pattern detected","No pattern detected",0.923510668454347,0
+"MMR015004","Tangyan","Shan (North)",0.00192044139839709,0.988986253738403,2,33,"Oscillating cold spot","Sporadic cold spot",0.992017161882395,0
+"MMR015005","Pangsang (Panghkam)","Shan (North)",-0.136086657643318,0.188656538724899,0,55,"Persistent cold spot","Sporadic cold spot",0.240373196058752,0
+"MMR015006","Narphan","Shan (North)",-0.187816172838211,0.0856421664357185,0,55,"Persistent cold spot","Sporadic cold spot",0.120777414204218,0
+"MMR015007","Pangwaun","Shan (North)",-0.18731714785099,0.0946161597967148,0,56,"Persistent cold spot","No pattern detected",0.131744019970109,0
+"MMR015008","Mongmao","Shan (North)",-0.0812733396887779,0.427222698926926,0,56,"Persistent cold spot","Sporadic cold spot",0.484479349298576,0
+"MMR015009","Muse","Shan (North)",-0.39218145608902,1.94430831470527e-05,7,0,"No pattern detected","No pattern detected",5.67806852967025e-05,-0.556749154256988
+"MMR015010","Namhkan","Shan (North)",-0.347691476345062,0.000144150792039,13,0,"No pattern detected","No pattern detected",0.000380558090982959,-0.565278624761573
+"MMR015011","Kutkai","Shan (North)",-0.374571353197098,4.30157670052722e-05,5,2,"Consecutive cold spot","New cold spot",0.000120298331455422,-0.408909685318028
+"MMR015012","Kyaukme","Shan (North)",0.319903284311295,0.000480175018310547,16,0,"Sporadic hot spot","No pattern detected",0.00111589969044,0.865913079629097
+"MMR015013","Nawnghkio","Shan (North)",0.67755264043808,0,19,0,"Sporadic hot spot","Sporadic hot spot",0,1.43202154930631
+"MMR015014","Hsipaw","Shan (North)",0.0126025965437293,0.89588987827301,6,5,"Oscillating hot spot","Sporadic hot spot",0.915305448390382,0.0120865066661538
+"MMR015015","Namtu","Shan (North)",-0.0656353458762169,0.481672167778015,7,0,"No pattern detected","No pattern detected",0.531611422631254,-0.0371256663892527
+"MMR015016","Namhsan","Shan (North)",-0.0100884716957808,0.917710483074188,5,2,"Oscillating hot spot","Sporadic hot spot",0.931829105890714,0
+"MMR015017","Mongmit","Shan (North)",0.249061569571495,0.00677669048309326,6,0,"Sporadic hot spot","Sporadic hot spot",0.0124933399967641,0.211349291290191
+"MMR015018","Mabein","Shan (North)",0.274562656879425,0.00273811817169189,3,3,"No pattern detected","No pattern detected",0.00561229190471009,0.318227010956959
+"MMR015019","Manton","Shan (North)",-0.0795477256178856,0.389171570539474,8,1,"No pattern detected","No pattern detected",0.452206402387418,-0.0688012633327795
+"MMR015020","Kunlong","Shan (North)",-0.0727652832865715,0.432132869958878,7,0,"No pattern detected","No pattern detected",0.488369339337088,-0.0649474490620771
+"MMR015021","Hopang","Shan (North)",0.0280111841857433,0.766842842102051,5,15,"Oscillating cold spot","No pattern detected",0.800816892068597,0
+"MMR015022","Laukkaing","Shan (North)",-0.239273995161057,0.00985997077077627,3,6,"Oscillating cold spot","No pattern detected",0.0179767422892606,-0.101863241443501
+"MMR015023","Konkyan","Shan (North)",-0.400513350963593,1.26074355648598e-05,14,0,"No pattern detected","No pattern detected",3.88827452000348e-05,-0.547392025614013
+"MMR015024","Matman","Shan (North)",-0.296582460403442,0.00295233982615173,0,57,"Intensifying cold spot","Sporadic cold spot",0.00601402557179056,-0.0154627335648034
+"MMR016001","Kengtung","Shan (East)",-0.0238719526678324,0.825757384300232,0,57,"Persistent cold spot","Persistent cold spot",0.856918040311561,0
+"MMR016002","Mongkhet","Shan (East)",-0.181832641363144,0.0912713184952736,0,57,"Persistent cold spot","Persistent cold spot",0.127625148743391,0
+"MMR016003","Mongyang","Shan (East)",-0.146321713924408,0.18076553940773,0,56,"Persistent cold spot","Sporadic cold spot",0.231211736451748,0
+"MMR016005","Mongla","Shan (East)",-0.134060606360435,0.210458904504776,0,54,"Persistent cold spot","No pattern detected",0.26307363063097,0
+"MMR016006","Monghsat","Shan (East)",-0.17264698445797,0.0883465558290482,0,53,"Persistent cold spot","Sporadic cold spot",0.124061120951429,0
+"MMR016007","Mongping","Shan (East)",-0.27066969871521,0.00642292527481914,0,57,"Intensifying cold spot","Intensifying cold spot",0.0121118019468018,-0.0111009422426847
+"MMR016008","Mongton","Shan (East)",-0.159259244799614,0.120984047651291,0,54,"Persistent cold spot","Sporadic cold spot",0.163625966085762,0
+"MMR016009","Tachileik","Shan (East)",-0.146073773503304,0.155492946505547,0,46,"No pattern detected","No pattern detected",0.204432957557093,0
+"MMR016010","Monghpyak","Shan (East)",-0.146210134029388,0.153663009405136,0,46,"No pattern detected","No pattern detected",0.203177520632744,0
+"MMR016011","Mongyawng","Shan (East)",-0.237289816141129,0.0224059317260981,0,51,"Sporadic cold spot","No pattern detected",0.0366037498495661,0
+"MMR017001","Pathein","Ayeyarwady",0.0528562925755978,0.575671911239624,2,25,"No pattern detected","No pattern detected",0.620822649376065,0
+"MMR017002","Kangyidaunt","Ayeyarwady",-0.184272304177284,0.0520321205258369,0,38,"No pattern detected","No pattern detected",0.0773450440248928,-0.0354258813065873
+"MMR017003","Thabaung","Ayeyarwady",0.130548924207687,0.162685990333557,3,27,"No pattern detected","No pattern detected",0.212199117826379,0.0635655884437294
+"MMR017004","Ngapudaw","Ayeyarwady",-0.177420422434807,0.0639045685529709,1,0,"No pattern detected","No pattern detected",0.0925799400398606,-0.0349039713601887
+"MMR017005","Kyonpyaw","Ayeyarwady",0.142567917704582,0.129705190658569,0,42,"No pattern detected","No pattern detected",0.173994767956617,0.0356875408723931
+"MMR017006","Yegyi","Ayeyarwady",0.295550495386124,0.00166583061218262,4,36,"No pattern detected","No pattern detected",0.00359296798706055,0.116905408311741
+"MMR017007","Kyaunggon","Ayeyarwady",0.15587629377842,0.0990277528762817,0,42,"No pattern detected","No pattern detected",0.136732880540473,0.029660123316873
+"MMR017008","Hinthada","Ayeyarwady",0.328740358352661,0.000435829162597656,0,36,"No pattern detected","No pattern detected",0.00102731159755162,0.101399979432214
+"MMR017009","Zalun","Ayeyarwady",0.412810772657394,1.00135803222656e-05,0,21,"No pattern detected","No pattern detected",3.11743538334685e-05,0.105596376971555
+"MMR017010","Lemyethna","Ayeyarwady",0.285253256559372,0.00221729278564453,2,28,"No pattern detected","No pattern detected",0.00466055171504901,0.167007726159621
+"MMR017011","Myanaung","Ayeyarwady",0.305941194295883,0.00107336044311523,4,35,"No pattern detected","No pattern detected",0.00239330369072991,0.103151830863303
+"MMR017012","Kyangin","Ayeyarwady",0.312527000904083,0.000901579856872559,1,35,"No pattern detected","No pattern detected",0.00203781748471195,0.0899272371628746
+"MMR017013","Ingapu","Ayeyarwady",0.480267405509949,2.38418579101562e-07,2,34,"No pattern detected","No pattern detected",1.02179391043527e-06,0.18039855825606
+"MMR017014","Myaungmya","Ayeyarwady",-0.216603994369507,0.027844600379467,0,45,"Sporadic cold spot","Sporadic cold spot",0.0441765294481928,-0.014228516265124
+"MMR017015","Einme","Ayeyarwady",-0.132651552557945,0.178648769855499,0,51,"Sporadic cold spot","Sporadic cold spot",0.230260734892077,0
+"MMR017016","Labutta","Ayeyarwady",-0.188015997409821,0.0550768151879311,0,42,"Sporadic cold spot","Sporadic cold spot",0.0815038072287769,0
+"MMR017017","Wakema","Ayeyarwady",-0.112754441797733,0.233708411455154,0,53,"Persistent cold spot","Sporadic cold spot",0.286705486171751,-0.0200679680355304
+"MMR017018","Mawlamyinegyun","Ayeyarwady",-0.108603157103062,0.262785881757736,0,41,"Sporadic cold spot","No pattern detected",0.316493945182675,0
+"MMR017019","Maubin","Ayeyarwady",-0.208965763449669,0.0259412806481123,0,41,"Sporadic cold spot","Sporadic cold spot",0.0417591347018393,-0.0601328527520266
+"MMR017020","Pantanaw","Ayeyarwady",-0.00260615558363497,0.983424365520477,0,47,"Sporadic cold spot","Sporadic cold spot",0.992017161882395,0
+"MMR017021","Nyaungdon","Ayeyarwady",-0.192985400557518,0.040039200335741,0,41,"Sporadic cold spot","Sporadic cold spot",0.0608891065013573,-0.0450996395640125
+"MMR017022","Danubyu","Ayeyarwady",-0.019004387781024,0.846065938472748,0,44,"Sporadic cold spot","Sporadic cold spot",0.873495921492577,0
+"MMR017023","Pyapon","Ayeyarwady",-0.273262321949005,0.00491394707933068,0,28,"No pattern detected","No pattern detected",0.00942792172197166,-0.0357910170593805
+"MMR017024","Bogale","Ayeyarwady",-0.233900368213654,0.0153417997062206,0,21,"No pattern detected","No pattern detected",0.0262903959196003,-0.0397677967326399
+"MMR017025","Kyaiklat","Ayeyarwady",-0.219890534877777,0.0190678499639034,0,46,"Sporadic cold spot","Sporadic cold spot",0.031779749939839,-0.0525545186008434
+"MMR017026","Dedaye","Ayeyarwady",-0.36967995762825,0.000171624982613139,0,23,"Sporadic cold spot","No pattern detected",0.000445954679230991,-0.0459174542043
+"MMR018001","Zay Yar Thi Ri","Nay Pyi Taw",0.132086455821991,0.156991243362427,0,19,"Sporadic cold spot","No pattern detected",0.205583771069845,0.0406631488020447
+"MMR018002","Za Bu Thi Ri","Nay Pyi Taw",-0.131183341145515,0.172332659363747,0,33,"Sporadic cold spot","Sporadic cold spot",0.223018735647202,-0.0139257818765043
+"MMR018003","Tatkon","Nay Pyi Taw",0.0688885375857353,0.460403442382812,0,31,"Sporadic cold spot","Sporadic cold spot",0.514197869075311,0.0277459810787083
+"MMR018004","Det Khi Na Thi Ri","Nay Pyi Taw",-0.113997802138329,0.232240334153175,0,26,"Sporadic cold spot","Sporadic cold spot",0.285967575636373,-0.0139257818765043
+"MMR018005","Poke Ba Thi Ri","Nay Pyi Taw",-0.0995009690523148,0.297577917575836,0,44,"Sporadic cold spot","Sporadic cold spot",0.354515208664354,0
+"MMR018006","Pyinmana","Nay Pyi Taw",0.189609006047249,0.0388234853744507,0,7,"Sporadic cold spot","No pattern detected",0.0593136582109663,0.177045344984786
+"MMR018007","Lewe","Nay Pyi Taw",0.261704295873642,0.00443470478057861,0,10,"No pattern detected","No pattern detected",0.00855820220813417,0.146343541986811
+"MMR018008","Oke Ta Ra Thi Ri","Nay Pyi Taw",-0.107322290539742,0.25613209605217,0,43,"Sporadic cold spot","Sporadic cold spot",0.313050339619319,-0.0183508878226013

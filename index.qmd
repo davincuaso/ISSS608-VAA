@@ -137,9 +137,9 @@ Submission hub for the executive summary, technical report, data record, and rep
 ::: {.exercise-card}
 ### [Take-home Exercise 2](Take-home_Ex/Take-home_Ex02/Take-home_Ex02.qmd)
 
-**Reserved**
+**Myanmar conflict geography**
 
-The page is ready for the second exercise brief and submission links.
+Read the [technical report](Take-home_Ex/Take-home_Ex02/Take-home_Ex02.qmd), [ten-slide summary](Take-home_Ex/Take-home_Ex02/Executive-summary.qmd), and [reproducible project](https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex02).
 :::
 
 ::: {.exercise-card}
