@@ -8,6 +8,7 @@ format:
   html:
     toc: true
     toc-depth: 3
+    number-sections: true
     code-fold: true
     code-summary: "Show the R code"
     code-tools: true
@@ -34,43 +35,248 @@ ee <- read.csv("results/ehsa-events.csv")
 ef <- read.csv("results/ehsa-fatalities.csv")
 rob <- read.csv("results/robustness.csv")
 shift <- read.csv("results/centre-shift.csv")
+event_types <- read.csv("results/event-types.csv")
 fmt <- function(x) format(x,big.mark=",",trim=TRUE,scientific=FALSE)
 showfig <- function(name) knitr::include_graphics(paste0("figures/",name,".png"))
 ```
 
 [Submission hub](Take-home_Ex02.qmd) · [Ten-slide executive summary](Executive-summary.qmd) · [Project source](https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex02)
 
-## Questions and scope
+## Overview
 
-This study asks where recorded violence was concentrated, which townships differed from their neighbours, and whether those local patterns changed over 57 months. It uses the supplied ACLED extract and MIMU v9.4 township boundaries. The unit of analysis is the township; the time unit is the calendar month.
+Myanmar's recorded conflict events are uneven in both space and time. A national total can show whether recorded activity rose or fell, but it cannot show whether neighbouring townships formed a local concentration or whether that concentration persisted. This report studies those questions with the supplied Armed Conflict Location & Event Data Project (ACLED) extract and the Myanmar Information Management Unit (MIMU) v9.4 township boundaries.
 
-The main results concern **recorded event counts**, with **reported fatalities** analysed separately. These measures answer different questions: frequent incidents need not produce the largest fatality totals. Neither is a population-adjusted risk measure.
+The study covers 1 January 2021 to 30 September 2025. The spatial unit is the township and the temporal unit is the calendar month. The main measure is the number of **recorded events**. **Reported fatalities** are analysed separately because event frequency and severity are not interchangeable. Neither measure is adjusted for population, land area, road access, media access or reporting coverage.
 
-The [exercise brief](https://isss626-ay2026-27aug.netlify.app/take-home_ex02) contains two references to passenger trips and hexagons. I interpret these as leftover wording and follow its stated Myanmar conflict and township objectives.
+The analysis has three layers. First, descriptive summaries establish what is in the supplied data. Second, Local Moran's I and Getis-Ord Gi* test whether accumulated township totals form local clusters or spatial outliers. Third, an emerging hot spot analysis follows monthly local Gi* scores to identify how those patterns changed through time. Sensitivity checks examine coordinate precision and an alternative neighbour definition. A final extension measures movement in the event-weighted geographical centre.
 
-## Data preparation and checks
+The [exercise brief](https://isss626-ay2026-27aug.netlify.app/take-home_ex02) contains two references to passenger trips and hexagons that do not match its Myanmar conflict task. I therefore follow the stated Myanmar objective, use townships as the geographical unit, and document that interpretation here rather than silently changing the problem.
 
-### What enters the analysis
+## Objectives
 
-The ACLED file contains 87,109 rows dated from 1 January 2021 to 30 September 2025. The code checks event IDs for duplicates and stops if any are found. It also checks that all retained coordinates and fatality values are finite and that fatalities are nonnegative.
+This report has five objectives:
 
-Three event types define the analytical scope: battles, explosions/remote violence, and violence against civilians. This is a consistent operational definition of the core violence series, rather than every record tagged as political violence. Protests, riots and strategic developments are excluded. The choice therefore also excludes some violent demonstration-related records; it must not be read as a complete count of every form of political violence.
+1. prepare a reproducible township-month dataset from the supplied ACLED extract and official MIMU boundaries;
+2. describe the spatial and temporal distribution of retained violence records and reported fatalities;
+3. identify statistically unusual local clusters and outliers with Local Moran's I and Gi*;
+4. examine whether local hot and cold patterns persisted, intensified, diminished or changed category during the 57-month period; and
+5. test how much the main hotspot result depends on coordinate precision and the spatial-weights definition.
 
-Coordinates with precision 3 are too broad for a township analysis and are excluded. Precision 2 is retained because removing every approximate location would discard a substantial part of the record. A separate precision-1-only analysis checks this choice. ACLED coordinates commonly identify a named place, rather than the exact incident site, and reported fatality totals have substantial measurement uncertainty. A zero is treated as zero **reported** fatalities, not proof that nobody died. See the [ACLED codebook](https://acleddata.com/methodology/acled-codebook).
+These objectives lead to four practical questions. Where was recorded violence concentrated? Which townships differed from their neighbours? Did the local pattern change over time? Which conclusions remain stable when plausible analytical choices are changed?
+
+## Getting started
+
+### R packages
+
+The analysis uses `pacman::p_load()` so that all required packages are checked and attached in one call. This also keeps the package list visible at the start of the workflow.
+
+```{r}
+#| label: packages-used
+#| eval: false
+if (!requireNamespace("pacman", quietly = TRUE)) {
+  install.packages("pacman", repos = "https://cloud.r-project.org")
+}
+
+pacman::p_load(sf, dplyr, tidyr, ggplot2, spdep,
+               Kendall, knitr, scales)
+```
+
+```{r}
+#| label: package-purpose-table
+knitr::kable(data.frame(
+  Package = c("sf", "dplyr / tidyr", "spdep", "Kendall", "ggplot2 / scales", "knitr"),
+  Purpose = c(
+    "Import, validate, project and join spatial features",
+    "Filter records, aggregate events and complete the township-month cube",
+    "Build neighbours and run Local Moran and Gi* permutation tests",
+    "Run the Mann-Kendall trend test on monthly Gi* scores",
+    "Draw statistical maps, time-series plots and sensitivity figures",
+    "Present audit tables and calculated results in the report"
+  )
+), col.names = c("Package", "Role in the analysis"))
+```
+
+### Data sources
+
+Two supplied datasets enter the analysis. The raw ACLED file remains private because redistribution may be restricted; the derived non-sensitive outputs and code are stored with the project.
+
+```{r}
+#| label: data-source-table
+knitr::kable(data.frame(
+  Data = c("ACLED course extract", "MIMU township boundaries v9.4"),
+  Format = c("CSV", "GeoJSON"),
+  Coverage = c("87,109 rows, 1 January 2021 to 30 September 2025", "330 township polygons"),
+  Fields_used = c(
+    "event ID, date, event type, fatalities, longitude, latitude, coordinate precision",
+    "township code and name, district, state or region, polygon geometry"
+  ),
+  Role = c("Recorded conflict events and reported fatalities", "Aggregation units and spatial neighbours")
+), col.names = c("Dataset", "Format", "Coverage", "Main fields", "Use"))
+```
+
+The event ID is the duplicate check. `event_date` supplies the month. `event_type` defines the analytical scope. `fatalities` is kept as a separate outcome. Longitude, latitude and `geo_precision` determine whether a record is suitable for a township-level join. `TS_PCODE`, rather than a place-name string, is the stable key after the spatial join.
+
+### Importing and inspecting the files
+
+The boundary file is imported with `st_read()`. The event file is read with UTF-8 BOM handling because course extracts can contain a byte-order mark in the first field name. Assertions stop the workflow if the expected 330 polygons, v9.4 code or unique identifiers are absent.
+
+```{r}
+#| label: importing-data
+#| eval: false
+raw <- read.csv(
+  "data/private/ACLED_Data_Myanmar_Jan2021-Sep2025.csv",
+  fileEncoding = "UTF-8-BOM"
+)
+
+townships <- st_read(
+  "data/boundaries/mimu-v9.4.geojson",
+  quiet = TRUE
+) |>
+  arrange(TS_PCODE)
+
+stopifnot(!anyDuplicated(raw$event_id_cnty))
+stopifnot(nrow(townships) == 330)
+stopifnot(all(townships$PCode_V == "9.4"))
+stopifnot(!anyDuplicated(townships$TS_PCODE))
+```
+
+## Exploratory data analysis
+
+### Event composition
+
+The source contains six ACLED event types. The three categories used in the analysis account for 54,004 raw rows before the country, precision and polygon-match checks. Strategic developments, protests and riots are not included in the core violence measure.
+
+```{r}
+#| label: event-type-summary
+event_types <- event_types[order(-event_types$Freq), ]
+names(event_types) <- c("Event type", "Records")
+knitr::kable(event_types, row.names = FALSE, format.args = list(big.mark = ","))
+```
+
+This first table is descriptive rather than a result of the spatial model. It shows why the report defines its scope explicitly: using every row would mix demonstrations, strategic developments and direct violence in one count, while using only battles would omit explosions and violence against civilians.
+
+### Record retention and data-quality checks
+
+The audit below applies each filter in sequence. “Removed at this step” is the difference from the preceding row, not a count of all records with that feature in the untouched CSV.
 
 ```{r}
 #| label: audit-record-retention
-# Each row is a sequential filter; differences show the number excluded.
-knitr::kable(a$audit, col.names=c("Stage", "Records"), format.args=list(big.mark=","))
+audit_display <- a$audit
+audit_display$removed <- c(
+  "Not applicable",
+  fmt(head(audit_display$n, -1) - tail(audit_display$n, -1))
+)
+knitr::kable(
+  audit_display,
+  col.names = c("Stage", "Records retained", "Removed at this step"),
+  format.args = list(big.mark = ",")
+)
 ```
 
-Six rows labelled Indian Ocean are removed by the country filter. Eight otherwise eligible events do not match exactly one polygon. They are excluded rather than assigned to the nearest township. The private audit file preserves their IDs and coordinates for inspection. The final set contains **`r fmt(sum(cube$events))` events** and **`r fmt(sum(cube$fatalities))` reported fatalities**. These totals apply to the stated filters, not the whole CSV.
+Six records carry an Indian Ocean country label, 33,103 fall outside the three selected event types, 93 have coordinate precision 3, and eight do not intersect exactly one township polygon. No additional record is lost to the coordinate-validity check. The final analytical set contains **`r fmt(sum(cube$events))` events** and **`r fmt(sum(cube$fatalities))` reported fatalities**.
 
-### Boundaries, projection and spatial joins
+```{r}
+#| label: data-quality-table
+knitr::kable(data.frame(
+  Check = c(
+    "Duplicate event IDs in the source",
+    "Duplicate township codes in the MIMU layer",
+    "Invalid coordinates after the scope and precision filters",
+    "Non-finite or negative fatalities after those filters",
+    "Eligible records without exactly one polygon match"
+  ),
+  Finding = c("0", "0", "0", "0", "8"),
+  Treatment = c(
+    "Assertion; analysis stops if found",
+    "Assertion; analysis stops if found",
+    "Filter applied; no additional records removed",
+    "Assertion; analysis stops if found",
+    "Excluded and written to a private audit file"
+  )
+), col.names = c("Quality check", "Count", "Response"))
+```
 
-The boundary source is the [official MIMU v9.4 layer](https://geonode.themimu.info/layers/geonode%3Ammr_polbnda_adm3_250k_mimu_1). All 330 polygons carry `PCode_V = 9.4`; township codes are unique. `st_make_valid()` repairs geometry before analysis. Both polygons and WGS84 event points are transformed to a regional Albers equal-area projection centred at 96°E, with standard parallels at 10°N and 28°N.
+These checks cover the fields needed for this study. They do not imply that every unused column in the raw CSV is complete. The eight unmatched records are not forced into the nearest township because doing so would create location precision that the source does not support.
 
-`st_intersects()` assigns a point only when it intersects exactly one township. The geometry join avoids silently equating differently spelled place names. It does not remove uncertainty in the original coordinates or reconcile historical boundary changes. The same v9.4 geography is used throughout the period.
+### Summary statistics
+
+The completed dataset has 18,810 observations: 330 townships observed in each of 57 months. Counts are strongly right-skewed and zero-heavy. The median township-month has no retained event, while the maximum has 96. Reported fatalities are even sparser and have a maximum of 419 in one township-month.
+
+```{r}
+#| label: descriptive-statistics
+cb <- sf::st_drop_geometry(b)
+descriptive <- rbind(
+  data.frame(Unit = "Township-month", Measure = "Events", Min = min(cube$events),
+             Median = median(cube$events), Mean = mean(cube$events), Max = max(cube$events)),
+  data.frame(Unit = "Township-month", Measure = "Reported fatalities", Min = min(cube$fatalities),
+             Median = median(cube$fatalities), Mean = mean(cube$fatalities), Max = max(cube$fatalities)),
+  data.frame(Unit = "Township total", Measure = "Events", Min = min(cb$events),
+             Median = median(cb$events), Mean = mean(cb$events), Max = max(cb$events)),
+  data.frame(Unit = "Township total", Measure = "Reported fatalities", Min = min(cb$fatalities),
+             Median = median(cb$fatalities), Mean = mean(cb$fatalities), Max = max(cb$fatalities))
+)
+knitr::kable(descriptive, digits = 1)
+```
+
+There are **`r fmt(sum(cube$events == 0))` zero-event township-months** (`r scales::percent(mean(cube$events == 0), accuracy = 0.1)`) and **`r fmt(sum(cube$fatalities == 0))` zero-fatality township-months** (`r scales::percent(mean(cube$fatalities == 0), accuracy = 0.1)`). A zero means no qualifying record was present for that township-month. It does not prove that no violence occurred or that reporting coverage was complete.
+
+## Data wrangling
+
+### Defining the analytical events
+
+Three event types define the analytical scope: battles, explosions/remote violence, and violence against civilians. This is a consistent operational definition of the core violence series, rather than every record tagged as political violence. The decision excludes protests, riots and strategic developments, including any violence described within those excluded categories, so the result must not be read as a complete count of every form of political violence.
+
+Coordinate precision 3 is too broad for a township analysis and is excluded. Precision 2 is retained because removing every approximate location would discard a substantial part of the record. A separate precision-1-only analysis checks this decision. ACLED coordinates commonly identify a named place rather than the exact incident site, and reported fatality totals have substantial measurement uncertainty. A zero is treated as zero **reported** fatalities, not proof that nobody died. See the [ACLED codebook](https://acleddata.com/methodology/acled-codebook).
+
+```{r}
+#| label: filter-events
+#| eval: false
+events <- raw |>
+  mutate(event_date = as.Date(event_date)) |>
+  filter(
+    event_date >= as.Date("2021-01-01"),
+    event_date <= as.Date("2025-09-30"),
+    country == "Myanmar",
+    event_type %in% c(
+      "Battles", "Explosions/Remote violence",
+      "Violence against civilians"
+    ),
+    geo_precision %in% c(1, 2),
+    is.finite(longitude), is.finite(latitude)
+  )
+```
+
+### Repairing geometry, projecting and joining
+
+The boundary source is the [official MIMU v9.4 layer](https://geonode.themimu.info/layers/geonode%3Ammr_polbnda_adm3_250k_mimu_1). `st_make_valid()` repairs geometry before analysis. Both polygons and WGS84 event points are transformed to a regional Albers equal-area projection centred at 96°E, with standard parallels at 10°N and 28°N. A projected coordinate system is needed for centroid distances and the geographical-centre extension.
+
+`st_intersects()` assigns a point only when it intersects exactly one township. This geometry join avoids silently equating differently spelled place names. It does not remove uncertainty in the original coordinates or reconcile historical boundary changes. The same v9.4 geography is used throughout the period.
+
+```{r}
+#| label: spatial-join-code
+#| eval: false
+aea <- paste(
+  "+proj=aea +lat_1=10 +lat_2=28 +lat_0=19",
+  "+lon_0=96 +datum=WGS84 +units=m +no_defs"
+)
+
+townships <- townships |>
+  st_make_valid() |>
+  st_transform(aea)
+
+event_points <- events |>
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326,
+           remove = FALSE) |>
+  st_transform(st_crs(townships))
+
+matches <- st_intersects(event_points, townships)
+events$TS_PCODE <- vapply(
+  matches,
+  function(i) if (length(i) == 1) townships$TS_PCODE[i] else NA_character_,
+  character(1)
+)
+events <- events[lengths(matches) == 1, ]
+```
 
 ```{r}
 #| label: fig-geographical-reference
@@ -79,15 +285,42 @@ The boundary source is the [official MIMU v9.4 layer](https://geonode.themimu.in
 showfig("locator")
 ```
 
-The regional outlines provide orientation for the township maps below. Labels are geographical references, not analytical units: every local test is performed on the 330 townships. Large northern and eastern polygons occupy more map space than compact urban areas, so apparent visual extent should not be confused with recorded event totals.
+The labels provide orientation for the township maps below. They are not the analytical units: every local test is performed on the 330 townships. Large northern and eastern polygons occupy more map space than compact urban townships, so visible area should not be confused with recorded event totals.
 
-### A complete monthly cube
+### Building the complete township-month cube
 
-`expand_grid()` creates all 330 × 57 = **18,810 township-month combinations**. Monthly totals are then joined by township code and month. Only missing combinations of otherwise valid records become zeros. There are **`r fmt(sum(cube$events==0))` zero-event bins**. A zero means that no retained event was recorded for that bin; reporting coverage is not independently observed.
+Events are grouped by township code and month before they are joined to a complete 330 by 57 grid. Filling the absent combinations only after source validation prevents an invalid or unmatched row from being mistaken for a genuine zero. The `precise` field counts precision-1 events and supports the later sensitivity check.
 
-The exported cube contains `events`, `fatalities`, and `precise` (precision-1 event count). Assertions check its size and verify that its event sum equals the retained source count. January 2021 and September 2025 are both included.
+```{r}
+#| label: build-monthly-cube
+#| eval: false
+counts <- events |>
+  mutate(month = as.Date(format(event_date, "%Y-%m-01"))) |>
+  group_by(TS_PCODE, month) |>
+  summarise(
+    events = n(),
+    fatalities = sum(fatalities),
+    precise = sum(geo_precision == 1),
+    .groups = "drop"
+  )
+
+cube <- tidyr::expand_grid(
+  month = seq(as.Date("2021-01-01"), as.Date("2025-09-01"), by = "month"),
+  TS_PCODE = townships$TS_PCODE
+) |>
+  left_join(counts, by = c("TS_PCODE", "month")) |>
+  mutate(across(c(events, fatalities, precise), ~replace_na(.x, 0L))) |>
+  arrange(month, TS_PCODE)
+
+stopifnot(nrow(cube) == 330 * 57)
+stopifnot(sum(cube$events) == nrow(events))
+```
+
+The exported cube contains `events`, `fatalities` and `precise`. January 2021 and September 2025 are both included, and assertions verify the cube size and retained event total before any spatial statistic is calculated.
 
 ## Recorded distribution
+
+### National monthly pattern
 
 ```{r}
 #| label: fig-monthly
@@ -95,7 +328,37 @@ The exported cube contains `events`, `fatalities`, and `precise` (precision-1 ev
 showfig("monthly")
 ```
 
-November 2023 has the largest monthly event count, 1,466, followed by December 2023 with 1,449. November 2023 also has the highest reported fatality total, 2,477. Other fatality peaks do not follow the event series exactly. The two panels use separate vertical scales, so their heights cannot be compared directly. Annual totals would also need care because 2025 contains only nine months.
+November 2023 has the largest monthly event count, 1,466, followed by December 2023 with 1,449. November 2023 also has the highest reported fatality total, 2,477. Other fatality peaks do not follow the event series exactly. The two panels use separate vertical scales, so their heights cannot be compared directly. Annual totals also need care because 2025 contains only nine months.
+
+### State and region totals
+
+The table below is descriptive and does not replace the township tests. It helps locate the broader share of recorded activity before the report moves to local neighbourhoods.
+
+```{r}
+#| label: state-region-summary
+state_totals <- cb |>
+  group_by(ST) |>
+  summarise(events = sum(events), fatalities = sum(fatalities), .groups = "drop") |>
+  arrange(desc(events)) |>
+  mutate(
+    event_share = events / sum(events),
+    fatality_share = fatalities / sum(fatalities)
+  ) |>
+  slice_head(n = 10)
+
+state_display <- state_totals
+state_display$event_share <- scales::percent(state_display$event_share, accuracy = 0.1)
+state_display$fatality_share <- scales::percent(state_display$fatality_share, accuracy = 0.1)
+knitr::kable(
+  state_display,
+  col.names = c("State or region", "Events", "Reported fatalities", "Share of events", "Share of fatalities"),
+  format.args = list(big.mark = ",")
+)
+```
+
+Sagaing contains 12,612 retained events, or 23.4% of the analytical total, and 27,555 reported fatalities, or 31.0%. Magway and Mandalay are the next two regions by event count. These totals are useful context, but within-region variation remains large and the regions differ in population, area and reporting conditions.
+
+### Township totals
 
 ```{r}
 #| label: fig-event-distribution
@@ -115,11 +378,47 @@ showfig("distribution-fatalities")
 
 Kale has the largest reported fatality total in the retained data (1,877), followed by Monywa (1,771) and Maungdaw (1,583). This ordering differs from the event-count ranking. The distinction supports keeping frequency and reported severity separate throughout the analysis. Differences may reflect incident severity, reporting and fatality estimation as well as underlying conflict conditions.
 
+```{r}
+#| label: leading-townships
+top_events <- cb |>
+  select(TS, ST, events) |>
+  arrange(desc(events)) |>
+  slice_head(n = 5) |>
+  mutate(Rank = row_number(), Measure = "Events", Value = events) |>
+  select(Rank, Measure, Township = TS, `State or region` = ST, Value)
+
+top_fatalities <- cb |>
+  select(TS, ST, fatalities) |>
+  arrange(desc(fatalities)) |>
+  slice_head(n = 5) |>
+  mutate(Rank = row_number(), Measure = "Reported fatalities", Value = fatalities) |>
+  select(Rank, Measure, Township = TS, `State or region` = ST, Value)
+
+knitr::kable(
+  bind_rows(top_events, top_fatalities),
+  format.args = list(big.mark = ",")
+)
+```
+
+The rankings show why one outcome cannot stand in for the other. Monywa is high on both lists, but Kale and Maungdaw rise much further when the outcome is reported fatalities. Later hotspot maps add the neighbourhood comparison that these simple rankings lack.
+
 ## Spatial assumptions and tests
 
 ### Defining neighbours
 
 Queen contiguity treats townships sharing an edge or vertex as neighbours. This fits a question about adjacent local concentrations without imposing a single distance across townships of very different sizes. Three isolated polygons receive a symmetric link to their nearest projected centroid; the added links are recorded below. The choice is an analytical connection, not a claim about roads or movement.
+
+```{r}
+#| label: spatial-weights-code
+#| eval: false
+queen_nb <- poly2nb(townships, queen = TRUE)
+
+# After adding a symmetric nearest-centroid link for each isolate:
+moran_weights <- nb2listw(queen_nb, style = "W")
+gistar_weights <- nb2listw(include.self(queen_nb), style = "W")
+```
+
+Row standardisation makes each township's outgoing neighbour weights sum to one for Local Moran's I. Gi* includes the focal township because the statistic asks whether the value at the location and values around it are jointly high or low. The isolate repair is symmetric, so adding an artificial link in one direction also adds the reverse link.
 
 ```{r}
 #| label: inspect-isolate-links
@@ -137,6 +436,22 @@ Local Moran's I uses row-standardised neighbour weights without self. Gi* includ
 `localmoran_perm()` and `localG_perm()` use 9,999 conditional permutations, a fixed seed of 6262026, two-sided tests, and sampling without repetition within a simulated neighbourhood. The focal observation remains fixed; values assigned to other neighbour positions are drawn from the remaining observations. Thus the null concerns exchangeability of the recorded values across locations under this neighbourhood structure. It does not model the reporting process or explain the causes of violence.
 
 The code selects the **two-sided rank permutation p-value**, not the normal approximation or folded tail. Significant maps use strict `p < 0.05`; other townships are neutral grey. Separate Benjamini–Hochberg adjusted values are saved for each metric and test across 330 townships. The map threshold follows the brief; the adjusted counts show how much evidence survives a multiple-testing check. See the [Local Moran documentation](https://r-spatial.github.io/spdep/reference/localmoran.html) and [Gi* documentation](https://r-spatial.github.io/spdep/reference/localG.html).
+
+```{r}
+#| label: local-test-code
+#| eval: false
+local_moran <- localmoran_perm(
+  x, moran_weights, nsim = 9999, iseed = 6262026,
+  no_repeat_in_row = TRUE, alternative = "two.sided"
+)
+
+local_gistar <- localG_perm(
+  x, gistar_weights, nsim = 9999, iseed = 6262026,
+  no_repeat_in_row = TRUE, alternative = "two.sided"
+)
+```
+
+Local Moran's I and Gi* answer related but different questions. Local Moran combines the standardised focal value with the mean of neighbouring standardised values, so it can distinguish high–high and low–low clusters from high–low and low–high outliers. Gi* asks whether the focal location and its self-inclusive neighbourhood have an unusually high or low sum. Agreement strengthens the descriptive case for a local concentration, but neither statistic establishes its cause.
 
 ## Local measures of spatial association
 
@@ -199,7 +514,30 @@ For each township-month, the neighbourhood includes the township and its queen n
 
 The implementation constructs an explicit space-time neighbour list and calls `localG_perm()` with 999 conditional permutations. The resulting local statistic uses both spatial and temporal neighbours. The null redistributes values among non-focal bins across the cube. It does not preserve national monthly totals, seasonality or serial correlation. The results are exploratory under that exchangeability assumption.
 
+```{r}
+#| label: spacetime-neighbour-code
+#| eval: false
+for (t in seq_len(n_months)) {
+  for (i in seq_len(n_townships)) {
+    spatial_ids <- sort(unique(c(i, queen_nb[[i]])))
+    current <- (t - 1L) * n_townships + spatial_ids
+    previous <- if (t > 1) (t - 2L) * n_townships + spatial_ids else integer()
+    spacetime_nb[[(t - 1L) * n_townships + i]] <-
+      as.integer(sort(c(current, previous)))
+  }
+}
+
+spacetime_weights <- nb2listw(spacetime_nb, style = "B")
+monthly_gistar <- localG_perm(
+  cube[[metric]], spacetime_weights,
+  nsim = 999, iseed = 6262026,
+  no_repeat_in_row = TRUE, alternative = "two.sided"
+)
+```
+
 The Gi* standard scores are ordered by month before `Kendall::MannKendall()` is applied to each township. Positive tau indicates increasing scores; negative tau indicates decreasing scores. A Sen slope, calculated from all pairwise score changes, reports the median change in Gi* units per year. It describes a rate of change in the standardised spatial statistic, not a growth rate in violence.
+
+For each township, the classification function receives the 57 ordered Gi* scores, their permutation p-values, Kendall's tau and the trend p-value. It counts significant hot and cold months, inspects the final-month status, measures the uninterrupted run at the end, and then applies the category rules in a fixed order. Keeping this logic in a separate function makes the decision path auditable and prevents map styling from changing the classification.
 
 ### Classification and the map filter
 
@@ -273,7 +611,7 @@ showfig("centre-shift")
 
 The 2025 centre lies about **`r round(shift$distance_km)` km** from the 2021 centre: approximately `r round(abs(shift$dy_km))` km south and `r round(abs(shift$dx_km))` km west in the study projection. The resampled displacement range is `r round(shift$boot_low)`–`r round(shift$boot_high)` km. This indicates a change in the spatial balance of recorded events, not a moving front or a newly dangerous point. The centre can fall in a township with few events, especially when activity is split among several distant concentrations. The result complements the hotspot maps by summarising a broad geographical shift that a final categorical label cannot express.
 
-## Implications and limits
+## Implications and limitations
 
 The results support two levels of review. The 27 event hot spots that survive both checks are candidates for closer assessment of sustained local needs. Townships whose labels change with the assumptions need additional location validation before relying on their classification. Fatality concentrations provide a separate reason to investigate severity, including places outside the event-frequency hotspot set.
 
@@ -281,7 +619,21 @@ These are historical screening maps through September 2025. They cannot locate p
 
 Several boundaries remain unresolved. Township aggregation hides within-township variation; changing the unit would change the results. Static v9.4 boundaries impose one geography across the full period. Raw counts combine exposure, population, area and reporting intensity. No independent reporting-coverage series or suitable monthly population denominator is available here. Finally, significance depends on the neighbourhood, null model, permutation resolution and temporal assumptions; the robustness checks address only selected parts of that uncertainty.
 
-## Reproduction and code walkthrough
+## Conclusion
+
+The analysis reduces 87,109 source rows to 53,899 events that meet the stated date, country, event-type, coordinate-precision and polygon-match rules. That reduction is substantial, but it is documented step by step and every retained event belongs to exactly one of the 330 MIMU townships. Completing all 57 months for every township gives a consistent base for the temporal analysis and makes the meaning of each inserted zero explicit.
+
+The descriptive results show that frequency and reported severity have related but different geographies. Monywa records the most retained events, while Kale records the largest reported fatality total. Sagaing accounts for 23.4% of retained events and 31.0% of reported fatalities, yet the township maps show that the pattern is not uniform within the region. These findings justify keeping events and fatalities as separate outcomes instead of combining them into a single conflict score.
+
+The local tests provide evidence of spatial concentration under the selected queen-neighbour structure. Local Moran's I identifies 36 high–high event townships and 39 high–high fatality townships. Gi* identifies 38 event hot spots and 43 fatality hot spots. The overlap is informative, but the methods are not interchangeable: Local Moran can identify spatial outliers, while Gi* measures a high or low self-inclusive neighbourhood sum. The multiple-testing summaries and neutral categories are therefore as important as the coloured clusters.
+
+The emerging hot spot analysis adds a temporal qualification. Some townships have many significant hot months without satisfying a named endpoint rule, and the classifications are sensitive to correction across 18,810 monthly tests. The result is best read as a screening map of histories that deserve closer examination, not as proof that a township followed a fixed conflict trajectory. The separate trajectory plots and hot-month counts prevent the final category from hiding that detail.
+
+The strongest practical conclusion comes from the sensitivity analysis. Twenty-seven of the 38 baseline event hot spots remain hot under both a precision-1-only count and a symmetric four-nearest-neighbour graph. Those 27 townships form the most stable set for further local review. The remaining baseline hot spots should be treated more cautiously because their labels depend on at least one reasonable analytical choice. The geographical-centre extension adds a broader observation: the event-weighted centre moved about **`r round(shift$distance_km)` km** between comparable January–September windows in 2021 and 2025. That shift describes the changing balance of recorded activity; it does not trace a front line or forecast future risk.
+
+Taken together, the evidence supports a focused but cautious reading. Recorded violence was spatially concentrated, the geography of event frequency did not perfectly match the geography of reported fatalities, and several local concentrations persisted across alternative specifications. At the same time, reporting conditions, denominator data, boundary choice and temporal dependence prevent causal or population-risk claims. The report therefore identifies places and patterns for follow-up rather than declaring definitive levels of danger.
+
+## Reproducibility and code walkthrough
 
 Run `Rscript setup.R` once to install missing dependencies, place the supplied CSV under `data/private/`, then run `quarto render Take-home_Ex02-report.qmd`. The default render executes the full pipeline and redraws all figures. `quarto render Executive-summary.qmd` builds the slides from those outputs. The source CSV and excluded-record audit are omitted from the shareable ZIP and ignored by Git; the README explains how to restore the local input.
 
