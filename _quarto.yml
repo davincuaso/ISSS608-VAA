@@ -7,6 +7,7 @@ project:
     - "Take-home_Ex/**/*.qmd"
   resources:
     - "Take-home_Ex/Take-home_Ex01/scripts/**"
+    - "Hands-on_Ex/Hands-on_Ex07/scripts/**"
 
 website:
   title: "ISSS608 Visual Analytics"
@@ -38,6 +39,8 @@ website:
             text: "Hands-on Exercise 5b: Local Spatial Autocorrelation"
           - href: Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.qmd
             text: "Hands-on Exercise 6: Geographical Segmentation"
+          - href: Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.qmd
+            text: "Hands-on Exercise 7: Geographical Accessibility"
       - text: In-Class Exercise
         menu:
           - href: In-class_Ex/In-class_Ex04/In-class_Ex04.qmd

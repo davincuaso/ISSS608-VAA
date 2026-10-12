@@ -1,0 +1,584 @@
+---
+title: "Hands-on Exercise 7"
+subtitle: "Modelling Geographical Accessibility"
+author: "Davin Cuaso"
+date: 2026-10-13
+date-modified: last-modified
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the R code"
+    code-tools: true
+    toc: true
+    toc-depth: 3
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Overview
+
+This exercise follows [Chapter 17: Modelling Geographical Accessibility](https://r4gdsa.netlify.app/chap17.html). It measures access from Singapore's hexagonal grid to the eldercare locations in the teaching data, using the supplied road-network distance matrix.
+
+I compare three models:
+
+1. Hansen accessibility, which adds up nearby supply after reducing its contribution with distance.
+2. Kernel Density Two-Step Floating Catchment Area (KD2SFCA), which also accounts for competing demand within a catchment.
+3. Spatial Accessibility Measure (SAM), which divides distance-weighted supply by demand at the origin.
+
+The questions are where access is relatively high or low, how the three methods differ, and how sensitive the results are to distance-decay and catchment choices. Capacity and demand are both set to 100, as in the chapter. These are assumed values for learning the methods, so the maps describe this scenario rather than measured service availability for today's older population.
+
+## Getting started
+
+The packages are installed and attached with one `pacman::p_load()` call. `sf` handles the spatial layers, `SpatialAcc` calculates the scores, `tmap` draws the maps, and the tidyverse handles the matrix and statistical graphics. The chapter's package list is retained; `pivot_wider()` supplies the reshaping needed here.
+
+```{r}
+#| label: setup
+
+if (!requireNamespace("pacman", quietly = TRUE)) {
+  install.packages("pacman", repos = "https://cloud.r-project.org")
+}
+
+pacman::p_load(
+  tmap, SpatialAcc, sf, ggstatsplot,
+  reshape2, tidyverse, knitr
+)
+
+options(scipen = 999)
+theme_set(theme_minimal(base_size = 12))
+tmap_mode("plot")
+data_path <- "data"
+dir.create("results", showWarnings = FALSE)
+fmt <- function(x) format(x, big.mark = ",", trim = TRUE, scientific = FALSE)
+fmt_score <- function(x) trimws(formatC(x, format = "g", digits = 4))
+```
+
+## Data and preparation
+
+The four inputs are the teaching datasets described by the chapter. They were retrieved from a [public course-file mirror](https://github.com/credor/ISSS626-GAA/tree/316e52d2088516f6fae69eb983757e021d1a2a10/Hands-on_Ex/Hands-on_Ex01/data). The original spatial sources are URA subzones and eldercare locations from data.gov.sg; the grid and network matrix were prepared for the course. The [data record](data/README.md) records the retrieval, checksums and use conditions.
+
+| Dataset | Content | Role |
+|---|---|---|
+| `MP14_SUBZONE_NO_SEA_PL` | Master Plan 2014 subzone polygons | Planning-region comparison |
+| `hexagons` | Teaching grid with 250 m radius cells | Origins of the accessibility calculation |
+| `ELDERCARE` | Teaching snapshot of eldercare locations | Service destinations |
+| `OD_Matrix.csv` | Entry, network, exit and total distance in metres | Travel impedance between each origin and destination |
+
+Run `Rscript scripts/download_data.R` from this exercise's folder before the first render. It retrieves the same pinned copies. The raw teaching inputs are kept locally; the repository contains the retrieval script, code and derived results.
+
+### Importing and checking the spatial layers
+
+`st_read()` imports the shapefiles. I retain the source IDs because they are the keys used by the distance matrix. I inspect and repair invalid subzone geometry before using it in a spatial join, then transform all layers to SVY21 / Singapore TM, EPSG 3414. `st_transform()` changes coordinates from their declared CRS; assigning an EPSG label alone would not perform that conversion.
+
+```{r}
+#| label: import-spatial-data
+
+mpsz_raw <- st_read(
+  file.path(data_path, "geospatial"),
+  layer = "MP14_SUBZONE_NO_SEA_PL", quiet = TRUE
+)
+hexagons_raw <- st_read(
+  file.path(data_path, "geospatial"), layer = "hexagons", quiet = TRUE
+)
+eldercare_raw <- st_read(
+  file.path(data_path, "geospatial"), layer = "ELDERCARE", quiet = TRUE
+)
+
+invalid_subzones <- sum(!st_is_valid(mpsz_raw))
+mpsz <- mpsz_raw |> st_make_valid() |> st_transform(3414)
+hexagons <- hexagons_raw |>
+  st_transform(3414) |>
+  select(fid) |>
+  mutate(demand = 100) |>
+  arrange(fid)
+eldercare <- eldercare_raw |>
+  st_transform(3414) |>
+  select(fid, NAME, ADDRESSPOS) |>
+  mutate(capacity = 100) |>
+  arrange(fid)
+
+stopifnot(
+  nrow(mpsz) == 323,
+  nrow(hexagons) == 3125,
+  nrow(eldercare) == 120,
+  !anyDuplicated(hexagons$fid),
+  !anyDuplicated(eldercare$fid),
+  all(st_is_valid(mpsz)),
+  all(st_is_valid(hexagons)),
+  all(st_is_valid(eldercare)),
+  all(c(st_crs(mpsz)$epsg, st_crs(hexagons)$epsg,
+        st_crs(eldercare)$epsg) == 3414)
+)
+
+kable(tibble(
+  Layer = c("Subzones", "Hexagons", "Eldercare centres"),
+  Features = c(nrow(mpsz), nrow(hexagons), nrow(eldercare)),
+  EPSG = c(st_crs(mpsz)$epsg, st_crs(hexagons)$epsg, st_crs(eldercare)$epsg)
+), caption = "Spatial inputs after preparation")
+```
+
+The counts match the chapter: 323 subzones, 3,125 hexagons and 120 centres. `r invalid_subzones` subzone geometries required repair. The centre IDs contain gaps, so 120 destinations does not mean the IDs run from 1 to 120. Retaining those IDs prevents an incorrect matrix match.
+
+### Checking the network-distance table
+
+The total distance includes the connection from the origin to the road, the journey along the road network, and the connection from the road to the destination. I use that supplied total rather than substituting straight-line distance.
+
+```{r}
+#| label: import-and-audit-od
+
+ODMatrix <- read_csv(
+  file.path(data_path, "aspatial", "OD_Matrix.csv"),
+  show_col_types = FALSE
+)
+
+duplicate_pairs <- sum(duplicated(ODMatrix[c("origin_id", "destination_id")]))
+cost_error <- max(abs(
+  ODMatrix$total_cost - ODMatrix$entry_cost -
+    ODMatrix$network_cost - ODMatrix$exit_cost
+))
+
+stopifnot(
+  nrow(ODMatrix) == nrow(hexagons) * nrow(eldercare),
+  duplicate_pairs == 0,
+  setequal(ODMatrix$origin_id, hexagons$fid),
+  setequal(ODMatrix$destination_id, eldercare$fid),
+  all(is.finite(as.matrix(ODMatrix))),
+  all(ODMatrix$total_cost > 0),
+  all(ODMatrix$entry_cost >= 0),
+  all(ODMatrix$network_cost >= 0),
+  all(ODMatrix$exit_cost >= 0),
+  cost_error < 0.01
+)
+
+kable(tibble(
+  Check = c("Origin-destination pairs", "Distinct origins", "Distinct destinations",
+            "Duplicate pairs", "Missing total distances"),
+  Result = c(nrow(ODMatrix), n_distinct(ODMatrix$origin_id),
+             n_distinct(ODMatrix$destination_id), duplicate_pairs,
+             sum(is.na(ODMatrix$total_cost)))
+), format.args = list(big.mark = ","), caption = "Distance-table checks")
+```
+
+The matrix contains **375,000 unique pairs**, covering every combination of the 3,125 origins and 120 destinations. There are no missing or nonpositive total distances. The cost components reconcile to the total within a centimetre tolerance. A missing route would need separate treatment; replacing it with zero would falsely make the destination immediately accessible.
+
+### Reshaping and aligning the matrix
+
+`pivot_wider()` creates one row per origin and one column per destination. I then explicitly select the rows and columns in the same ID order as the demand and capacity vectors. This check matters because a matrix may have the correct dimensions while its values refer to different locations.
+
+```{r}
+#| label: prepare-distance-matrix
+
+distance_wide <- ODMatrix |>
+  select(origin_id, destination_id, total_cost) |>
+  pivot_wider(names_from = destination_id, values_from = total_cost)
+
+distance_wide <- distance_wide[
+  match(hexagons$fid, distance_wide$origin_id),
+]
+destination_columns <- as.character(eldercare$fid)
+
+distmat_km <- distance_wide |>
+  select(all_of(destination_columns)) |>
+  as.matrix() / 1000
+rownames(distmat_km) <- as.character(distance_wide$origin_id)
+
+stopifnot(
+  identical(rownames(distmat_km), as.character(hexagons$fid)),
+  identical(colnames(distmat_km), as.character(eldercare$fid)),
+  all(is.finite(distmat_km)),
+  all(distmat_km > 0)
+)
+
+nearest_km <- apply(distmat_km, 1, min)
+within_5km <- rowSums(distmat_km <= 5)
+```
+
+Distances range from `r round(min(distmat_km), 3)` to `r round(max(distmat_km), 2)` km. The median distance to the nearest listed centre is `r round(median(nearest_km), 2)` km. **`r fmt(sum(within_5km == 0))` hexagons** have no listed centre within a 5 km total network-distance catchment. That provides a useful check on the zero scores in the KD2SFCA map.
+
+### Assigning one planning region per hexagon
+
+A hexagon can intersect several subzones. Joining it directly to every intersecting subzone would repeat its score in regional summaries. I dissolve the subzones into five planning regions and use `st_join(..., largest = TRUE)` to assign each cell to the region with the largest area of overlap. All three models use that same assignment.
+
+```{r}
+#| label: assign-planning-region
+
+regions <- mpsz |>
+  select(REGION_N) |>
+  group_by(REGION_N) |>
+  summarise(.groups = "drop")
+
+region_assignment <- st_join(hexagons, regions, largest = TRUE)
+stopifnot(
+  nrow(region_assignment) == nrow(hexagons),
+  !anyNA(region_assignment$REGION_N),
+  !anyDuplicated(region_assignment$fid)
+)
+
+region_lookup <- region_assignment |>
+  st_drop_geometry() |>
+  select(fid, REGION_N)
+
+kable(count(region_lookup, REGION_N, name = "Hexagons"),
+      col.names = c("Planning region", "Hexagons"),
+      caption = "Each grid cell contributes once to the regional comparison")
+```
+
+## Hansen accessibility
+
+### Computing the score
+
+In `SpatialAcc` version `r as.character(packageVersion("SpatialAcc"))`, the Hansen option uses exponential distance decay:
+
+$$A_i^{H}=\sum_j S_j\exp(-\beta d_{ij}).$$
+
+Here $S_j$ is the assumed capacity at centre $j$, $d_{ij}$ is total distance in kilometres, and $\beta=2$ is the main setting. Nearby centres contribute more and distant centres contribute less. Demand does not enter this formula. I use the chapter's initial `power = 2` setting and examine its later `power = 0.5` setting in the sensitivity section.
+
+```{r}
+#| label: compute-hansen
+
+acc_Hansen <- tibble(accHansen = as.numeric(ac(
+  hexagons$demand, eldercare$capacity, distmat_km,
+  power = 2, family = "Hansen"
+)))
+hexagon_Hansen <- bind_cols(hexagons, acc_Hansen) |>
+  left_join(region_lookup, by = "fid")
+
+# Independent formula check for the uniform capacity scenario.
+hansen_check <- rowSums(sweep(exp(-2 * distmat_km), 2,
+                             eldercare$capacity, `*`))
+stopifnot(isTRUE(all.equal(acc_Hansen$accHansen, unname(hansen_check))))
+```
+
+### Mapping Hansen accessibility
+
+The maps use `tmap` with ten quantile classes for positive scores and a blue sequential palette. KD2SFCA's exact zeros receive a separate grey class. The fill legend sits outside the map, and red dots show the listed centres. The same map extent is used throughout. Classes show relative position within each model; the score units and class boundaries differ between models.
+
+```{r}
+#| label: map-helper
+
+mapex <- st_bbox(hexagons)
+accessibility_map <- function(x, field, title, legend_title) {
+  # Separate exact zeros from small positive scores for the map only.
+  x$map_score <- ifelse(x[[field]] == 0, NA_real_, x[[field]])
+  breaks <- unique(as.numeric(quantile(
+    x$map_score, probs = seq(0, 1, length.out = 11), na.rm = TRUE
+  )))
+  labels <- paste(
+    fmt_score(head(breaks, -1)), "to", fmt_score(tail(breaks, -1))
+  )
+
+  tm_shape(x, bbox = mapex) +
+    tm_polygons(
+      fill = "map_score",
+      fill.scale = tm_scale_intervals(
+        breaks = breaks, labels = labels, interval.closure = "right",
+        values = "brewer.blues", value.na = "grey80",
+        label.na = "0: outside 5 km"
+      ),
+      fill.legend = tm_legend(
+        title = legend_title, position = tm_pos_out("right", "center")
+      ),
+      col = "grey85", lwd = 0.1
+    ) +
+    tm_shape(regions) + tm_borders(col = "grey45", lwd = 0.6) +
+    tm_shape(eldercare) +
+    tm_dots(size = 0.15, fill = "red", col = "black", lwd = 0.3) +
+    tm_title(title) +
+    tm_compass(type = "8star", size = 1.3,
+               position = tm_pos_in("left", "top")) +
+    tm_scalebar(position = tm_pos_in("left", "bottom")) +
+    tm_layout(frame = TRUE)
+}
+```
+
+```{r}
+#| label: hansen-map
+#| fig-cap: "Hansen accessibility, exponential decay with beta equal to 2 per kilometre"
+#| fig-width: 11
+#| fig-height: 7
+
+accessibility_map(hexagon_Hansen, "accHansen",
+                  "Hansen accessibility", "Hansen score")
+```
+
+### Comparing regions
+
+The log scale makes very small Hansen scores visible. All scores are positive in these data. The red point is the mean of the logged scores, while the middle line of each box is the median. This plot summarises the grid cells without claiming that the observations are independent statistical samples.
+
+```{r}
+#| label: hansen-region-boxplot
+#| fig-cap: "Distribution of log Hansen scores by planning region; red points mark means on the log scale"
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot(st_drop_geometry(hexagon_Hansen), aes(REGION_N, log(accHansen))) +
+  geom_boxplot(fill = "#dbeafe", outlier.alpha = 0.35) +
+  stat_summary(fun = mean, geom = "point", colour = "red", size = 2) +
+  labs(x = NULL, y = "Natural log of Hansen score") +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+```
+
+## KD2SFCA accessibility
+
+### Computing supply relative to competing demand
+
+KD2SFCA applies two steps. First it divides each centre's capacity by the distance-weighted demand reaching that centre. It then adds those supply-to-demand ratios back to each origin, again weighted by distance:
+
+$$w_{ij}=\exp(-d_{ij}^{2})\,\mathbf{1}(d_{ij}\leq5),\qquad
+R_j=\frac{S_j}{\sum_k P_k w_{kj}},\qquad
+A_i^{K}=\sum_j R_jw_{ij}.$$
+
+The 5 km value is a catchment cutoff. The package's kernel uses the numerical distance in kilometres, so the distance unit is part of the model specification. The catchments overlap and can cross planning-region boundaries. A score of zero means that no listed centre is reachable inside this catchment, given the input matrix.
+
+```{r}
+#| label: compute-kd2sfca
+
+acc_KD2SFCA <- tibble(accKD2SFCA = as.numeric(ac(
+  hexagons$demand, eldercare$capacity, distmat_km,
+  d0 = 5, power = 2, family = "KD2SFCA"
+)))
+hexagon_KD2SFCA <- bind_cols(hexagons, acc_KD2SFCA) |>
+  left_join(region_lookup, by = "fid")
+
+kernel_weights <- exp(-distmat_km^2) * (distmat_km <= 5)
+weighted_demand <- colSums(kernel_weights * hexagons$demand)
+centre_ratios <- ifelse(weighted_demand > 0,
+                        eldercare$capacity / weighted_demand, 0)
+kd_check <- as.numeric(kernel_weights %*% centre_ratios)
+stopifnot(
+  isTRUE(all.equal(acc_KD2SFCA$accKD2SFCA, kd_check)),
+  all(is.finite(acc_KD2SFCA$accKD2SFCA)),
+  all((acc_KD2SFCA$accKD2SFCA == 0) == (within_5km == 0)),
+  abs(sum(hexagons$demand * kd_check) -
+        sum(eldercare$capacity[weighted_demand > 0])) < 0.000001
+)
+```
+
+The independent calculation matches `ac()`. Summing demand times accessibility recovers the capacity of centres with reachable demand. This checks that the two-step calculation redistributes the included supply consistently. It does not establish that all assumed places could actually be allocated to those residents.
+
+```{r}
+#| label: kd2sfca-map
+#| fig-cap: "KD2SFCA accessibility with a 5 km catchment and squared-distance exponential kernel"
+#| fig-width: 11
+#| fig-height: 7
+
+accessibility_map(hexagon_KD2SFCA, "accKD2SFCA",
+                  "KD2SFCA accessibility: 5 km catchment", "KD2SFCA score")
+```
+
+```{r}
+#| label: kd2sfca-region-boxplot
+#| fig-cap: "KD2SFCA scores by planning region, including zero-access cells"
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot(st_drop_geometry(hexagon_KD2SFCA), aes(REGION_N, accKD2SFCA)) +
+  geom_boxplot(fill = "#dbeafe", outlier.alpha = 0.35) +
+  stat_summary(fun = mean, geom = "point", colour = "red", size = 2) +
+  labs(x = NULL, y = "KD2SFCA score") +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+```
+
+The boxplot includes all `r fmt(sum(within_5km == 0))` zero-score cells. On the map these cells are grey, while ten quantile classes divide the positive values. This avoids repeated zero-valued cut points and keeps a small positive score distinct from no catchment access. The regional table below reports the zero share explicitly.
+
+## SAM accessibility
+
+### Computing the score
+
+SAM uses an inverse-square distance term and divides by demand at the focal origin:
+
+$$A_i^{S}=\sum_j\frac{S_j}{P_i d_{ij}^{2}}.$$
+
+With capacity and demand both equal to 100, this becomes $\sum_j1/d_{ij}^{2}$. Nearby destinations have a strong influence, while every destination still contributes. In this package, `d0` is not used by the SAM branch. I therefore omit it instead of describing SAM as a 5 km catchment model. It also does not account for other origins competing for the same centre in the way KD2SFCA does.
+
+```{r}
+#| label: compute-sam
+
+acc_SAM <- tibble(accSAM = as.numeric(ac(
+  hexagons$demand, eldercare$capacity, distmat_km,
+  power = 2, family = "SAM"
+)))
+hexagon_SAM <- bind_cols(hexagons, acc_SAM) |>
+  left_join(region_lookup, by = "fid")
+
+sam_check <- rowSums(sweep(1 / distmat_km^2, 2,
+                          eldercare$capacity, `*`)) / hexagons$demand
+stopifnot(
+  isTRUE(all.equal(acc_SAM$accSAM, unname(sam_check))),
+  all(is.finite(acc_SAM$accSAM)),
+  all(acc_SAM$accSAM > 0)
+)
+```
+
+```{r}
+#| label: sam-map
+#| fig-cap: "SAM accessibility with inverse-square distance decay and no catchment cutoff"
+#| fig-width: 11
+#| fig-height: 7
+
+accessibility_map(hexagon_SAM, "accSAM", "SAM accessibility", "SAM score")
+```
+
+```{r}
+#| label: sam-region-boxplot
+#| fig-cap: "SAM scores by planning region; nearby centres can produce large upper-tail values"
+#| fig-width: 10
+#| fig-height: 5
+
+ggplot(st_drop_geometry(hexagon_SAM), aes(REGION_N, accSAM)) +
+  geom_boxplot(fill = "#dbeafe", outlier.alpha = 0.35) +
+  stat_summary(fun = mean, geom = "point", colour = "red", size = 2) +
+  labs(x = NULL, y = "SAM score") +
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+```
+
+## Comparing the results
+
+### Regional medians and catchment coverage
+
+Medians describe the typical grid cell more clearly than means when a few cells lie very close to a centre. These are summaries of equal grid cells under equal assumed demand. They are not population-weighted estimates of older residents' access.
+
+```{r}
+#| label: regional-comparison
+
+accessibility <- hexagons |>
+  left_join(region_lookup, by = "fid") |>
+  mutate(
+    accHansen = acc_Hansen$accHansen,
+    accKD2SFCA = acc_KD2SFCA$accKD2SFCA,
+    accSAM = acc_SAM$accSAM,
+    nearest_km = nearest_km,
+    centres_within_5km = within_5km
+  )
+
+region_summary <- accessibility |>
+  st_drop_geometry() |>
+  group_by(REGION_N) |>
+  summarise(
+    Hexagons = n(),
+    Hansen_median = median(accHansen),
+    KD2SFCA_median = median(accKD2SFCA),
+    SAM_median = median(accSAM),
+    No_centre_within_5km_pct = mean(centres_within_5km == 0) * 100,
+    .groups = "drop"
+  )
+
+kable(region_summary |>
+        mutate(across(ends_with("_median"), fmt_score)), digits = 1,
+      col.names = c("Planning region", "Cells", "Hansen median", "KD2SFCA median",
+                    "SAM median", "No centre within 5 km (%)"))
+
+highest_hansen <- region_summary$REGION_N[which.max(region_summary$Hansen_median)]
+highest_kd <- region_summary$REGION_N[which.max(region_summary$KD2SFCA_median)]
+highest_sam <- region_summary$REGION_N[which.max(region_summary$SAM_median)]
+lowest_coverage <- region_summary$REGION_N[
+  which.max(region_summary$No_centre_within_5km_pct)
+]
+```
+
+**`r highest_hansen`** has the highest median under all three methods. **`r lowest_coverage`** has the largest share of cells without a listed centre within 5 km: `r round(max(region_summary$No_centre_within_5km_pct), 1)`%. The map also shows low scores across parts of the northern and eastern periphery. Regional averages should still be read alongside the maps because cells within the same region can have very different access.
+
+The SAM boxplot has a pronounced upper tail because a very short distance receives a large inverse-square weight. Its maximum is `r round(max(acc_SAM$accSAM), 1)`, compared with a national median of `r round(median(acc_SAM$accSAM), 3)`. The median table helps distinguish a typical cell from these unusually close locations. In the tables, `e-8` means multiplying by $10^{-8}$; it records a small positive number rather than zero.
+
+### Agreement in the ordering of cells
+
+The score magnitudes cannot be compared directly, so I use Spearman correlation to compare their rankings. A high correlation means two models tend to order cells similarly even when their numerical scales differ.
+
+```{r}
+#| label: ranking-agreement
+
+score_table <- accessibility |>
+  st_drop_geometry() |>
+  select(accHansen, accKD2SFCA, accSAM)
+
+rank_cor <- cor(score_table, method = "spearman")
+rank_display <- rank_cor
+dimnames(rank_display) <- list(c("Hansen", "KD2SFCA", "SAM"),
+                              c("Hansen", "KD2SFCA", "SAM"))
+kable(rank_display, digits = 3,
+      caption = "Spearman correlations between accessibility rankings")
+```
+
+Hansen and SAM have a rank correlation of `r round(rank_cor["accHansen", "accSAM"], 3)`. Both reward proximity to supply, although their decay functions differ. Hansen and KD2SFCA have a correlation of `r round(rank_cor["accHansen", "accKD2SFCA"], 3)`. KD2SFCA's competition term and cutoff can change which cells rank highly. Similar rankings are evidence of agreement within this scenario, not validation against observed service use.
+
+## Sensitivity to modelling choices
+
+The chapter shows both `power = 2` and `power = 0.5` for Hansen. I keep the former as the main map and compare the latter. With exponential decay, lowering this value gives distant facilities a larger contribution. I also compare 3, 5 and 10 km KD2SFCA catchments while retaining the same squared-distance kernel.
+
+```{r}
+#| label: parameter-sensitivity
+
+hansen_slow <- as.numeric(ac(
+  hexagons$demand, eldercare$capacity, distmat_km,
+  power = 0.5, family = "Hansen"
+))
+hansen_sensitivity <- tibble(
+  Beta = c(2, 0.5),
+  Median_score = c(median(acc_Hansen$accHansen), median(hansen_slow)),
+  Rank_correlation_with_beta_2 = c(
+    1, cor(acc_Hansen$accHansen, hansen_slow, method = "spearman")
+  )
+)
+kable(hansen_sensitivity |> mutate(Median_score = fmt_score(Median_score)), digits = 3,
+      col.names = c("Decay (per km)", "Median score", "Rank agreement with beta 2"),
+      caption = "Hansen decay sensitivity; the absolute scale also changes")
+
+kd_sensitivity <- map_dfr(c(3, 5, 10), function(catchment) {
+  score <- as.numeric(ac(
+    hexagons$demand, eldercare$capacity, distmat_km,
+    d0 = catchment, power = 2, family = "KD2SFCA"
+  ))
+  tibble(
+    Catchment_km = catchment,
+    Zero_score_cells = sum(score == 0),
+    Zero_score_pct = mean(score == 0) * 100,
+    Median_score = median(score),
+    Rank_correlation_with_5km = cor(
+      acc_KD2SFCA$accKD2SFCA, score, method = "spearman"
+    )
+  )
+})
+kable(kd_sensitivity |> mutate(Median_score = fmt_score(Median_score)),
+      digits = c(0, 0, 1, 4, 3),
+      col.names = c("Catchment (km)", "Zero cells", "Zero cells (%)",
+                    "Median score", "Rank agreement with 5 km"),
+      caption = "KD2SFCA catchment sensitivity with the same kernel")
+```
+
+Changing Hansen's decay from 2 to 0.5 produces a ranking correlation of `r round(hansen_sensitivity$Rank_correlation_with_beta_2[2], 3)`. The cutoff tests show how many cells change from zero to some access as the catchment expands. Scores can redistribute as demand enters a centre's catchment; wider catchments do not guarantee a higher score for every origin. At long distances the kernel weight is already tiny, so wider coverage may have only a small effect on the main ranking.
+
+## Assumptions and limitations
+
+The centre snapshot and Master Plan 2014 geography are historical teaching inputs. They cannot establish the distribution of services in 2026. Every origin has the same assumed demand and every centre the same assumed capacity, although actual elderly populations, available places and service types vary. A large non-residential cell receives the same demand as a densely populated one in this exercise.
+
+The supplied total network distance represents distance rather than travel time. It does not measure waiting time, public transport connections, affordability, service eligibility or whether a centre offers the care a person needs. The original road network and routing settings are not reconstructed here, so the matrix is used as supplied after checking its structure and arithmetic.
+
+Hansen rewards available nearby supply without a competition adjustment. SAM includes origin demand but omits competing demand at other origins. KD2SFCA includes that competition within its kernel and cutoff, whose settings are assumptions. None of these models establishes observed use, care quality or the probability that a resident will obtain a place.
+
+Planning regions provide a readable comparison, but assignment by largest overlap simplifies boundary-crossing cells. The boxplots are descriptive: nearby cells share routes and destinations, so treating them as independent observations in a routine significance test would give an unjustified impression of precision.
+
+## What I found
+
+The verified matrix supports a complete calculation across all 3,125 hexagons and 120 listed centres. The three models agree on much of the relative ordering, while their definitions lead to different score scales and treatment of demand. The regional medians and maps show where the teaching scenario gives relatively stronger access, and the `r fmt(sum(within_5km == 0))` cells beyond the 5 km catchment explain the zero KD2SFCA scores.
+
+KD2SFCA is the most suitable of the three when the question includes residents competing for limited capacity. Hansen is useful for comparing proximity to supply, and SAM provides a simple supply-to-origin-demand measure. Choosing among them therefore starts with the question, followed by suitable population, capacity and travel-cost data. This exercise demonstrates the calculations and their sensitivity; using them for planning would require those measured inputs.
+
+```{r}
+#| label: save-reproducible-results
+#| include: false
+
+write_csv(st_drop_geometry(accessibility), "results/accessibility.csv")
+write_csv(region_summary, "results/region-summary.csv")
+write_csv(kd_sensitivity, "results/kd-catchment-sensitivity.csv")
+write_csv(hansen_sensitivity, "results/hansen-decay-sensitivity.csv")
+write_csv(as_tibble(rank_cor, rownames = "Measure"), "results/rank-correlations.csv")
+writeLines(capture.output(sessionInfo()), "results/session-info.txt")
+```
+
+## References
+
+- [Chapter 17](https://r4gdsa.netlify.app/chap17.html): exercise workflow, datasets and teaching parameters.
+- [SpatialAcc documentation](https://cran.r-project.org/web/packages/SpatialAcc/SpatialAcc.pdf): `ac()` arguments and accessibility families. The equations above were also checked against the installed version's function body.
+- [sf spatial joins](https://r-spatial.github.io/sf/reference/st_join.html): spatial predicates and largest-overlap assignment.
+- [Course-file mirror](https://github.com/credor/ISSS626-GAA/tree/316e52d2088516f6fae69eb983757e021d1a2a10/Hands-on_Ex/Hands-on_Ex01/data): pinned input copies, accessed 13 October 2026.

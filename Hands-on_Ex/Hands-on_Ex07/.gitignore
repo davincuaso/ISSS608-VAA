@@ -1,0 +1,9 @@
+# Teaching inputs can be restored with scripts/download_data.R.
+data/aspatial/
+data/geospatial/
+.quarto/
+*.knit.md
+*.rmarkdown
+.Rhistory
+.RData
+.DS_Store
