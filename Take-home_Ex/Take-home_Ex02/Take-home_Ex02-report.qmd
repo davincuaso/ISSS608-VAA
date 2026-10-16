@@ -50,8 +50,6 @@ The study covers 1 January 2021 to 30 September 2025. The spatial unit is the to
 
 The analysis has three layers. First, descriptive summaries establish what is in the supplied data. Second, Local Moran's I and Getis-Ord Gi* test whether accumulated township totals form local clusters or spatial outliers. Third, an emerging hot spot analysis follows monthly local Gi* scores to identify how those patterns changed through time. Sensitivity checks examine coordinate precision and an alternative neighbour definition. A final extension measures movement in the event-weighted geographical centre.
 
-The [exercise brief](https://isss626-ay2026-27aug.netlify.app/take-home_ex02) contains two references to passenger trips and hexagons that do not match its Myanmar conflict task. I therefore follow the stated Myanmar objective, use townships as the geographical unit, and document that interpretation here rather than silently changing the problem.
-
 ## Objectives
 
 This report has five objectives:
