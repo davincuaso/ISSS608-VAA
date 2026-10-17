@@ -19,7 +19,7 @@ execute:
 
 ## Overview
 
-This exercise follows Dr. Kam Tin Seong's supplied `In-class_Ex07-accessibility.qmd`. It extends [Hands-on Exercise 7](../../Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.qmd) using the same Singapore hexagons, eldercare locations and network distances. The focus here is on catchment methods implemented by the `catchment` package.
+This exercise follows Dr. Kam Tin Seong's [18-slide In-class Exercise 7 deck](https://isss626-ay2026-27aug.netlify.app/in-class_ex/in-class_ex07/in-class_ex07-accessibility#/title-slide) and supplied `In-class_Ex07-accessibility.qmd`. It extends [Hands-on Exercise 7](../../Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.qmd) using the same Singapore hexagons, eldercare locations and network distances. The focus here is on catchment methods implemented by the `catchment` package.
 
 I calculate the distance to the nearest listed centre, then compare 2SFCA, E2SFCA, Gaussian KD2SFCA, 3SFCA and M2SFCA. The nearest-centre measure answers a proximity question. The catchment measures also consider how the assumed service capacity is shared with surrounding demand.
 
@@ -138,6 +138,8 @@ The matrix covers **375,000 unique pairs**, with no missing or nonpositive total
 
 `cost_to_closest()` needs an opportunity table keyed to the destinations. I therefore use one opportunity per actual eldercare centre and set `n = 1`. This identifies the nearest location without confusing centre availability with the assumed demand in a hexagon. `active = TRUE` measures access from each origin to those destinations.
 
+Slide 5 instead passes `hexagons` and its `demand` column as the opportunity table. That call gives the same nearest distances here because every destination ID also appears among the hexagon IDs with a positive value. The check below confirms this agreement. Using the actual centre table makes the destination meaning explicit and avoids relying on that overlap in IDs.
+
 ```{r}
 #| label: nearest-centre-distance
 
@@ -166,7 +168,9 @@ stopifnot(nrow(hex_acc) == 3125, all(is.finite(hex_acc$closest_km)))
 
 ### Mapping conventions
 
-The maps use ten quantile classes, with the legend outside the map. Red dots mark the listed centres. Darker blue means a shorter distance on the nearest-centre map and a higher accessibility score on the catchment maps. Exact zero catchment scores receive a separate grey class, so a small positive score is not rounded into apparent zero access.
+Like the mapping slides, each map includes red centre markers, a frame, an eight-point compass, a scale bar and a coordinate grid with `alpha = 0.2`. The legend sits outside the map.
+
+I use ten quantile classes for positive values and a separate grey class for exact zero catchment scores. The slides apply `-brewer.blues` to every measure. I retain that reversed palette for distance, but use `brewer.blues` for the catchment scores: darker blue then consistently means better access, whether that comes from a shorter distance or a higher score. These display choices do not change the calculated values.
 
 ```{r}
 #| label: mapping-helper
@@ -203,7 +207,8 @@ access_map <- function(x, field, title, legend_title, lower_is_better = FALSE) {
     tm_compass(type = "8star", size = 1.3,
                position = tm_pos_in("left", "top")) +
     tm_scalebar(position = tm_pos_in("left", "bottom")) +
-    tm_layout(frame = TRUE)
+    tm_layout(frame = TRUE) +
+    tm_grid(alpha = 0.2)
 }
 ```
 
@@ -465,6 +470,64 @@ kable(verification |> mutate(
 ), col.names = c("Method", "Largest formula difference", "Passed"))
 ```
 
+### Agreement with the published slide calls
+
+The next check repeats the slides' calls using the original layer order, `spread()`, and the hexagon-based opportunity table. It compares the resulting values by origin ID, so a different row order cannot hide a mismatch. The five catchment calls retain the slides' settings, including the Gaussian default, normalised 3SFCA weights and squared M2SFCA provider weights. This is a check of agreement with the class workflow; the separate formula checks above test the calculations themselves.
+
+```{r}
+#| label: check-slide-alignment
+
+slide_hexagons <- st_read("data/geospatial", "hexagons", quiet = TRUE) |>
+  select(fid) |> mutate(demand = 100) |> rename(id = fid)
+slide_eldercare <- st_read("data/geospatial", "ELDERCARE", quiet = TRUE) |>
+  select(fid) |> mutate(capacity = 100)
+slide_od <- ODMatrix |>
+  select(origin_id, destination_id, total_cost) |>
+  rename(from_id = origin_id, to_id = destination_id, dist = total_cost)
+slide_closest <- cost_to_closest(
+  travel_matrix = slide_od, land_use_data = slide_hexagons,
+  opportunity = "demand", travel_cost = "dist", n = 1,
+  group_by = character(0), active = TRUE, fill_missing_ids = TRUE
+)
+slide_wide <- ODMatrix |>
+  select(origin_id, destination_id, total_cost) |>
+  spread(destination_id, total_cost)
+stopifnot(
+  identical(slide_wide$origin_id, slide_hexagons$id),
+  identical(names(slide_wide)[-1], as.character(slide_eldercare$fid))
+)
+slide_cost <- as.matrix(select(slide_wide, -origin_id)) / 1000
+slide_steps <- list(c(5, .01), c(4, .05), c(3, .1), c(2, .4), c(1, 1))
+slide_demand <- slide_hexagons$demand
+slide_capacity <- slide_eldercare$capacity
+slide_scores <- list(
+  `2SFCA` = catchment_ratio(slide_demand, slide_capacity, slide_cost,
+                           max_cost = 5),
+  E2SFCA = catchment_ratio(slide_demand, slide_capacity, slide_cost,
+                           weight = slide_steps),
+  KD2SFCA = catchment_ratio(slide_demand, slide_capacity, slide_cost,
+                            weight = "gaussian"),
+  `3SFCA` = catchment_ratio(slide_demand, slide_capacity, slide_cost,
+                           slide_steps, normalize_weight = TRUE),
+  M2SFCA = catchment_ratio(slide_demand, slide_capacity, slide_cost,
+                           slide_steps, adjust_providers = function(w) w^2)
+)
+slide_order <- match(hexagons$id, slide_hexagons$id)
+slide_alignment <- tibble(
+  Measure = c("Nearest distance (metres)", names(package_scores)),
+  Maximum_absolute_difference = c(
+    max(abs(hex_acc$dist2closest -
+              slide_closest$dist[match(hex_acc$id, slide_closest$id)])),
+    map2_dbl(package_scores, slide_scores,
+             ~max(abs(.x - as.numeric(.y)[slide_order])))
+  )
+) |>
+  mutate(Passed = Maximum_absolute_difference < 1e-10)
+stopifnot(all(slide_alignment$Passed))
+kable(slide_alignment, digits = 10,
+      col.names = c("Measure", "Largest difference from slide call", "Passed"))
+```
+
 ### Score summaries
 
 Each method uses the same origins, capacity and demand. The table shows how their weighting rules change the distribution. The last column sums demand times score across cells. For the first four methods, this recovers the included capacity. M2SFCA downweights the final allocation separately, so that equality is not expected.
@@ -514,7 +577,7 @@ These are historical teaching data. Equal demand ignores the actual number and d
 
 ## Reproducing the exercise
 
-Render `In-class_Ex07.qmd` after restoring the inputs with the download script. The source executes every model and check, writes the results below, and builds all six maps. The nearest-centre opportunity table, explicit join key, ID-aligned matrix, `pivot_wider()` conversion and corrected M2SFCA map are the practical adjustments to the supplied guide.
+Render `In-class_Ex07.qmd` after restoring the inputs with the download script. The source executes every model and check, writes the derived tables to `results/`, and builds all six maps. The nearest-centre opportunity table, explicit join key, ID-aligned matrix, `pivot_wider()` conversion and corrected M2SFCA map are the practical adjustments to the supplied guide. Both the published-slide comparison and the independent formula checks must pass before the render can finish.
 
 ```{r}
 #| label: save-results
@@ -523,6 +586,7 @@ Render `In-class_Ex07.qmd` after restoring the inputs with the download script. 
 write_csv(accessibility_results, "results/accessibility.csv")
 write_csv(model_summary, "results/model-summary.csv")
 write_csv(verification, "results/formula-verification.csv")
+write_csv(slide_alignment, "results/slide-alignment.csv")
 write_csv(as_tibble(rank_agreement, rownames = "Method"),
           "results/rank-correlations.csv")
 inputs <- c(list.files("data/geospatial", full.names = TRUE),
@@ -535,7 +599,7 @@ writeLines(trimws(capture.output(sessionInfo()), which = "right"),
 
 ## References
 
-- Kam, T. S. *In-class Exercise 7: Geography of Accessibility: catchment methods*. Instructor-supplied Quarto guide, `In-class_Ex07-accessibility.qmd`.
+- Kam, T. S. [*In-class Exercise 7: Geography of Accessibility: catchment methods*](https://isss626-ay2026-27aug.netlify.app/in-class_ex/in-class_ex07/in-class_ex07-accessibility#/title-slide). Published slide deck, dated 17 October 2026, checked alongside the instructor-supplied `In-class_Ex07-accessibility.qmd`.
 - [catchment documentation](https://uva-bi-sdad.github.io/catchment/reference/catchment_ratio.html) and [pinned source](https://github.com/uva-bi-sdad/catchment/tree/b96fb58adcd0e476cbb634aeb6ce27981fbc1dc3): weighting rules and floating catchment implementation.
 - [accessibility: cost_to_closest source and documentation](https://github.com/ipeaGIT/accessibility/blob/master/R/cost_to_closest.R): origin/destination keys and opportunity definitions.
 - [Hands-on Exercise 7](../../Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.qmd) and [Chapter 17](https://r4gdsa.netlify.app/chap17.html): related teaching exercise and data context.
