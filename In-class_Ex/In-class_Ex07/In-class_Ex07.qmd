@@ -1,0 +1,541 @@
+---
+title: "In-Class Exercise 7"
+subtitle: "Geographical Accessibility: Catchment Methods"
+author: "Davin Cuaso"
+date: 2026-10-17
+date-modified: last-modified
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the R code"
+    code-tools: true
+    toc: true
+    toc-depth: 3
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Overview
+
+This exercise follows Dr. Kam Tin Seong's supplied `In-class_Ex07-accessibility.qmd`. It extends [Hands-on Exercise 7](../../Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.qmd) using the same Singapore hexagons, eldercare locations and network distances. The focus here is on catchment methods implemented by the `catchment` package.
+
+I calculate the distance to the nearest listed centre, then compare 2SFCA, E2SFCA, Gaussian KD2SFCA, 3SFCA and M2SFCA. The nearest-centre measure answers a proximity question. The catchment measures also consider how the assumed service capacity is shared with surrounding demand.
+
+As in the guide, every hexagon has demand 100 and every centre capacity 100. These are teaching assumptions rather than measured elderly populations or available service places. The aim is to understand what changes when the method changes while the input data stay fixed.
+
+## Getting started
+
+`catchment` is installed from the GitHub repository specified in the guide. I pin the source commit so that the calculation can be reproduced. All packages are then attached in one `pacman::p_load()` call.
+
+```{r}
+#| label: setup
+
+if (!requireNamespace("pacman", quietly = TRUE)) {
+  install.packages("pacman", repos = "https://cloud.r-project.org")
+}
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes", repos = "https://cloud.r-project.org")
+}
+if (!requireNamespace("catchment", quietly = TRUE)) {
+  remotes::install_github(
+    "uva-bi-sdad/catchment@b96fb58adcd0e476cbb634aeb6ce27981fbc1dc3",
+    upgrade = "never", build_vignettes = FALSE
+  )
+}
+
+pacman::p_load(sf, tidyverse, tmap, accessibility, catchment, knitr)
+
+options(scipen = 999)
+tmap_mode("plot")
+data_path <- "data"
+dir.create("results", showWarnings = FALSE)
+fmt <- function(x) format(x, big.mark = ",", trim = TRUE, scientific = FALSE)
+fmt_score <- function(x) trimws(formatC(x, format = "g", digits = 4))
+```
+
+## Importing and preparing the data
+
+The [data record](data/README.md) documents the teaching-file copies and their fingerprints. Run `Rscript scripts/download_data.R` from this exercise folder if the local inputs need to be restored.
+
+`st_read()` imports the three spatial layers and `st_transform()` places them in EPSG 3414. I repair invalid subzone geometry in memory, retain the centre IDs, and rename the hexagon key from `fid` to `id`, as in the guide. The layers are sorted before constructing any matrix or attaching scores.
+
+```{r}
+#| label: import-and-prepare
+
+mpsz <- st_read(
+  file.path(data_path, "geospatial"), "MP14_SUBZONE_NO_SEA_PL",
+  quiet = TRUE
+) |>
+  st_make_valid() |>
+  st_transform(3414)
+
+hexagons <- st_read(
+  file.path(data_path, "geospatial"), "hexagons", quiet = TRUE
+) |>
+  st_transform(3414) |>
+  arrange(fid) |>
+  select(fid) |>
+  mutate(demand = 100) |>
+  rename(id = fid) |>
+  mutate(id = as.character(id))
+
+eldercare <- st_read(
+  file.path(data_path, "geospatial"), "ELDERCARE", quiet = TRUE
+) |>
+  st_transform(3414) |>
+  arrange(fid) |>
+  select(fid) |>
+  mutate(capacity = 100)
+
+ODMatrix <- read_csv(
+  file.path(data_path, "aspatial", "OD_Matrix.csv"),
+  show_col_types = FALSE
+)
+
+ODMatrix_tidied <- ODMatrix |>
+  select(origin_id, destination_id, total_cost) |>
+  rename(from_id = origin_id, to_id = destination_id, dist = total_cost) |>
+  mutate(across(c(from_id, to_id), as.character))
+```
+
+The total cost is a distance in metres. It includes the connection from the hexagon to the road, travel along the network, and the connection to the centre. It is not a travel-time estimate.
+
+```{r}
+#| label: input-checks
+
+stopifnot(
+  nrow(mpsz) == 323, nrow(hexagons) == 3125, nrow(eldercare) == 120,
+  !anyDuplicated(hexagons$id), !anyDuplicated(eldercare$fid),
+  nrow(ODMatrix) == nrow(hexagons) * nrow(eldercare),
+  !anyDuplicated(ODMatrix[c("origin_id", "destination_id")]),
+  setequal(ODMatrix_tidied$from_id, hexagons$id),
+  setequal(ODMatrix_tidied$to_id, as.character(eldercare$fid)),
+  all(is.finite(as.matrix(ODMatrix))),
+  all(ODMatrix$total_cost > 0),
+  all(ODMatrix$entry_cost >= 0), all(ODMatrix$network_cost >= 0),
+  all(ODMatrix$exit_cost >= 0),
+  max(abs(ODMatrix$total_cost - ODMatrix$entry_cost -
+            ODMatrix$network_cost - ODMatrix$exit_cost)) < 0.01,
+  all(st_is_valid(mpsz)), all(st_is_valid(hexagons)),
+  all(st_is_valid(eldercare)),
+  all(c(st_crs(mpsz)$epsg, st_crs(hexagons)$epsg,
+        st_crs(eldercare)$epsg) == 3414)
+)
+
+kable(tibble(
+  Check = c("Subzones", "Origin hexagons", "Eldercare destinations",
+            "Unique distance pairs", "Missing total distances"),
+  Result = c(nrow(mpsz), nrow(hexagons), nrow(eldercare), nrow(ODMatrix),
+             sum(is.na(ODMatrix$total_cost)))
+), format.args = list(big.mark = ","), caption = "Input checks before modelling")
+```
+
+The matrix covers **375,000 unique pairs**, with no missing or nonpositive total distances. Destination IDs contain gaps between 1 and 133, so the matrix columns must be matched to actual centre IDs rather than to a sequence of 120 numbers.
+
+## Distance to the closest eldercare centre
+
+`cost_to_closest()` needs an opportunity table keyed to the destinations. I therefore use one opportunity per actual eldercare centre and set `n = 1`. This identifies the nearest location without confusing centre availability with the assumed demand in a hexagon. `active = TRUE` measures access from each origin to those destinations.
+
+```{r}
+#| label: nearest-centre-distance
+
+centre_opportunities <- eldercare |>
+  st_drop_geometry() |>
+  transmute(id = as.character(fid), centres = 1)
+
+dist2closest <- cost_to_closest(
+  travel_matrix = ODMatrix_tidied,
+  land_use_data = centre_opportunities,
+  opportunity = "centres",
+  travel_cost = "dist",
+  n = 1,
+  group_by = character(0),
+  active = TRUE,
+  fill_missing_ids = TRUE
+)
+
+hex_acc <- hexagons |>
+  left_join(as_tibble(dist2closest), by = "id") |>
+  rename(dist2closest = dist) |>
+  mutate(closest_km = dist2closest / 1000)
+
+stopifnot(nrow(hex_acc) == 3125, all(is.finite(hex_acc$closest_km)))
+```
+
+### Mapping conventions
+
+The maps use ten quantile classes, with the legend outside the map. Red dots mark the listed centres. Darker blue means a shorter distance on the nearest-centre map and a higher accessibility score on the catchment maps. Exact zero catchment scores receive a separate grey class, so a small positive score is not rounded into apparent zero access.
+
+```{r}
+#| label: mapping-helper
+
+mapex <- st_bbox(hexagons)
+coastline <- st_union(mpsz)
+
+access_map <- function(x, field, title, legend_title, lower_is_better = FALSE) {
+  x$map_value <- ifelse(x[[field]] == 0, NA_real_, x[[field]])
+  breaks <- unique(as.numeric(quantile(
+    x$map_value, probs = seq(0, 1, length.out = 11), na.rm = TRUE
+  )))
+  labels <- paste(fmt_score(head(breaks, -1)), "to", fmt_score(tail(breaks, -1)))
+
+  tm_shape(x, bbox = mapex) +
+    tm_polygons(
+      fill = "map_value",
+      fill.scale = tm_scale_intervals(
+        breaks = breaks, labels = labels, interval.closure = "right",
+        values = if (lower_is_better) "-brewer.blues" else "brewer.blues",
+        value.na = "grey80",
+        label.na = if (any(x[[field]] == 0)) "0: no centre in range" else FALSE
+      ),
+      fill.legend = tm_legend(
+        title = legend_title, position = tm_pos_out("right", "center"),
+        na.show = any(x[[field]] == 0)
+      ),
+      col = "grey85", lwd = 0.1
+    ) +
+    tm_shape(coastline) + tm_borders(col = "grey50", lwd = 0.45) +
+    tm_shape(eldercare) +
+    tm_dots(size = 0.15, fill = "red", col = "black", lwd = 0.3) +
+    tm_title(title) +
+    tm_compass(type = "8star", size = 1.3,
+               position = tm_pos_in("left", "top")) +
+    tm_scalebar(position = tm_pos_in("left", "bottom")) +
+    tm_layout(frame = TRUE)
+}
+```
+
+```{r}
+#| label: nearest-centre-map
+#| fig-cap: "Total network distance to the nearest listed centre; darker blue indicates a shorter distance"
+#| fig-width: 11
+#| fig-height: 7
+
+access_map(hex_acc, "closest_km", "Distance to the closest eldercare centre",
+           "Distance (km)", lower_is_better = TRUE)
+```
+
+The median nearest-centre distance is **`r round(median(hex_acc$closest_km), 2)` km**. Distances range from `r round(min(hex_acc$closest_km), 3)` to `r round(max(hex_acc$closest_km), 2)` km. **`r fmt(sum(hex_acc$closest_km >= 5))` cells** are at least 5 km from every listed centre. Proximity alone does not tell us how much capacity is available after other origins' demand is considered.
+
+## Converting the distance table into a matrix
+
+`pivot_wider()` replaces the older `spread()` call in the guide. Rows represent hexagons and columns represent centres. I select both dimensions in the same order as the spatial layers and convert metres to kilometres before applying the 5 km catchments.
+
+```{r}
+#| label: aligned-distance-matrix
+
+distmat <- ODMatrix |>
+  select(origin_id, destination_id, total_cost) |>
+  pivot_wider(names_from = destination_id, values_from = total_cost)
+distmat <- distmat[match(hexagons$id, as.character(distmat$origin_id)), ]
+
+distmat_km <- as.matrix(
+  select(distmat, all_of(as.character(eldercare$fid)))
+) / 1000
+rownames(distmat_km) <- as.character(distmat$origin_id)
+
+demand <- setNames(hexagons$demand, hexagons$id)
+capacity <- setNames(eldercare$capacity, as.character(eldercare$fid))
+
+stopifnot(
+  identical(rownames(distmat_km), names(demand)),
+  identical(colnames(distmat_km), names(capacity)),
+  identical(dim(distmat_km), c(3125L, 120L)),
+  all(is.finite(distmat_km)), all(distmat_km > 0),
+  isTRUE(all.equal(hex_acc$closest_km, unname(apply(distmat_km, 1, min))))
+)
+```
+
+The nearest-distance calculation agrees with the minimum of each aligned matrix row. The named demand and capacity vectors also keep the IDs explicit in every catchment calculation.
+
+## Two-step floating catchment area: 2SFCA
+
+2SFCA gives full weight to every centre inside a 5 km catchment and zero weight outside it. At each centre, its capacity is divided by the demand in range. Each origin then adds the ratios of its reachable centres. A nearby centre can therefore provide a smaller score when it serves many other origins.
+
+Writing $P_i$ for demand, $S_j$ for capacity and $w_{ij}$ for the catchment weight:
+
+$$R_j=\frac{S_j}{\sum_kP_kw_{kj}},\qquad A_i=\sum_jR_jw_{ij}.$$
+
+In the installed `catchment` implementation, the simple numerical cutoff uses $d_{ij}<5$ km. The step weights used later include their upper endpoints. No supplied pair is exactly 5 km apart, so this boundary convention does not change these results.
+
+```{r}
+#| label: calculate-2sfca
+
+df_2sfca <- tibble(`2SFCA` = as.numeric(catchment_ratio(
+  consumers = demand,
+  providers = capacity,
+  cost = distmat_km,
+  max_cost = 5
+)))
+hex_2SFCA <- bind_cols(hexagons, df_2sfca)
+stopifnot(!any(distmat_km == 5))
+```
+
+```{r}
+#| label: map-2sfca
+#| fig-cap: "2SFCA accessibility with a uniform 5 km catchment"
+#| fig-width: 11
+#| fig-height: 7
+
+access_map(hex_2SFCA, "2SFCA", "2SFCA: 5 km catchment", "2SFCA score")
+```
+
+**`r fmt(sum(df_2sfca[["2SFCA"]] == 0))` cells** have zero 2SFCA access. For the other cells, the score reflects both reachable supply and the demand sharing that supply. It is an assumed capacity-to-demand ratio, not the probability of obtaining care.
+
+## Enhanced two-step floating catchment area: E2SFCA
+
+E2SFCA replaces the uniform catchment with the five distance bands in the guide. Closer centres receive greater weight. The same weights enter the demand around each centre and the supply returned to each origin.
+
+```{r}
+#| label: calculate-e2sfca
+
+step_weights <- list(c(5, .01), c(4, .05), c(3, .1), c(2, .4), c(1, 1))
+
+df_e2sfca <- tibble(E2SFCA = as.numeric(catchment_ratio(
+  consumers = demand,
+  providers = capacity,
+  cost = distmat_km,
+  weight = step_weights
+)))
+hex_E2SFCA <- bind_cols(hexagons, df_e2sfca)
+
+kable(tibble(
+  `Distance band (km)` = c("0 < d <= 1", "1 < d <= 2", "2 < d <= 3",
+                          "3 < d <= 4", "4 < d <= 5", "d > 5"),
+  Weight = c(1, .4, .1, .05, .01, 0)
+), caption = "The instructor's E2SFCA step weights")
+```
+
+```{r}
+#| label: map-e2sfca
+#| fig-cap: "E2SFCA accessibility using the supplied distance-band weights"
+#| fig-width: 11
+#| fig-height: 7
+
+access_map(hex_E2SFCA, "E2SFCA", "E2SFCA: distance-band weights", "E2SFCA score")
+```
+
+E2SFCA has the same geographical reach as 2SFCA, but its scores can differ within that reach. A centre at 4.5 km contributes much less weight than one at 0.5 km. Lower weights also reduce the demand attributed to more distant origins, so the final result depends on both steps rather than distance alone.
+
+## Gaussian kernel density two-step floating catchment area
+
+The guide's Gaussian call uses the package's default `scale = 2` and no maximum distance. I make that scale explicit. Its weight is $\exp[-d_{ij}^2/(2\times2^2)]$, with distance in kilometres.
+
+This differs from Hands-on Exercise 7, where `SpatialAcc` used $\exp(-d_{ij}^2)$ and a 5 km cutoff. The two KD2SFCA outputs therefore should not be treated as identical specifications simply because their names match.
+
+```{r}
+#| label: calculate-kd2sfca
+
+df_kd2sfca <- tibble(KD2SFCA = as.numeric(catchment_ratio(
+  consumers = demand,
+  providers = capacity,
+  cost = distmat_km,
+  weight = "gaussian",
+  scale = 2
+)))
+hex_KD2SFCA <- bind_cols(hexagons, df_kd2sfca)
+```
+
+```{r}
+#| label: map-kd2sfca
+#| fig-cap: "Gaussian KD2SFCA with a 2 km scale and no hard catchment cutoff"
+#| fig-width: 11
+#| fig-height: 7
+
+access_map(hex_KD2SFCA, "KD2SFCA", "Gaussian KD2SFCA: scale 2 km", "KD2SFCA score")
+```
+
+There are **`r fmt(sum(df_kd2sfca$KD2SFCA == 0))` exact zero scores** in this calculation. Distant centres still contribute a small positive amount because there is no hard cutoff. That mathematical access does not establish that those journeys would be practical for an older resident.
+
+## Three-step floating catchment area: 3SFCA
+
+3SFCA uses the same step weights but adds a selection adjustment for origins with multiple reachable centres. `normalize_weight = TRUE` activates this adjustment in `catchment_ratio()`.
+
+In the pinned implementation, the effective weight is $v_{ij}=w_{ij}(w_{ij}/\sum_jw_{ij})$. It combines the original distance weight with the centre's share of the origin's total weight. The function then uses these effective weights in both the demand and allocation steps. This is more specific than simply replacing the weights with a row-normalised matrix.
+
+```{r}
+#| label: calculate-3sfca
+
+df_3sfca <- tibble(`3SFCA` = as.numeric(catchment_ratio(
+  consumers = demand,
+  providers = capacity,
+  cost = distmat_km,
+  weight = step_weights,
+  normalize_weight = TRUE
+)))
+hex_3SFCA <- bind_cols(hexagons, df_3sfca)
+```
+
+```{r}
+#| label: map-3sfca
+#| fig-cap: "3SFCA with selection-adjusted step weights"
+#| fig-width: 11
+#| fig-height: 7
+
+access_map(hex_3SFCA, "3SFCA", "3SFCA: selection-adjusted weights", "3SFCA score")
+```
+
+The adjustment changes how demand and supply are distributed among overlapping catchments. It does not create additional centres or extend the 5 km reach of the step weights.
+
+## Modified two-step floating catchment area: M2SFCA
+
+M2SFCA squares the provider weight in the final allocation step, following the guide's `adjust_providers = function(w) w^2` setting. Its demand denominator still uses the original step weights. Since all those weights are between 0 and 1, squaring reduces the contribution of centres beyond the first distance band.
+
+```{r}
+#| label: calculate-m2sfca
+
+df_m2sfca <- tibble(M2SFCA = as.numeric(catchment_ratio(
+  consumers = demand,
+  providers = capacity,
+  cost = distmat_km,
+  weight = step_weights,
+  adjust_providers = function(w) w^2
+)))
+hex_M2SFCA <- bind_cols(hexagons, df_m2sfca)
+```
+
+```{r}
+#| label: map-m2sfca
+#| fig-cap: "M2SFCA with squared provider weights; this map uses the M2SFCA result"
+#| fig-width: 11
+#| fig-height: 7
+
+access_map(hex_M2SFCA, "M2SFCA", "M2SFCA: squared provider weights", "M2SFCA score")
+```
+
+The guide's plot tab accidentally points to `hex_3SFCA` and its `3SFCA` column. The map above uses `hex_M2SFCA` and `M2SFCA`, matching the model just calculated.
+
+## Checking and comparing the results
+
+### Independent calculation checks
+
+I reconstruct the binary, step and Gaussian weight matrices from the stated formulas, then calculate the ratios directly. These results must match the five package outputs. The nearest-distance result was checked separately against each row's minimum.
+
+```{r}
+#| label: verify-model-calculations
+
+w_binary <- 1 * (distmat_km < 5)
+w_step <- matrix(0, nrow(distmat_km), ncol(distmat_km))
+for (band in step_weights) {
+  w_step[distmat_km <= band[1]] <- band[2]
+}
+w_gaussian <- exp(-distmat_km^2 / (2 * 2^2))
+row_weight <- rowSums(w_step)
+row_weight[row_weight == 0] <- 1
+w_selection <- w_step * (w_step / row_weight)
+
+direct_fca <- function(consumer_weights, provider_weights = consumer_weights) {
+  demand_at_centre <- as.numeric(crossprod(consumer_weights, demand))
+  centre_ratio <- ifelse(demand_at_centre > 0, capacity / demand_at_centre, 0)
+  as.numeric(provider_weights %*% centre_ratio)
+}
+
+package_scores <- list(
+  `2SFCA` = df_2sfca$`2SFCA`, E2SFCA = df_e2sfca$E2SFCA,
+  KD2SFCA = df_kd2sfca$KD2SFCA, `3SFCA` = df_3sfca$`3SFCA`,
+  M2SFCA = df_m2sfca$M2SFCA
+)
+formula_scores <- list(
+  direct_fca(w_binary), direct_fca(w_step), direct_fca(w_gaussian),
+  direct_fca(w_selection), direct_fca(w_step, w_step^2)
+)
+
+verification <- tibble(
+  Method = names(package_scores),
+  Maximum_absolute_difference = map2_dbl(
+    package_scores, formula_scores, ~max(abs(.x - .y))
+  )
+) |>
+  mutate(Passed = Maximum_absolute_difference < 1e-10)
+
+stopifnot(
+  all(verification$Passed),
+  all(map_lgl(package_scores, ~length(.x) == 3125 &&
+                all(is.finite(.x)) && all(.x >= 0))),
+  identical(df_2sfca$`2SFCA` == 0, df_e2sfca$E2SFCA == 0),
+  identical(df_2sfca$`2SFCA` == 0, df_3sfca$`3SFCA` == 0),
+  identical(df_2sfca$`2SFCA` == 0, df_m2sfca$M2SFCA == 0)
+)
+
+kable(verification |> mutate(
+  Maximum_absolute_difference = formatC(Maximum_absolute_difference,
+                                         format = "e", digits = 2)
+), col.names = c("Method", "Largest formula difference", "Passed"))
+```
+
+### Score summaries
+
+Each method uses the same origins, capacity and demand. The table shows how their weighting rules change the distribution. The last column sums demand times score across cells. For the first four methods, this recovers the included capacity. M2SFCA downweights the final allocation separately, so that equality is not expected.
+
+```{r}
+#| label: model-comparison
+
+model_summary <- imap_dfr(package_scores, function(score, method) {
+  tibble(
+    Method = method,
+    Zero_cells = sum(score == 0),
+    Median = median(score),
+    Maximum = max(score),
+    Demand_weighted_total = sum(unname(demand) * score)
+  )
+})
+
+stopifnot(all(abs(model_summary$Demand_weighted_total[1:4] -
+                   sum(capacity)) < 1e-6))
+
+kable(model_summary |> mutate(across(c(Median, Maximum), fmt_score)),
+      digits = 2,
+      col.names = c("Method", "Zero cells", "Median score", "Maximum score",
+                    "Sum of demand x score"))
+
+accessibility_results <- hex_acc |>
+  st_drop_geometry() |>
+  bind_cols(df_2sfca, df_e2sfca, df_kd2sfca, df_3sfca, df_m2sfca)
+
+rank_agreement <- cor(as.data.frame(package_scores), method = "spearman")
+dimnames(rank_agreement) <- list(names(package_scores), names(package_scores))
+kable(rank_agreement, digits = 3,
+      caption = "Spearman agreement in the ranking of origin cells")
+```
+
+All four methods with 5 km support identify the same **`r fmt(model_summary$Zero_cells[1])` zero-access cells**. Their differences concern allocation within that support. Gaussian KD2SFCA has no hard cutoff, so its nonzero reach follows from the model definition rather than evidence that every cell is well served.
+
+M2SFCA returns a demand-weighted total of **`r fmt(round(model_summary$Demand_weighted_total[5], 1))`**, compared with the assumed capacity total of **`r fmt(sum(capacity))`**. This difference results from squaring the final provider weights; it is not a measured loss of service places. The ranking correlations describe agreement between model scenarios and do not validate them against observed service use.
+
+## What I found and what the results mean
+
+Nearest-centre distance is useful for describing proximity, but it cannot distinguish a lightly shared centre from one facing substantial demand. The floating catchment methods add that supply-and-demand comparison. Uniform 2SFCA gives equal treatment within the catchment, E2SFCA discounts longer journeys in bands, Gaussian KD2SFCA changes the discount smoothly, 3SFCA adjusts for overlapping choices, and M2SFCA reduces the final influence of more distant centres further.
+
+The maps show where those assumptions produce relatively high or low access. Their quantile breaks are calculated separately, so a matching shade across two maps does not imply equal numerical scores. The comparison table is needed alongside the maps, particularly for M2SFCA and the Gaussian model, whose definitions differ in allocation or geographical reach.
+
+These are historical teaching data. Equal demand ignores the actual number and distribution of older residents, and equal capacity ignores differences in centre size and service type. Network distance also omits travel time, affordability, eligibility and care quality. The exercise demonstrates the methods under the supplied assumptions; a service-planning application would require measured demand, capacity and current travel costs.
+
+## Reproducing the exercise
+
+Render `In-class_Ex07.qmd` after restoring the inputs with the download script. The source executes every model and check, writes the results below, and builds all six maps. The nearest-centre opportunity table, explicit join key, ID-aligned matrix, `pivot_wider()` conversion and corrected M2SFCA map are the practical adjustments to the supplied guide.
+
+```{r}
+#| label: save-results
+#| include: false
+
+write_csv(accessibility_results, "results/accessibility.csv")
+write_csv(model_summary, "results/model-summary.csv")
+write_csv(verification, "results/formula-verification.csv")
+write_csv(as_tibble(rank_agreement, rownames = "Method"),
+          "results/rank-correlations.csv")
+inputs <- c(list.files("data/geospatial", full.names = TRUE),
+            "data/aspatial/OD_Matrix.csv")
+write_csv(tibble(File = inputs, MD5 = unname(tools::md5sum(inputs))),
+          "results/input-checksums.csv")
+writeLines(trimws(capture.output(sessionInfo()), which = "right"),
+           "results/session-info.txt")
+```
+
+## References
+
+- Kam, T. S. *In-class Exercise 7: Geography of Accessibility: catchment methods*. Instructor-supplied Quarto guide, `In-class_Ex07-accessibility.qmd`.
+- [catchment documentation](https://uva-bi-sdad.github.io/catchment/reference/catchment_ratio.html) and [pinned source](https://github.com/uva-bi-sdad/catchment/tree/b96fb58adcd0e476cbb634aeb6ce27981fbc1dc3): weighting rules and floating catchment implementation.
+- [accessibility: cost_to_closest source and documentation](https://github.com/ipeaGIT/accessibility/blob/master/R/cost_to_closest.R): origin/destination keys and opportunity definitions.
+- [Hands-on Exercise 7](../../Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.qmd) and [Chapter 17](https://r4gdsa.netlify.app/chap17.html): related teaching exercise and data context.

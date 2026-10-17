@@ -8,6 +8,7 @@ project:
   resources:
     - "Take-home_Ex/Take-home_Ex01/scripts/**"
     - "Hands-on_Ex/Hands-on_Ex07/scripts/**"
+    - "In-class_Ex/In-class_Ex07/scripts/**"
 
 website:
   title: "ISSS608 Visual Analytics"
@@ -49,6 +50,8 @@ website:
             text: "In-Class Exercise 5: Emerging Hot Spot Analysis"
           - href: In-class_Ex/In-class_Ex06/In-class_Ex06.qmd
             text: "In-Class Exercise 6: EHSA Method Audit"
+          - href: In-class_Ex/In-class_Ex07/In-class_Ex07.qmd
+            text: "In-Class Exercise 7: Accessibility Catchment Methods"
       - text: Take-home Exercises
         menu:
           - href: Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd

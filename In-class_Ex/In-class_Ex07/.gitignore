@@ -1,0 +1,8 @@
+data/aspatial/
+data/geospatial/
+.quarto/
+*.knit.md
+*.rmarkdown
+.Rhistory
+.RData
+.DS_Store

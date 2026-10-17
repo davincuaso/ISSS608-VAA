@@ -129,6 +129,14 @@ Build a Hunan space-time cube, calculate annual local Gi*, test county trends wi
 Re-run the Hunan cube with explicit positive-self Gi* weights, an interactive Gi* chart, EHSA classes, and a multiple-testing check.
 :::
 
+::: {.exercise-card}
+### [In-Class Exercise 7](In-class_Ex/In-class_Ex07/In-class_Ex07.qmd)
+
+**Geographical Accessibility: Catchment Methods**
+
+Calculate nearest-centre distance and compare 2SFCA, E2SFCA, Gaussian KD2SFCA, 3SFCA, and M2SFCA using the instructor's guide.
+:::
+
 :::
 
 ## Take-home exercises
