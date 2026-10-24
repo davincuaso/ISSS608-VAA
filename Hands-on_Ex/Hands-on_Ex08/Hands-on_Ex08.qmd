@@ -1,0 +1,470 @@
+---
+title: "Hands-on Exercise 8"
+subtitle: "Market Area Analysis Using the Huff Model"
+author: "Davin Cuaso"
+date: 2026-10-24
+date-modified: last-modified
+format:
+  html:
+    theme: cosmo
+    code-fold: true
+    code-summary: "Show the R code"
+    code-tools: true
+    toc: true
+    toc-depth: 3
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Overview
+
+This exercise follows [Chapter 18: Market Area Analysis for Retail and Service Locations using Huff model](https://r4gdsa.netlify.app/chap18). It uses Taichung's village boundaries, store locations, 2019 population and the supplied sales records.
+
+I calculate the probability of choosing each listed store from each village, map BT's patronage probabilities, and aggregate probability-weighted population to store level. I compare those allocations with recorded sales without treating population counts as currency.
+
+The questions are where BT's modelled patronage is relatively high, how demand is shared among the 28 stores, and whether the model's store rankings agree with the recorded sales pattern.
+
+## Getting started
+
+The chapter's packages are attached in one `pacman::p_load()` call. `knitr` supplies readable result tables and `ragg` draws PNG figures without an X11 dependency. The file check stops execution if the course inputs are absent; it does not replace them with simulated data.
+
+```{r}
+#| label: setup
+
+if (!requireNamespace("pacman", quietly = TRUE)) {
+  install.packages("pacman", repos = "https://cloud.r-project.org")
+}
+pacman::p_load(sf, tidyverse, MCI, tmap, ggstatsplot, knitr, ragg)
+
+options(scipen = 999)
+theme_set(theme_minimal(base_size = 12))
+knitr::opts_chunk$set(dev = "ragg_png")
+tmap_mode("plot")
+
+required_files <- c(
+  unlist(lapply(c("STORES_TC", "TOWN_TC", "VILLAGE_TC"), function(layer) {
+    file.path("data", "geospatial", paste0(layer, c(".shp", ".shx", ".dbf", ".prj")))
+  })),
+  file.path("data", "aspatial", c("pop2019.csv", "Store_sales_data.csv", "storeCD.csv"))
+)
+missing_files <- required_files[!file.exists(required_files)]
+if (length(missing_files)) {
+  stop(paste("The actual course inputs are required. Missing files:",
+             paste(missing_files, collapse = "\n"), sep = "\n"))
+}
+dir.create("results", showWarnings = FALSE)
+fmt <- function(x) format(x, big.mark = ",", trim = TRUE, scientific = FALSE)
+```
+
+## Importing and checking the data
+
+The inputs are the course files supplied for this exercise, documented in the [data record](data/README.md). The original 28-store `STORES_TC` layer is used throughout. The separate `STORES_TC1` layer includes an additional store, NS, and is not mixed into this baseline analysis. Restore the local inputs with `Rscript scripts/import_data.R /path/to/course/data` before rendering a fresh checkout.
+
+I use `st_read()` for the three spatial layers and `read_csv()` for the two tables. The chapter's executable code uses the `_TC` layers, including `TOWN_TC`, even though its opening list mentions `_TN`. I follow the Taichung code and use TWD97 / TM2 zone 121, EPSG 3826, so planar distances are measured in metres.
+
+```{r}
+#| label: import-data
+
+stores_raw <- st_read("data/geospatial", "STORES_TC", quiet = TRUE)
+town_raw <- st_read("data/geospatial", "TOWN_TC", quiet = TRUE)
+village_raw <- st_read("data/geospatial", "VILLAGE_TC", quiet = TRUE)
+stopifnot(
+  !is.na(st_crs(stores_raw)), !is.na(st_crs(town_raw)),
+  !is.na(st_crs(village_raw))
+)
+invalid_before <- c(
+  Stores = sum(!st_is_valid(stores_raw)), Towns = sum(!st_is_valid(town_raw)),
+  Villages = sum(!st_is_valid(village_raw))
+)
+stores <- stores_raw |> st_make_valid() |> st_transform(3826)
+town <- town_raw |> st_make_valid() |> st_transform(3826)
+village_raw <- village_raw |> st_make_valid() |> st_transform(3826)
+
+pop2019_raw <- read_csv(
+  "data/aspatial/pop2019.csv", show_col_types = FALSE,
+  col_types = cols(V_ID = col_character(), .default = col_guess())
+)
+store_sales <- read_csv(
+  "data/aspatial/Store_sales_data.csv", show_col_types = FALSE, na = "",
+  col_types = cols(`Store Code` = col_character(), .default = col_guess())
+)
+store_codes <- read_csv("data/aspatial/storeCD.csv", show_col_types = FALSE)
+stopifnot(
+  nrow(problems(pop2019_raw)) == 0, nrow(problems(store_sales)) == 0,
+  !anyDuplicated(stores$Store_CD), !anyDuplicated(village_raw$VILLCODE),
+  !anyNA(stores$Store_CD), !anyNA(village_raw$VILLCODE),
+  !anyDuplicated(store_codes$Store_CD),
+  setequal(store_codes$Store_CD, stores$Store_CD),
+  all(st_is_valid(stores)), all(st_is_valid(town)),
+  all(st_is_valid(village_raw)),
+  all(c(st_crs(stores)$epsg, st_crs(town)$epsg,
+        st_crs(village_raw)$epsg) == 3826)
+)
+input_counts <- tibble(
+  Input = c("Stores", "Town boundaries", "Village boundaries",
+            "Population rows", "Sales rows"),
+  Observed = c(nrow(stores), nrow(town), nrow(village_raw),
+               nrow(pop2019_raw), nrow(store_sales)),
+  Chapter_reference = c(28, 28, 622, 625, 5499)
+)
+kable(input_counts, format.args = list(big.mark = ","),
+      caption = "Observed counts alongside the chapter's reference counts")
+```
+
+The geometry checks required `r sum(invalid_before)` repairs in memory. The original files are left unchanged. The chapter's counts are a reference for checking the supplied version, not values used to fill gaps in the data.
+
+### Inspecting the locations
+
+This interactive map follows the chapter's initial exploration. Village and store popups show their actual IDs. The calculations later use the projected geometries, not the web map's display coordinates.
+
+```{r}
+#| label: input-location-map
+
+tmap_mode("view")
+tm_shape(town) +
+  tm_polygons(fill = "grey95", col = "grey60", popup.vars = FALSE) +
+  tm_shape(village_raw) +
+  tm_polygons(fill = "grey95", col = "grey75", lwd = 0.4,
+              popup.vars = c("Village" = "VILLENG", "ID" = "VILLCODE")) +
+  tm_shape(stores) +
+  tm_dots(size = 0.2, fill = "red", col = "black",
+          popup.vars = c("Store" = "Store_Name", "Code" = "Store_CD"))
+```
+
+```{r}
+#| label: return-to-static-maps
+#| include: false
+tmap_mode("plot")
+```
+
+## Preparing the tables and joins
+
+### Aggregating recorded sales by store
+
+I sum bills and amounts by `Store Code`, then use a named `left_join()` to attach the totals to the store layer. Every store receives `Store_size = 100`, matching the chapter. This is assumed equal attractiveness, not a measured shop-floor area. Sales are held aside for comparison rather than being used to define attractiveness and then claimed as independent validation.
+
+```{r}
+#| label: prepare-store-sales
+
+stopifnot(
+  !anyNA(store_sales$`Store Code`),
+  all(is.finite(store_sales$Bills)), all(is.finite(store_sales$Amount)),
+  all(store_sales$Bills >= 0), all(store_sales$Amount >= 0)
+)
+store_sales_aggre <- store_sales |>
+  group_by(`Store Code`) |>
+  summarise(Total_Bill = sum(Bills), Total_Sales = sum(Amount), .groups = "drop")
+sales_without_location <- store_sales_aggre |>
+  anti_join(st_drop_geometry(stores), by = join_by(`Store Code` == Store_CD))
+stores <- stores |>
+  left_join(store_sales_aggre, by = join_by(Store_CD == `Store Code`),
+            relationship = "one-to-one") |>
+  mutate(Store_size = 100) |>
+  arrange(Store_CD)
+stopifnot(!anyNA(stores$Total_Sales), all(stores$Store_size > 0))
+kable(st_drop_geometry(stores) |>
+        select(Store_CD, Total_Bill, Total_Sales, Store_size),
+      format.args = list(big.mark = ","), caption = "Recorded sales for the mapped stores")
+```
+
+There are `r nrow(sales_without_location)` additional sales-table code categories without a location in the supplied store layer. They are listed separately in the audit output and are not silently treated as mapped competitors. The reader uses `na = ""` to preserve the literal code text `NA` in `r sum(store_sales[["Store Code"]] == "NA")` rows; its meaning is not inferred or used to create a new mapped store.
+
+### Matching population to villages
+
+`V_ID` contains a hyphen, while `VILLCODE` does not. I remove that separator, preserve both IDs as text, check uniqueness, and join explicitly. An unmatched village is not assumed to have zero population. Following the chapter, it is excluded from the model, but remains visible as grey map context.
+
+```{r}
+#| label: prepare-population
+
+pop2019 <- pop2019_raw |>
+  mutate(V_ID = str_remove_all(V_ID, "-"))
+stopifnot(!anyNA(pop2019$V_ID), !anyDuplicated(pop2019$V_ID))
+village_joined <- village_raw |>
+  left_join(pop2019, by = join_by(VILLCODE == V_ID), relationship = "one-to-one")
+excluded_villages <- village_joined |>
+  filter(is.na(P_CNT)) |>
+  st_drop_geometry() |>
+  select(VILLCODE, TOWNNAME, VILLNAME)
+unmatched_population <- pop2019 |>
+  anti_join(st_drop_geometry(village_raw), by = join_by(V_ID == VILLCODE))
+village <- village_joined |>
+  filter(!is.na(P_CNT)) |>
+  arrange(VILLCODE)
+stopifnot(
+  nrow(village_joined) == nrow(village_raw), nrow(village) > 0,
+  !anyNA(select(st_drop_geometry(village), H_CNT, P_CNT, M_CNT, F_CNT)),
+  all(village$P_CNT > 0), all(village$H_CNT > 0),
+  all(village$M_CNT >= 0), all(village$F_CNT >= 0),
+  all(village$M_CNT + village$F_CNT == village$P_CNT)
+)
+kable(tibble(
+  Check = c("Villages with matched population", "Unmatched village polygons",
+            "Population rows without a matching polygon", "Modelled population"),
+  Result = c(nrow(village), nrow(excluded_villages),
+             nrow(unmatched_population), sum(village$P_CNT))
+), format.args = list(big.mark = ","))
+if (nrow(excluded_villages)) {
+  kable(excluded_villages, caption = "Excluded polygons: population was not matched")
+}
+```
+
+## Computing the distance and interaction matrices
+
+The chapter calls `st_point_on_surface()`. That returns a point inside each polygon; it is not necessarily its geometric centroid. I use the same method, then calculate straight-line distances to all stores with `st_distance()`. These are not road-network distances or travel times.
+
+```{r}
+#| label: prepare-interaction-matrix
+
+village_center <- st_point_on_surface(village)
+distmat <- st_distance(village_center, stores)
+rownames(distmat) <- village$VILLCODE
+colnames(distmat) <- stores$Store_CD
+distmat_numeric <- matrix(as.numeric(distmat), nrow = nrow(village),
+                          dimnames = dimnames(distmat))
+stopifnot(
+  all(is.finite(distmat_numeric)), all(distmat_numeric > 0),
+  identical(rownames(distmat_numeric), village$VILLCODE),
+  identical(colnames(distmat_numeric), stores$Store_CD)
+)
+distmat_long <- as.data.frame(distmat_numeric) |>
+  rownames_to_column("VILLCODE") |>
+  pivot_longer(-VILLCODE, names_to = "Store_CD", values_to = "distance")
+interaction_matrix <- distmat_long |>
+  left_join(st_drop_geometry(stores) |> select(Store_CD, Store_size),
+            by = "Store_CD", relationship = "many-to-one") |>
+  select(VILLCODE, Store_CD, Store_size, distance) |>
+  as.data.frame()
+stopifnot(
+  nrow(interaction_matrix) == nrow(village) * nrow(stores),
+  !anyDuplicated(interaction_matrix[c("VILLCODE", "Store_CD")]),
+  !anyNA(interaction_matrix)
+)
+kable(tibble(
+  Origins = nrow(village), Destinations = nrow(stores),
+  Pairs = nrow(interaction_matrix),
+  Minimum_metres = min(interaction_matrix$distance),
+  Median_metres = median(interaction_matrix$distance),
+  Maximum_metres = max(interaction_matrix$distance)
+), digits = 1, format.args = list(big.mark = ","))
+```
+
+Zero distances would make inverse-distance weights undefined. The check above stops rather than quietly substituting an arbitrary minimum distance.
+
+## Computing Huff probabilities
+
+For village $i$ and store $j$, the chapter's default power model is
+
+$$p_{ij}=\frac{A_j^\gamma d_{ij}^{\lambda}}
+{\sum_k A_k^\gamma d_{ik}^{\lambda}},\qquad \gamma=1,\quad\lambda=-2.$$
+
+A store's contribution increases with attractiveness and decreases with distance. The denominator compares that contribution with all listed competitors. I make the package defaults explicit and verify the output against the formula. The probabilities for each village must sum to one.
+
+```{r}
+#| label: compute-huff-model
+
+huff_share <- huff.shares(
+  interaction_matrix, "VILLCODE", "Store_CD", "Store_size", "distance",
+  gamma = 1, lambda = -2, atype = "pow", dtype = "pow"
+)
+huff_share <- as_tibble(huff_share) |>
+  mutate(p_ij = as.numeric(p_ij))
+formula_check <- huff_share |>
+  mutate(direct_weight = Store_size * distance^(-2)) |>
+  group_by(VILLCODE) |>
+  mutate(direct_probability = direct_weight / sum(direct_weight)) |>
+  ungroup()
+probability_checks <- huff_share |>
+  group_by(VILLCODE) |>
+  summarise(Stores = n(), Probability_sum = sum(p_ij), .groups = "drop")
+formula_error <- max(abs(formula_check$p_ij - formula_check$direct_probability))
+stopifnot(
+  nrow(huff_share) == nrow(interaction_matrix),
+  all(is.finite(huff_share$p_ij)), all(huff_share$p_ij >= 0 & huff_share$p_ij <= 1),
+  all(probability_checks$Stores == nrow(stores)),
+  max(abs(probability_checks$Probability_sum - 1)) < 1e-10,
+  formula_error < 1e-10
+)
+kable(tibble(
+  Check = c("Largest probability-sum error", "Largest direct-formula difference"),
+  Difference = c(max(abs(probability_checks$Probability_sum - 1)), formula_error)
+), digits = 12)
+```
+
+These parameters are assumptions from the teaching example, not fitted consumer preferences. With all stores assigned attractiveness 100, that constant cancels from the probability formula. The result is driven by relative distance to the listed stores.
+
+## Trade area for store BT
+
+The chapter's code selects BT, although one sentence mentions TG. I consistently use BT. The legend is outside the map, and darker blue indicates a larger modelled patronage probability.
+
+```{r}
+#| label: map-bt-probability
+#| fig-width: 14
+#| fig-height: 12
+#| fig-cap: "Huff patronage probability for BT; grey polygons have no matched population and are excluded"
+
+stopifnot("BT" %in% stores$Store_CD)
+market_share <- huff_share |>
+  filter(Store_CD == "BT") |>
+  select(VILLCODE, p_ij)
+Trade_area <- village |>
+  left_join(market_share, by = "VILLCODE", relationship = "one-to-one")
+selected_store <- stores |> filter(Store_CD == "BT")
+stopifnot(nrow(Trade_area) == nrow(village), !anyNA(Trade_area$p_ij))
+bt_breaks <- unique(as.numeric(quantile(Trade_area$p_ij, seq(0, 1, 0.1))))
+bt_labels <- paste(trimws(formatC(head(bt_breaks, -1), format = "g", digits = 4)),
+                   "to", trimws(formatC(tail(bt_breaks, -1), format = "g", digits = 4)))
+tm_shape(village_raw) + tm_polygons(fill = "grey85", col = "grey60") +
+  tm_shape(Trade_area) +
+  tm_polygons(
+    fill = "p_ij", col = "grey50", lwd = 0.4,
+    fill.scale = tm_scale_intervals(breaks = bt_breaks, labels = bt_labels,
+                                    interval.closure = "right",
+                                    values = "brewer.blues", label.na = FALSE),
+    fill.legend = tm_legend(title = "BT probability",
+                            position = tm_pos_out("right", "center"))
+  ) +
+  tm_shape(selected_store) + tm_dots(size = 0.3, fill = "red", col = "black") +
+  tm_title("Distribution of patronage probability: store BT") +
+  tm_layout(frame = TRUE) +
+  tm_compass(type = "8star", size = 2, position = tm_pos_in("right", "bottom")) +
+  tm_scalebar(position = tm_pos_in("left", "bottom")) + tm_grid(alpha = 0.2)
+```
+
+BT's probabilities range from `r signif(min(Trade_area$p_ij), 3)` to `r signif(max(Trade_area$p_ij), 3)`. A high probability here means BT has a relatively strong position within the specified choice set; it is not a measured share of observed visits.
+
+```{r}
+#| label: bt-leading-villages
+
+kable(Trade_area |> st_drop_geometry() |>
+        select(VILLCODE, VILLENG, P_CNT, p_ij) |>
+        arrange(desc(p_ij)) |> head(5), digits = 4,
+      col.names = c("Village code", "Village", "Population", "BT probability"),
+      caption = "The five villages with the largest BT probabilities")
+```
+
+## Population-weighted allocations and recorded sales
+
+Following the chapter, `shares.total()` multiplies each village's probability by its population and sums over villages for each store. Its result, $E_j=\sum_iP_i p_{ij}$, is an allocated population under the model. Because `P_CNT` counts residents, the result is not a monetary sales estimate. Converting it to currency would require assumptions about spending and participation that these files do not establish.
+
+```{r}
+#| label: population-allocations
+
+huff_share_pp <- huff_share |>
+  left_join(st_drop_geometry(village) |> select(VILLCODE, P_CNT),
+            by = "VILLCODE", relationship = "many-to-one")
+stopifnot(!anyNA(huff_share_pp$P_CNT))
+huff_total <- shares.total(
+  huff_share_pp, "VILLCODE", "Store_CD", "p_ij", "P_CNT"
+)
+direct_totals <- huff_share_pp |>
+  group_by(Store_CD) |>
+  summarise(Direct = sum(P_CNT * p_ij), .groups = "drop")
+store_sales_est <- stores |>
+  left_join(huff_total, by = join_by(Store_CD == suppliers_single),
+            relationship = "one-to-one") |>
+  left_join(direct_totals, by = "Store_CD", relationship = "one-to-one")
+stopifnot(
+  !anyNA(store_sales_est$sum_E_j),
+  max(abs(store_sales_est$sum_E_j - store_sales_est$Direct)) < 1e-6,
+  abs(sum(store_sales_est$sum_E_j) - sum(village$P_CNT)) < 1e-6
+)
+store_sales_nongeom <- st_drop_geometry(store_sales_est)
+kable(store_sales_nongeom |>
+        select(Store_CD, sum_E_j, share_j, Total_Sales) |>
+        mutate(share_j = sprintf("%.2f%%", 100 * share_j)) |>
+        arrange(desc(sum_E_j)), digits = 1,
+      format.args = list(big.mark = ","),
+      col.names = c("Store", "Probability-weighted population",
+                    "Modelled share", "Recorded sales amount"))
+```
+
+The weighted allocations sum to `r fmt(round(sum(store_sales_est$sum_E_j)))`, matching the included population. These are fractional allocations across the specified choice set, not observed customer counts.
+
+```{r}
+#| label: compare-with-recorded-sales
+#| fig-width: 11
+#| fig-height: 8
+#| fig-cap: "Descriptive association between population-weighted allocations and recorded sales amounts"
+
+ggscatterstats(
+  store_sales_nongeom, x = sum_E_j, y = Total_Sales,
+  type = "parametric", bf.message = FALSE, label.var = Store_CD,
+  xlab = "Probability-weighted population (resident-equivalents)",
+  ylab = "Recorded sales amount (source units)",
+  title = "Modelled store allocations and recorded sales"
+)
+association <- tibble(
+  Pearson_r = cor(store_sales_nongeom$sum_E_j, store_sales_nongeom$Total_Sales),
+  Spearman_rho = cor(store_sales_nongeom$sum_E_j, store_sales_nongeom$Total_Sales,
+                     method = "spearman")
+)
+kable(association, digits = 3)
+```
+
+Pearson's correlation describes linear association, while Spearman's describes agreement in ranking. Neither turns resident-equivalents into currency or establishes out-of-sample forecasting accuracy. The stores share a spatial market, so the statistical test shown on the chart should not be treated as proof of independent observations or a causal relationship.
+
+## Preparing the wide probability matrix
+
+The chapter finishes by reshaping the probabilities into one row per village and one column per store. I keep the actual store codes as column names and explicitly align them to the store list. The full table is saved with the results.
+
+```{r}
+#| label: wide-probability-matrix
+
+huff_share_wider <- huff_share |>
+  select(VILLCODE, Store_CD, p_ij) |>
+  pivot_wider(names_from = Store_CD, values_from = p_ij) |>
+  select(VILLCODE, all_of(stores$Store_CD))
+stopifnot(
+  nrow(huff_share_wider) == nrow(village),
+  ncol(huff_share_wider) == nrow(stores) + 1L,
+  !anyNA(huff_share_wider),
+  max(abs(rowSums(as.matrix(select(huff_share_wider, -VILLCODE))) - 1)) < 1e-10
+)
+kable(head(huff_share_wider |> select(VILLCODE, BT, CT, DD, DK, DL)),
+      digits = 4, caption = "Example columns from the complete village-store share matrix")
+```
+
+## Interpretation and limitations
+
+BT has the largest population-weighted allocation, at `r fmt(round(store_sales_nongeom$sum_E_j[store_sales_nongeom$Store_CD == "BT"]))` resident-equivalents, or `r round(100 * store_sales_nongeom$share_j[store_sales_nongeom$Store_CD == "BT"], 2)`% of included demand. FH has the largest recorded sales amount. Those different leaders show why the equal-attractiveness distance model should not be presented as a fitted revenue model.
+
+The Pearson correlation is `r round(association$Pearson_r, 3)` and Spearman's rank correlation is `r round(association$Spearman_rho, 3)`. Both indicate a moderate positive association in this 28-store comparison, with substantial differences remaining between allocations and recorded sales. This is evidence of some agreement in the spatial-demand pattern, not proof of accurate individual-store sales predictions.
+
+The BT map shows a store-specific spatial pattern, while the store-level table shows how local probabilities combine with population. A large village can contribute substantial demand even when its probability is not the highest. Consequently, probability alone and total allocated population need not rank places in the same way.
+
+This is a closed choice set: each included village's probabilities sum to one across the supplied stores. Other brands, stores outside the study area, online orders and non-purchase are absent. Equal attractiveness omits differences in size, price and service. One representative point cannot describe all households within a village, and straight-line distance omits road layouts, congestion and travel mode.
+
+The population is from 2019, and the sales period must be checked against the supplied file documentation before making a time-consistent comparison. Unmatched villages are excluded, not treated as empty. This analysis supports interpretation of a teaching scenario; it is not a verified current revenue forecast or a recommendation to invest in a particular site.
+
+## Reproducibility
+
+The source preserves the chapter's `st_read()`, explicit `left_join()`, `st_point_on_surface()`, `st_distance()`, `huff.shares()` and `shares.total()` workflow. The checks use the actual course inputs to verify one distance per village-store pair, probabilities summing to one, agreement with the direct Huff formula and conservation of the included population.
+
+```{r}
+#| label: save-results
+#| include: false
+
+write_csv(input_counts, "results/input-counts.csv")
+write_csv(excluded_villages, "results/excluded-villages.csv")
+write_csv(unmatched_population, "results/unmatched-population.csv")
+write_csv(sales_without_location, "results/sales-without-location.csv")
+write_csv(huff_share |> select(VILLCODE, Store_CD, distance, p_ij),
+          "results/huff-probabilities.csv")
+write_csv(huff_share_wider, "results/huff-share-wide.csv")
+write_csv(store_sales_nongeom, "results/store-allocations.csv")
+write_csv(probability_checks, "results/probability-checks.csv")
+write_csv(association, "results/sales-association.csv")
+write_csv(tibble(File = required_files,
+                 MD5 = unname(tools::md5sum(required_files))),
+          "results/input-checksums.csv")
+writeLines(trimws(capture.output(sessionInfo()), which = "right"),
+           "results/session-info.txt")
+```
+
+## References
+
+- Kam, T. S. [Chapter 18: Market Area Analysis for Retail and Service Locations using Huff model](https://r4gdsa.netlify.app/chap18).
+- Wieland, T. [MCI package documentation](https://cran.r-project.org/web/packages/MCI/MCI.pdf), particularly `huff.shares()` and `shares.total()`.
+- The supplied course inputs and their source record in `data/README.md`.

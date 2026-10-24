@@ -9,6 +9,8 @@ project:
     - "Take-home_Ex/Take-home_Ex01/scripts/**"
     - "Hands-on_Ex/Hands-on_Ex07/scripts/**"
     - "In-class_Ex/In-class_Ex07/scripts/**"
+    - "Hands-on_Ex/Hands-on_Ex08/scripts/**"
+    - "In-class_Ex/In-class_Ex08/scripts/**"
 
 website:
   title: "ISSS608 Visual Analytics"
@@ -42,6 +44,8 @@ website:
             text: "Hands-on Exercise 6: Geographical Segmentation"
           - href: Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.qmd
             text: "Hands-on Exercise 7: Geographical Accessibility"
+          - href: Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.qmd
+            text: "Hands-on Exercise 8: Huff Market Area Analysis"
       - text: In-Class Exercise
         menu:
           - href: In-class_Ex/In-class_Ex04/In-class_Ex04.qmd
@@ -52,6 +56,8 @@ website:
             text: "In-Class Exercise 6: EHSA Method Audit"
           - href: In-class_Ex/In-class_Ex07/In-class_Ex07.qmd
             text: "In-Class Exercise 7: Accessibility Catchment Methods"
+          - href: In-class_Ex/In-class_Ex08/In-class_Ex08.qmd
+            text: "In-Class Exercise 8: Huff Store Trade Areas"
       - text: Take-home Exercises
         menu:
           - href: Take-home_Ex/Take-home_Ex01/Take-home_Ex01.qmd
