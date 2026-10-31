@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Davin Cuaso">
+<meta name="dcterms.date" content="2026-10-31">
+
+<title>Take-home Exercise 3: Technical Report – ISSS608 Visual Analytics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-6191c8c4c757b97205a8995aa6c30869.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">ISSS608 Visual Analytics</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-hands-on-exercises" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Hands-on Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-hands-on-exercises">    
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex01a/Hands-on_Ex01a.html">
+ <span class="dropdown-text">Hands-on Exercise 1a: Geospatial Data Wrangling</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex01b/Hands-on_Ex01b.html">
+ <span class="dropdown-text">Hands-on Exercise 1b: Choropleth Mapping</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex02a/Hands-on_Ex02a.html">
+ <span class="dropdown-text">Hands-on Exercise 2a: First-order SPPA</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex02b/Hands-on_Ex02b.html">
+ <span class="dropdown-text">Hands-on Exercise 2b: Second-order SPPA</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html">
+ <span class="dropdown-text">Hands-on Exercise 3: Spatio-temporal SPPA</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex04/Hands-on_Ex04.html">
+ <span class="dropdown-text">Hands-on Exercise 4: Spatial Weights</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex05a/Hands-on_Ex05a.html">
+ <span class="dropdown-text">Hands-on Exercise 5a: Global Spatial Autocorrelation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex05b/Hands-on_Ex05b.html">
+ <span class="dropdown-text">Hands-on Exercise 5b: Local Spatial Autocorrelation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html">
+ <span class="dropdown-text">Hands-on Exercise 6: Geographical Segmentation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html">
+ <span class="dropdown-text">Hands-on Exercise 7: Geographical Accessibility</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.html">
+ <span class="dropdown-text">Hands-on Exercise 8: Huff Market Area Analysis</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-in-class-exercise" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">In-Class Exercise</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-in-class-exercise">    
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex04/In-class_Ex04.html">
+ <span class="dropdown-text">In-Class Exercise 4: Geographically Weighted Summary Statistics</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex05/In-class_Ex05.html">
+ <span class="dropdown-text">In-Class Exercise 5: Emerging Hot Spot Analysis</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex06/In-class_Ex06.html">
+ <span class="dropdown-text">In-Class Exercise 6: EHSA Method Audit</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex07/In-class_Ex07.html">
+ <span class="dropdown-text">In-Class Exercise 7: Accessibility Catchment Methods</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex08/In-class_Ex08.html">
+ <span class="dropdown-text">In-Class Exercise 8: Huff Store Trade Areas</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-take-home-exercises" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Take-home Exercises</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercises">    
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html">
+ <span class="dropdown-text">Take-home Exercise 1</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html">
+ <span class="dropdown-text">Take-home Exercise 2</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html">
+ <span class="dropdown-text">Take-home Exercise 3</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/davincuaso/ISSS608-VAA"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="header-section-number">1</span> Overview</a></li>
+  <li><a href="#study-questions-and-units" id="toc-study-questions-and-units" class="nav-link" data-scroll-target="#study-questions-and-units"><span class="header-section-number">2</span> Study questions and units</a></li>
+  <li><a href="#data-sources-and-their-roles" id="toc-data-sources-and-their-roles" class="nav-link" data-scroll-target="#data-sources-and-their-roles"><span class="header-section-number">3</span> Data sources and their roles</a></li>
+  <li><a href="#preparing-the-station-scenarios" id="toc-preparing-the-station-scenarios" class="nav-link" data-scroll-target="#preparing-the-station-scenarios"><span class="header-section-number">4</span> Preparing the station scenarios</a></li>
+  <li><a href="#geographic-measures-before-ridership-calibration" id="toc-geographic-measures-before-ridership-calibration" class="nav-link" data-scroll-target="#geographic-measures-before-ridership-calibration"><span class="header-section-number">5</span> Geographic measures before ridership calibration</a>
+  <ul class="collapse">
+  <li><a href="#residential-blocks-within-reach" id="toc-residential-blocks-within-reach" class="nav-link" data-scroll-target="#residential-blocks-within-reach"><span class="header-section-number">5.1</span> Residential blocks within reach</a></li>
+  <li><a href="#sensitivity-to-the-threshold" id="toc-sensitivity-to-the-threshold" class="nav-link" data-scroll-target="#sensitivity-to-the-threshold"><span class="header-section-number">5.2</span> Sensitivity to the threshold</a></li>
+  <li><a href="#destination-activity-proxy" id="toc-destination-activity-proxy" class="nav-link" data-scroll-target="#destination-activity-proxy"><span class="header-section-number">5.3</span> Destination activity proxy</a></li>
+  </ul></li>
+  <li><a href="#interaction-data-and-observed-market-potential" id="toc-interaction-data-and-observed-market-potential" class="nav-link" data-scroll-target="#interaction-data-and-observed-market-potential"><span class="header-section-number">6</span> Interaction data and observed market potential</a></li>
+  <li><a href="#calibration-and-validation" id="toc-calibration-and-validation" class="nav-link" data-scroll-target="#calibration-and-validation"><span class="header-section-number">7</span> Calibration and validation</a></li>
+  <li><a href="#proposed-network-comparison" id="toc-proposed-network-comparison" class="nav-link" data-scroll-target="#proposed-network-comparison"><span class="header-section-number">8</span> Proposed-network comparison</a></li>
+  <li><a href="#assumptions-and-limitations" id="toc-assumptions-and-limitations" class="nav-link" data-scroll-target="#assumptions-and-limitations"><span class="header-section-number">9</span> Assumptions and limitations</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">10</span> Conclusion</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">11</span> References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Take-home Exercise 3: Technical Report</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<p class="subtitle lead">Station choice under the Jurong Region and Cross Island Line Phase 1 scenarios</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Davin Cuaso </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">31 October 2026</p>
+    </div>
+  </div>
+  
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">31 October 2026</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><a href="../../Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html">Submission hub</a> · <a href="../../Take-home_Ex/Take-home_Ex03/Executive-summary.html">Executive summary</a> · <a href="https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex03">Project source</a></p>
+<section id="overview" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="overview"><span class="header-section-number">1</span> Overview</h2>
+<p>The question is whether adding the Jurong Region Line (JRL) and the first phase of the Cross Island Line (CRL1) changes where rail users are likely to board and alight. A station does not draw passengers from a fixed circle. Travellers can choose among several stations, and the choice depends on the station’s setting and on the cost of reaching it. I use a probabilistic station-choice model for that comparison, with separate current and proposed networks.</p>
+<p>This report currently has two different levels of evidence. The station and land-use analysis is complete and uses recorded public geographic layers. The ridership model is implemented but <strong>has not been calibrated</strong>, because the LTA origin–destination (OD) trip file is not in the course repository or the supplied workspace. I do not report trip estimates from a substitute or simulated OD table. The result sections identify exactly what the missing file will unlock.</p>
+<p>The <a href="https://isss626-ay2026-27aug.netlify.app/take-home_ex03">official brief</a> calls for two interaction frames, origin market potential, destination observed ridership and attraction measures, calibration, validation, future-station prediction, and a comparison of existing station market areas. The project is organised around those outputs.</p>
+</section>
+<section id="study-questions-and-units" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="study-questions-and-units"><span class="header-section-number">2</span> Study questions and units</h2>
+<ol type="1">
+<li>How many distinct station locations are in the current and proposed networks?</li>
+<li>Which HDB blocks gain straight-line proximity to rail under the proposed network?</li>
+<li>Once observed OD counts are available, how well can a model using local activity, connectivity and distance reproduce station-level tap-outs?</li>
+<li>Holding the observed origin market fixed, which destinations could gain or lose share when proposed stations enter the choice set?</li>
+</ol>
+<p>The model’s unit will be a <strong>directed origin–destination station pair</strong> for one LTA data month, restricted to the <code>WEEKDAY</code> day type. Station-level ridership means recorded destination tap-outs summed across those pairs. In the geographic audit, a “station” is one physical location; the line codes of an interchange are grouped under one station name.</p>
+</section>
+<section id="data-sources-and-their-roles" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="data-sources-and-their-roles"><span class="header-section-number">3</span> Data sources and their roles</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">data.frame</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Source =</span> <span class="fu">c</span>(<span class="st">"Operational and future station coordinates"</span>, <span class="st">"HDB Existing Building"</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Master Plan 2025 Land Use Layer"</span>, <span class="st">"LTA train OD passenger volume"</span>),</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Snapshot =</span> <span class="fu">c</span>(<span class="st">"Repository snapshot, 31 Oct 2026"</span>, <span class="st">"Buildings dated Nov 2025"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Gazetted Dec 2025"</span>, <span class="st">"Awaiting a monthly CSV or ZIP"</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">Role =</span> <span class="fu">c</span>(<span class="st">"Station locations and scenario codes"</span>, <span class="st">"Residential-building count and proximity"</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Mapped activity area near destinations"</span>, <span class="st">"Observed weekday station-to-station trips"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>), <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Dataset"</span>, <span class="st">"Time reference"</span>, <span class="st">"Use"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 36%">
+<col style="width: 27%">
+<col style="width: 35%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Dataset</th>
+<th style="text-align: left;">Time reference</th>
+<th style="text-align: left;">Use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Operational and future station coordinates</td>
+<td style="text-align: left;">Repository snapshot, 31 Oct 2026</td>
+<td style="text-align: left;">Station locations and scenario codes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">HDB Existing Building</td>
+<td style="text-align: left;">Buildings dated Nov 2025</td>
+<td style="text-align: left;">Residential-building count and proximity</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Master Plan 2025 Land Use Layer</td>
+<td style="text-align: left;">Gazetted Dec 2025</td>
+<td style="text-align: left;">Mapped activity area near destinations</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">LTA train OD passenger volume</td>
+<td style="text-align: left;">Awaiting a monthly CSV or ZIP</td>
+<td style="text-align: left;">Observed weekday station-to-station trips</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The <a href="https://github.com/elliotwutingfeng/singapore_train_station_coordinates">station coordinate repository</a> derives most points from URA or LTA records and flags manual estimates in a <code>source</code> field. I saved its operational and future CSVs with the project so the scenario cannot silently change when that repository is updated. <a href="https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view">HDB Existing Building</a> and the <a href="https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view">Master Plan 2025 Land Use Layer</a> are downloaded directly from data.gov.sg by <code>R/prepare_geography.R</code>; the large raw GeoJSON files stay in an ignored local cache. Derived tables and figures are in <code>results/</code> and <code>figures/</code>.</p>
+<p>The <a href="https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html">LTA OD Train endpoint</a> requires a DataMall Account Key. Its <a href="https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf">user guide</a> defines <code>YEAR_MONTH</code>, <code>DAY_TYPE</code>, <code>TIME_PER_HOUR</code>, origin and destination station codes, and <code>TOTAL_TRIPS</code>. The code accepts LTA’s CSV or ZIP once obtained. The report will state the exact data month after ingestion; no month is assumed in advance.</p>
+</section>
+<section id="preparing-the-station-scenarios" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="preparing-the-station-scenarios"><span class="header-section-number">4</span> Preparing the station scenarios</h2>
+<p>The current CSV has 213 line-code records. Grouping records with the same physical station name gives <strong>181 existing station locations</strong>. For the proposed scenario I retain <code>JS1–JS12</code>, <code>JW1–JW5</code>, and <code>JE1–JE7</code> (24 JRL codes) plus <code>CR2–CR13</code> (12 CRL1 codes). This matches the assignment’s 24 plus 12 scope and <a href="https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line.html">LTA’s CRL1 phase description</a>. The extra <code>JS2A</code> Forest Hill record in the future coordinate file is excluded from this fixed 24-code JRL scenario. CRL Phase 2 and its Punggol extension are also excluded because they are outside CRL1.</p>
+<p>Seven proposed codes refer to existing interchange locations: Choa Chu Kang, Boon Lay, Jurong East, Pasir Ris, Hougang, Ang Mo Kio and Bright Hill. They add a line connection but not another destination point. The result is <strong>29 new physical locations</strong>, giving 210 existing-plus-proposed stations. Double-counting an interchange as two destinations would inflate its predicted share, so the station-name grouping matters.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(coverage[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, ], <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Check"</span>, <span class="st">"Count"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Check</th>
+<th style="text-align: right;">Count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Existing physical stations</td>
+<td style="text-align: right;">181</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">New physical stations</td>
+<td style="text-align: right;">29</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">HDB blocks in source</td>
+<td style="text-align: right;">13436</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The coordinates are converted from longitude and latitude (EPSG:4326) to SVY21 / Singapore TM (EPSG:3414) before distance calculations. In this projected system, the station-to-station and building-to-station distances are in metres. I validate missing coordinates, duplicate station codes, and the expected JRL/CRL1 code counts before any result is written.</p>
+</section>
+<section id="geographic-measures-before-ridership-calibration" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="geographic-measures-before-ridership-calibration"><span class="header-section-number">5</span> Geographic measures before ridership calibration</h2>
+<section id="residential-blocks-within-reach" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="residential-blocks-within-reach"><span class="header-section-number">5.1</span> Residential blocks within reach</h3>
+<p>I take the centroid of each completed HDB building polygon and find its nearest existing and proposed station. An 800 m threshold is a simple spatial screen: it asks whether a block’s mapped centre lies within 800 m in a straight line. The count is not a population estimate, because blocks differ in floor count and household size. It also does not measure an actual walking route.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(coverage[<span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>, ], <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Measure"</span>, <span class="st">"HDB blocks"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Measure</th>
+<th style="text-align: right;">HDB blocks</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">HDB blocks within 800 m of existing rail</td>
+<td style="text-align: right;">9645</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">HDB blocks newly within 800 m</td>
+<td style="text-align: right;">1319</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">HDB blocks nearer to a new station</td>
+<td style="text-align: right;">2110</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Of 13,436 buildings, 9,645 are within 800 m of an existing physical station. The scenario adds 1,319 buildings to that threshold. A further 2,110 buildings are nearer to a proposed station than to any current one, whether or not they cross the 800 m line. These two figures answer different questions: new threshold coverage versus a shorter straight-line distance.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(<span class="st">"figures/hdb-new-coverage.png"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figures/hdb-new-coverage.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The newly covered blocks are concentrated around planned stops in the west and north-east. The west contains much of the JRL extension’s residential catchment, while the eastern CRL1 stations add pockets around Pasir Ris East and Tampines North. This map is a <em>geographic opportunity</em> measure, not a forecast of journeys: some blocks may already reach rail by bus, and an apparently close station may require a longer walk around barriers.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(line_coverage,</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Nearest proposed line"</span>, <span class="st">"Newly reached HDB blocks"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Nearest proposed line</th>
+<th style="text-align: right;">Newly reached HDB blocks</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">CRL1</td>
+<td style="text-align: right;">586</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">JRL</td>
+<td style="text-align: right;">733</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The line totals assign each newly reached building to its closest new station. They should not be read as a benefit–cost comparison of the two projects: the lines serve different places, and HDB buildings exclude private housing and many work destinations.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(<span class="st">"figures/new-station-blocks.png"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figures/new-station-blocks.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Pasir Ris East has the largest count in this measure (216), followed by Serangoon North (151) and Tengah Plantation (144). The chart assigns each newly reached block to its nearest proposed station, so a block is counted once. It does not imply that these will be the busiest new stations. Business districts and interchange stations can draw riders from much farther away than the surrounding HDB blocks.</p>
+</section>
+<section id="sensitivity-to-the-threshold" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="sensitivity-to-the-threshold"><span class="header-section-number">5.2</span> Sensitivity to the threshold</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(sensitivity, <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Radius (m)"</span>, <span class="st">"Existing blocks reached"</span>, <span class="st">"Newly reached blocks"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Radius (m)</th>
+<th style="text-align: right;">Existing blocks reached</th>
+<th style="text-align: right;">Newly reached blocks</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">7395</td>
+<td style="text-align: right;">1206</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">800</td>
+<td style="text-align: right;">9645</td>
+<td style="text-align: right;">1319</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">11178</td>
+<td style="text-align: right;">1106</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The 800 m result is not a natural boundary. The table repeats the same centroid calculation at 600 m and 1,000 m. A larger radius includes more buildings but also accepts walks that may be unattractive or impossible in practice. The model itself uses continuous station-to-station distance rather than treating these circles as a rigid passenger market.</p>
+</section>
+<section id="destination-activity-proxy" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="destination-activity-proxy"><span class="header-section-number">5.3</span> Destination activity proxy</h3>
+<p>For each station, I count HDB block centroids and sum the area of mapped commercial, business, civic, education, health, hotel and mixed-use parcels whose centroids fall within 800 m. The land-use layer records <strong>zoning</strong>, not occupied jobs or realised visits. A large parcel whose centre lies just inside the circle is counted in full, so the figure is an approximate activity proxy. The two measures are kept separate in the model: one describes nearby housing blocks; the other describes mapped non-residential opportunities.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(<span class="st">"figures/proposed-activity.png"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="figures/proposed-activity.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The activity ranking differs from the HDB-block ranking. That is the reason to include both predictors: a station serving industrial or commercial land could attract destination trips even with few completed HDB blocks nearby. The chart does not tell us how many workers or visitors use those parcels.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>preview <span class="ot">&lt;-</span> features <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(status <span class="sc">==</span> <span class="st">"Planned new"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(dplyr<span class="sc">::</span><span class="fu">desc</span>(activity_hectares_800m)) <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(station, hdb_blocks_800m, activity_hectares_800m) <span class="sc">|&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">8</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(preview, <span class="at">digits =</span> <span class="dv">1</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Proposed station"</span>, <span class="st">"HDB blocks (800 m)"</span>, <span class="st">"Activity land (ha, approximate)"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Proposed station</th>
+<th style="text-align: right;">HDB blocks (800 m)</th>
+<th style="text-align: right;">Activity land (ha, approximate)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Nanyang Gateway</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">199.9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Nanyang Crescent</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">172.7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Peng Kang Hill</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">172.7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Tukang</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">136.0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Enterprise</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">128.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Jurong Pier</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">126.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Jurong Hill</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">120.4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Loyang</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">97.1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="interaction-data-and-observed-market-potential" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="interaction-data-and-observed-market-potential"><span class="header-section-number">6</span> Interaction data and observed market potential</h2>
+<p>The model script constructs a full directed choice table rather than using only pairs that appear in the OD CSV. Zero-flow pairs must remain in the choice set; otherwise the denominator in a station-choice probability would be calculated from observed trips alone. A same-station trip is removed because its zero spatial distance is not meaningful for this interstation model. Distances use station points in SVY21; they are <strong>not</strong> rail travel times or network path lengths.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">data.frame</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Table =</span> <span class="fu">c</span>(<span class="st">"Current interactions"</span>, <span class="st">"Proposed interactions"</span>, <span class="st">"Origins"</span>, <span class="st">"Destinations"</span>),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Key =</span> <span class="fu">c</span>(<span class="st">"origin + destination"</span>, <span class="st">"origin + destination"</span>, <span class="st">"origin"</span>, <span class="st">"destination"</span>),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Fields =</span> <span class="fu">c</span>(<span class="st">"observed trips, attraction, distance_km, probability"</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>             <span class="st">"attraction, distance_km, probability"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>             <span class="st">"observed outbound weekday trips = market_potential"</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>             <span class="st">"observed inbound weekday trips, HDB blocks, activity area, line count"</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>), <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Data frame"</span>, <span class="st">"Join key"</span>, <span class="st">"Principal columns"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 18%">
+<col style="width: 61%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Data frame</th>
+<th style="text-align: left;">Join key</th>
+<th style="text-align: left;">Principal columns</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Current interactions</td>
+<td style="text-align: left;">origin + destination</td>
+<td style="text-align: left;">observed trips, attraction, distance_km, probability</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Proposed interactions</td>
+<td style="text-align: left;">origin + destination</td>
+<td style="text-align: left;">attraction, distance_km, probability</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Origins</td>
+<td style="text-align: left;">origin</td>
+<td style="text-align: left;">observed outbound weekday trips = market_potential</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Destinations</td>
+<td style="text-align: left;">destination</td>
+<td style="text-align: left;">observed inbound weekday trips, HDB blocks, activity area, line count</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>LTA merges some interchange codes in the OD file (for example <code>CC1-NE6-NS24</code>). <code>R/model.R</code> splits these codes and maps their components to one physical station name. It saves unmatched codes and stops if they represent more than 5% of trip counts. The file must contain exactly one <code>YEAR_MONTH</code>, valid hourly values, and non-negative trips. Only <code>WEEKDAY</code> and <code>TRAIN</code> rows enter this version of the model. The origin total is a monthly aggregate across weekdays, not a per-day rate.</p>
+</section>
+<section id="calibration-and-validation" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="calibration-and-validation"><span class="header-section-number">7</span> Calibration and validation</h2>
+<p>For an origin <em>i</em> and available destination <em>j</em>, the station-choice utility is</p>
+<p><span class="math display">\[
+U_{ij}=\beta_H\log(1+H_j)+\beta_A\log(1+A_j)+\beta_L\log(L_j)-\beta_D\log(d_{ij}+0.25),
+\qquad
+P_{ij}=\frac{\exp(U_{ij})}{\sum_{k\ne i}\exp(U_{ik})}.
+\]</span></p>
+<p>Here <span class="math inline">\(H_j\)</span> is HDB block count within 800 m, <span class="math inline">\(A_j\)</span> is approximate activity hectares, <span class="math inline">\(L_j\)</span> is the number of rail lines, and <span class="math inline">\(d_{ij}\)</span> is straight-line distance in kilometres. The 0.25 km offset keeps the distance term finite at very short separations. The four coefficients are fitted by maximising the conditional multinomial likelihood of observed OD trips. The coefficient bounds enforce non-negative attraction effects and non-negative distance decay; a boundary estimate would warn that a predictor may add little information. These are modelling choices, not measured behavioural constants.</p>
+<p>I reserve 20% of origin stations, selected with seed 626, before fitting. Their trip-weighted log loss is compared with a fitted distance-only model. The final coefficients are then refitted to all observed origins. For the current network, estimated destination tap-outs are the sum of each origin’s observed market potential multiplied by its destination probabilities. The code checks that probabilities sum to one per origin and that total estimated trips equal the observed trip total.</p>
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_model) {</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  checks <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(model_dir, <span class="st">"checks.csv"</span>))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  coefficients <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(model_dir, <span class="st">"coefficients.csv"</span>))</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"The supplied OD file covers **"</span>, checks<span class="sc">$</span>month[<span class="dv">1</span>], <span class="st">"**. The model matched **"</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> checks<span class="sc">$</span>matched_trip_share[<span class="dv">1</span>], <span class="dv">1</span>),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>      <span class="st">"%** of weekday trips to the station coordinate table.</span><span class="sc">\n\n</span><span class="st">"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(knitr<span class="sc">::</span><span class="fu">kable</span>(coefficients, <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model term"</span>, <span class="st">"Fitted coefficient"</span>)))</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">The held-out log loss per trip is **"</span>, <span class="fu">round</span>(checks<span class="sc">$</span>heldout_logloss_per_trip[<span class="dv">1</span>], <span class="dv">3</span>),</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>      <span class="st">"**, compared with **"</span>, <span class="fu">round</span>(checks<span class="sc">$</span>distance_only_logloss_per_trip[<span class="dv">1</span>], <span class="dv">3</span>),</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">"** for distance alone. The current-network station MAE is **"</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fmt</span>(<span class="fu">round</span>(checks<span class="sc">$</span>station_mae[<span class="dv">1</span>])), <span class="st">"** monthly weekday tap-outs.</span><span class="sc">\n</span><span class="st">"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"::: {.callout-warning title=</span><span class="sc">\"</span><span class="st">Calibration pending</span><span class="sc">\"</span><span class="st">}</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"The LTA OD Train file has not been supplied. There are no fitted coefficients,"</span>,</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"validation scores or observed-versus-estimated station ridership values to report.</span><span class="sc">\n</span><span class="st">:::</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="callout callout-style-default callout-warning callout-titled" title="Calibration pending">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Calibration pending
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The LTA OD Train file has not been supplied. There are no fitted coefficients, validation scores or observed-versus-estimated station ridership values to report.</p>
+</div>
+</div>
+</section>
+<section id="proposed-network-comparison" class="level2" data-number="8">
+<h2 data-number="8" class="anchored" data-anchor-id="proposed-network-comparison"><span class="header-section-number">8</span> Proposed-network comparison</h2>
+<p>The first counterfactual holds each <strong>existing origin’s observed outbound trip total fixed</strong> and adds the 29 distinct new station locations as possible destinations. Existing interchanges gain their proposed line connection. The fitted coefficients stay unchanged. This isolates a change in destination choice under the expanded set of stations. It does <strong>not</strong> estimate new trips generated by future housing, trips starting at new stations, or transfers inside paid rail areas. New-station figures from this scenario would be captured tap-outs from existing origins, not total future station ridership.</p>
+<details class="code-fold">
+<summary>Show the R code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_model) {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  pred <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(model_dir, <span class="st">"station-predictions.csv"</span>))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  top_new <span class="ot">&lt;-</span> pred <span class="sc">|&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(status <span class="sc">==</span> <span class="st">"Planned new"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">arrange</span>(dplyr<span class="sc">::</span><span class="fu">desc</span>(estimated_scenario)) <span class="sc">|&gt;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(destination, estimated_scenario) <span class="sc">|&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(knitr<span class="sc">::</span><span class="fu">kable</span>(top_new, <span class="at">digits =</span> <span class="dv">0</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"New destination"</span>, <span class="st">"Captured monthly weekday tap-outs"</span>)))</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  existing_change <span class="ot">&lt;-</span> pred <span class="sc">|&gt;</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(status <span class="sc">==</span> <span class="st">"Existing"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">arrange</span>(change) <span class="sc">|&gt;</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(destination, change, change_pct) <span class="sc">|&gt;</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">The largest modelled reductions among existing destination stations are:</span><span class="sc">\n\n</span><span class="st">"</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(knitr<span class="sc">::</span><span class="fu">kable</span>(existing_change, <span class="at">digits =</span> <span class="dv">1</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>                     <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Existing station"</span>, <span class="st">"Trip change"</span>, <span class="st">"Change (%)"</span>)))</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"The comparison table will be populated from the LTA OD file. No future-station"</span>,</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>      <span class="st">"ridership or existing-station share change is claimed yet.</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<p>The comparison table will be populated from the LTA OD file. No future-station ridership or existing-station share change is claimed yet.</p>
+<p>The interaction outputs retain <code>origin</code>, <code>destination</code>, <code>attraction</code>, <code>distance_km</code> and probability for both networks. They can be inspected directly rather than relying on a map’s colour scale. Since the scenario conserves origin totals, gains at new destinations must be balanced by losses at existing destinations; this is a feature of this <em>fixed-market</em> scenario, not a statement that systemwide rail demand cannot grow.</p>
+</section>
+<section id="assumptions-and-limitations" class="level2" data-number="9">
+<h2 data-number="9" class="anchored" data-anchor-id="assumptions-and-limitations"><span class="header-section-number">9</span> Assumptions and limitations</h2>
+<p>The coordinate file is a secondary compilation and may not place every platform or entrance exactly where passengers enter. The <code>JS2A</code> omission follows the brief’s 24-code JRL scope rather than claiming the station is not planned. Station name grouping is suitable for physical locations, but it masks separate paid/unpaid transfer arrangements and platform-level paths.</p>
+<p>HDB block counts are not residents. Master Plan zoning is not employment or footfall. The 800 m land-use summary uses parcel centroids and whole parcel areas, which can overstate nearby activity for large sites. Straight-line distance ignores network topology and travel time. The OD file counts fare transactions between entry and exit points, not all passengers moving through an interchange. If the supplied OD month predates a current station, the station list and observed demand need to be reconciled before calibration.</p>
+<p>The fixed-origin counterfactual can describe redistribution among existing travellers but will understate demand at newly opened stations. A full forecast would need future households, jobs, bus feeder changes, train travel times, operating dates, and induced trips. Coefficients estimated on today’s network may also change when the network changes. Until LTA’s actual OD file is supplied, none of the model’s numerical claims can be checked.</p>
+</section>
+<section id="conclusion" class="level2" data-number="10">
+<h2 data-number="10" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">10</span> Conclusion</h2>
+<p>The geographic scenario adds 29 distinct station locations after interchange codes are reconciled. In the HDB building layer, 1,319 blocks cross the 800 m straight-line proximity threshold, with the largest groups near Pasir Ris East, Serangoon North, and Tengah Plantation. That is evidence of a possible access gain, not evidence of station ridership. The model, validation and future tap-out comparison are ready to run on an authorised LTA OD Train extract; their results remain open until that observed file is available.</p>
+</section>
+<section id="references" class="level2" data-number="11">
+<h2 data-number="11" class="anchored" data-anchor-id="references"><span class="header-section-number">11</span> References</h2>
+<ul>
+<li>ISSS626 course team. <a href="https://isss626-ay2026-27aug.netlify.app/take-home_ex03">Take-home Exercise 3 brief</a>.</li>
+<li>Land Transport Authority. <a href="https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/jurong_region_line.html">Jurong Region Line</a> and <a href="https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line.html">Cross Island Line</a>.</li>
+<li>Land Transport Authority. <a href="https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html">DataMall dynamic datasets</a> and <a href="https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf">API User Guide</a>.</li>
+<li>Housing &amp; Development Board. <a href="https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view">HDB Existing Building, November 2025</a>.</li>
+<li>Urban Redevelopment Authority. <a href="https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view">Master Plan 2025 Land Use Layer</a>.</li>
+<li>Wu Tingfeng. <a href="https://github.com/elliotwutingfeng/singapore_train_station_coordinates">Singapore Train Station Coordinates</a>, source station coordinates and dataset licence.</li>
+</ul>
+
+
+<!-- -->
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Take-home Exercise 3: Technical Report"</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="an">subtitle:</span><span class="co"> "Station choice under the Jurong Region and Cross Island Line Phase 1 scenarios"</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Davin Cuaso"</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> 2026-10-31</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="an">date-modified:</span><span class="co"> last-modified</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">    toc-depth: 3</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">    number-sections: true</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: true</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">    code-summary: "Show the R code"</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="an">params:</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">  recompute: false</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: load-analysis</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="co">#| include: false</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Rendering from the checked result files needs no network connection.</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Set recompute:true to rebuild them; set EX03_OD_FILE to add LTA calibration.</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (params<span class="sc">$</span>recompute) {</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">source</span>(<span class="st">"R/prepare_geography.R"</span>)</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">nzchar</span>(<span class="fu">Sys.getenv</span>(<span class="st">"EX03_OD_FILE"</span>))) <span class="fu">source</span>(<span class="st">"R/model.R"</span>)</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>coverage <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"results/coverage-summary.csv"</span>)</span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>features <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"results/station-features.csv"</span>)</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>new_coverage <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"results/new-station-coverage.csv"</span>)</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>line_coverage <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"results/line-coverage.csv"</span>)</span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>sensitivity <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"results/distance-sensitivity.csv"</span>)</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>model_dir <span class="ot">&lt;-</span> <span class="st">"results/model"</span></span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>has_model <span class="ot">&lt;-</span> <span class="fu">file.exists</span>(<span class="fu">file.path</span>(model_dir, <span class="st">"checks.csv"</span>))</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>fmt <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">format</span>(x, <span class="at">big.mark =</span> <span class="st">","</span>, <span class="at">trim =</span> <span class="cn">TRUE</span>, <span class="at">scientific =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Submission hub</span><span class="co">](Take-home_Ex03.qmd)</span> · <span class="co">[</span><span class="ot">Executive summary</span><span class="co">](Executive-summary.qmd)</span> · <span class="co">[</span><span class="ot">Project source</span><span class="co">](https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex03)</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a><span class="fu">## Overview</span></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>The question is whether adding the Jurong Region Line (JRL) and the first phase of the Cross Island Line (CRL1) changes where rail users are likely to board and alight. A station does not draw passengers from a fixed circle. Travellers can choose among several stations, and the choice depends on the station's setting and on the cost of reaching it. I use a probabilistic station-choice model for that comparison, with separate current and proposed networks.</span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>This report currently has two different levels of evidence. The station and land-use analysis is complete and uses recorded public geographic layers. The ridership model is implemented but **has not been calibrated**, because the LTA origin–destination (OD) trip file is not in the course repository or the supplied workspace. I do not report trip estimates from a substitute or simulated OD table. The result sections identify exactly what the missing file will unlock.</span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">official brief</span><span class="co">](https://isss626-ay2026-27aug.netlify.app/take-home_ex03)</span> calls for two interaction frames, origin market potential, destination observed ridership and attraction measures, calibration, validation, future-station prediction, and a comparison of existing station market areas. The project is organised around those outputs.</span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## Study questions and units</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>How many distinct station locations are in the current and proposed networks?</span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Which HDB blocks gain straight-line proximity to rail under the proposed network?</span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>Once observed OD counts are available, how well can a model using local activity, connectivity and distance reproduce station-level tap-outs?</span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Holding the observed origin market fixed, which destinations could gain or lose share when proposed stations enter the choice set?</span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a>The model's unit will be a **directed origin–destination station pair** for one LTA data month, restricted to the <span class="in">`WEEKDAY`</span> day type. Station-level ridership means recorded destination tap-outs summed across those pairs. In the geographic audit, a “station” is one physical location; the line codes of an interchange are grouped under one station name.</span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data sources and their roles</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: data-sources</span></span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">data.frame</span>(</span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a>  <span class="at">Source =</span> <span class="fu">c</span>(<span class="st">"Operational and future station coordinates"</span>, <span class="st">"HDB Existing Building"</span>,</span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Master Plan 2025 Land Use Layer"</span>, <span class="st">"LTA train OD passenger volume"</span>),</span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">Snapshot =</span> <span class="fu">c</span>(<span class="st">"Repository snapshot, 31 Oct 2026"</span>, <span class="st">"Buildings dated Nov 2025"</span>,</span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a>               <span class="st">"Gazetted Dec 2025"</span>, <span class="st">"Awaiting a monthly CSV or ZIP"</span>),</span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a>  <span class="at">Role =</span> <span class="fu">c</span>(<span class="st">"Station locations and scenario codes"</span>, <span class="st">"Residential-building count and proximity"</span>,</span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>           <span class="st">"Mapped activity area near destinations"</span>, <span class="st">"Observed weekday station-to-station trips"</span>)</span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>), <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Dataset"</span>, <span class="st">"Time reference"</span>, <span class="st">"Use"</span>))</span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">station coordinate repository</span><span class="co">](https://github.com/elliotwutingfeng/singapore_train_station_coordinates)</span> derives most points from URA or LTA records and flags manual estimates in a <span class="in">`source`</span> field. I saved its operational and future CSVs with the project so the scenario cannot silently change when that repository is updated. <span class="co">[</span><span class="ot">HDB Existing Building</span><span class="co">](https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view)</span> and the <span class="co">[</span><span class="ot">Master Plan 2025 Land Use Layer</span><span class="co">](https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view)</span> are downloaded directly from data.gov.sg by <span class="in">`R/prepare_geography.R`</span>; the large raw GeoJSON files stay in an ignored local cache. Derived tables and figures are in <span class="in">`results/`</span> and <span class="in">`figures/`</span>.</span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a>The <span class="co">[</span><span class="ot">LTA OD Train endpoint</span><span class="co">](https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html)</span> requires a DataMall Account Key. Its <span class="co">[</span><span class="ot">user guide</span><span class="co">](https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf)</span> defines <span class="in">`YEAR_MONTH`</span>, <span class="in">`DAY_TYPE`</span>, <span class="in">`TIME_PER_HOUR`</span>, origin and destination station codes, and <span class="in">`TOTAL_TRIPS`</span>. The code accepts LTA's CSV or ZIP once obtained. The report will state the exact data month after ingestion; no month is assumed in advance.</span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a><span class="fu">## Preparing the station scenarios</span></span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a>The current CSV has 213 line-code records. Grouping records with the same physical station name gives **181 existing station locations**. For the proposed scenario I retain <span class="in">`JS1–JS12`</span>, <span class="in">`JW1–JW5`</span>, and <span class="in">`JE1–JE7`</span> (24 JRL codes) plus <span class="in">`CR2–CR13`</span> (12 CRL1 codes). This matches the assignment's 24 plus 12 scope and <span class="co">[</span><span class="ot">LTA's CRL1 phase description</span><span class="co">](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line.html)</span>. The extra <span class="in">`JS2A`</span> Forest Hill record in the future coordinate file is excluded from this fixed 24-code JRL scenario. CRL Phase 2 and its Punggol extension are also excluded because they are outside CRL1.</span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a>Seven proposed codes refer to existing interchange locations: Choa Chu Kang, Boon Lay, Jurong East, Pasir Ris, Hougang, Ang Mo Kio and Bright Hill. They add a line connection but not another destination point. The result is **29 new physical locations**, giving 210 existing-plus-proposed stations. Double-counting an interchange as two destinations would inflate its predicted share, so the station-name grouping matters.</span>
+<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-90"><a href="#cb13-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-91"><a href="#cb13-91" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: station-audit</span></span>
+<span id="cb13-92"><a href="#cb13-92" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(coverage[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, ], <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Check"</span>, <span class="st">"Count"</span>))</span>
+<span id="cb13-93"><a href="#cb13-93" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-94"><a href="#cb13-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-95"><a href="#cb13-95" aria-hidden="true" tabindex="-1"></a>The coordinates are converted from longitude and latitude (EPSG:4326) to SVY21 / Singapore TM (EPSG:3414) before distance calculations. In this projected system, the station-to-station and building-to-station distances are in metres. I validate missing coordinates, duplicate station codes, and the expected JRL/CRL1 code counts before any result is written.</span>
+<span id="cb13-96"><a href="#cb13-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-97"><a href="#cb13-97" aria-hidden="true" tabindex="-1"></a><span class="fu">## Geographic measures before ridership calibration</span></span>
+<span id="cb13-98"><a href="#cb13-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-99"><a href="#cb13-99" aria-hidden="true" tabindex="-1"></a><span class="fu">### Residential blocks within reach</span></span>
+<span id="cb13-100"><a href="#cb13-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-101"><a href="#cb13-101" aria-hidden="true" tabindex="-1"></a>I take the centroid of each completed HDB building polygon and find its nearest existing and proposed station. An 800 m threshold is a simple spatial screen: it asks whether a block's mapped centre lies within 800 m in a straight line. The count is not a population estimate, because blocks differ in floor count and household size. It also does not measure an actual walking route.</span>
+<span id="cb13-102"><a href="#cb13-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-105"><a href="#cb13-105" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-106"><a href="#cb13-106" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: coverage-counts</span></span>
+<span id="cb13-107"><a href="#cb13-107" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(coverage[<span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>, ], <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Measure"</span>, <span class="st">"HDB blocks"</span>))</span>
+<span id="cb13-108"><a href="#cb13-108" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-109"><a href="#cb13-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-110"><a href="#cb13-110" aria-hidden="true" tabindex="-1"></a>Of 13,436 buildings, 9,645 are within 800 m of an existing physical station. The scenario adds 1,319 buildings to that threshold. A further 2,110 buildings are nearer to a proposed station than to any current one, whether or not they cross the 800 m line. These two figures answer different questions: new threshold coverage versus a shorter straight-line distance.</span>
+<span id="cb13-111"><a href="#cb13-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-114"><a href="#cb13-114" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-115"><a href="#cb13-115" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: coverage-map</span></span>
+<span id="cb13-116"><a href="#cb13-116" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(<span class="st">"figures/hdb-new-coverage.png"</span>)</span>
+<span id="cb13-117"><a href="#cb13-117" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-118"><a href="#cb13-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-119"><a href="#cb13-119" aria-hidden="true" tabindex="-1"></a>The newly covered blocks are concentrated around planned stops in the west and north-east. The west contains much of the JRL extension's residential catchment, while the eastern CRL1 stations add pockets around Pasir Ris East and Tampines North. This map is a *geographic opportunity* measure, not a forecast of journeys: some blocks may already reach rail by bus, and an apparently close station may require a longer walk around barriers.</span>
+<span id="cb13-120"><a href="#cb13-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-123"><a href="#cb13-123" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-124"><a href="#cb13-124" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: line-coverage</span></span>
+<span id="cb13-125"><a href="#cb13-125" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(line_coverage,</span>
+<span id="cb13-126"><a href="#cb13-126" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Nearest proposed line"</span>, <span class="st">"Newly reached HDB blocks"</span>))</span>
+<span id="cb13-127"><a href="#cb13-127" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-128"><a href="#cb13-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-129"><a href="#cb13-129" aria-hidden="true" tabindex="-1"></a>The line totals assign each newly reached building to its closest new station. They should not be read as a benefit–cost comparison of the two projects: the lines serve different places, and HDB buildings exclude private housing and many work destinations.</span>
+<span id="cb13-130"><a href="#cb13-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-133"><a href="#cb13-133" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-134"><a href="#cb13-134" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: new-blocks-chart</span></span>
+<span id="cb13-135"><a href="#cb13-135" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(<span class="st">"figures/new-station-blocks.png"</span>)</span>
+<span id="cb13-136"><a href="#cb13-136" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-137"><a href="#cb13-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-138"><a href="#cb13-138" aria-hidden="true" tabindex="-1"></a>Pasir Ris East has the largest count in this measure (216), followed by Serangoon North (151) and Tengah Plantation (144). The chart assigns each newly reached block to its nearest proposed station, so a block is counted once. It does not imply that these will be the busiest new stations. Business districts and interchange stations can draw riders from much farther away than the surrounding HDB blocks.</span>
+<span id="cb13-139"><a href="#cb13-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-140"><a href="#cb13-140" aria-hidden="true" tabindex="-1"></a><span class="fu">### Sensitivity to the threshold</span></span>
+<span id="cb13-141"><a href="#cb13-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-144"><a href="#cb13-144" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-145"><a href="#cb13-145" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: threshold-check</span></span>
+<span id="cb13-146"><a href="#cb13-146" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(sensitivity, <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Radius (m)"</span>, <span class="st">"Existing blocks reached"</span>, <span class="st">"Newly reached blocks"</span>))</span>
+<span id="cb13-147"><a href="#cb13-147" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-148"><a href="#cb13-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-149"><a href="#cb13-149" aria-hidden="true" tabindex="-1"></a>The 800 m result is not a natural boundary. The table repeats the same centroid calculation at 600 m and 1,000 m. A larger radius includes more buildings but also accepts walks that may be unattractive or impossible in practice. The model itself uses continuous station-to-station distance rather than treating these circles as a rigid passenger market.</span>
+<span id="cb13-150"><a href="#cb13-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-151"><a href="#cb13-151" aria-hidden="true" tabindex="-1"></a><span class="fu">### Destination activity proxy</span></span>
+<span id="cb13-152"><a href="#cb13-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-153"><a href="#cb13-153" aria-hidden="true" tabindex="-1"></a>For each station, I count HDB block centroids and sum the area of mapped commercial, business, civic, education, health, hotel and mixed-use parcels whose centroids fall within 800 m. The land-use layer records **zoning**, not occupied jobs or realised visits. A large parcel whose centre lies just inside the circle is counted in full, so the figure is an approximate activity proxy. The two measures are kept separate in the model: one describes nearby housing blocks; the other describes mapped non-residential opportunities.</span>
+<span id="cb13-154"><a href="#cb13-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-157"><a href="#cb13-157" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-158"><a href="#cb13-158" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: activity-chart</span></span>
+<span id="cb13-159"><a href="#cb13-159" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">include_graphics</span>(<span class="st">"figures/proposed-activity.png"</span>)</span>
+<span id="cb13-160"><a href="#cb13-160" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-161"><a href="#cb13-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-162"><a href="#cb13-162" aria-hidden="true" tabindex="-1"></a>The activity ranking differs from the HDB-block ranking. That is the reason to include both predictors: a station serving industrial or commercial land could attract destination trips even with few completed HDB blocks nearby. The chart does not tell us how many workers or visitors use those parcels.</span>
+<span id="cb13-163"><a href="#cb13-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-166"><a href="#cb13-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-167"><a href="#cb13-167" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: activity-preview</span></span>
+<span id="cb13-168"><a href="#cb13-168" aria-hidden="true" tabindex="-1"></a>preview <span class="ot">&lt;-</span> features <span class="sc">|&gt;</span></span>
+<span id="cb13-169"><a href="#cb13-169" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(status <span class="sc">==</span> <span class="st">"Planned new"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-170"><a href="#cb13-170" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">arrange</span>(dplyr<span class="sc">::</span><span class="fu">desc</span>(activity_hectares_800m)) <span class="sc">|&gt;</span></span>
+<span id="cb13-171"><a href="#cb13-171" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(station, hdb_blocks_800m, activity_hectares_800m) <span class="sc">|&gt;</span></span>
+<span id="cb13-172"><a href="#cb13-172" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">8</span>)</span>
+<span id="cb13-173"><a href="#cb13-173" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(preview, <span class="at">digits =</span> <span class="dv">1</span>,</span>
+<span id="cb13-174"><a href="#cb13-174" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Proposed station"</span>, <span class="st">"HDB blocks (800 m)"</span>, <span class="st">"Activity land (ha, approximate)"</span>))</span>
+<span id="cb13-175"><a href="#cb13-175" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-176"><a href="#cb13-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-177"><a href="#cb13-177" aria-hidden="true" tabindex="-1"></a><span class="fu">## Interaction data and observed market potential</span></span>
+<span id="cb13-178"><a href="#cb13-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-179"><a href="#cb13-179" aria-hidden="true" tabindex="-1"></a>The model script constructs a full directed choice table rather than using only pairs that appear in the OD CSV. Zero-flow pairs must remain in the choice set; otherwise the denominator in a station-choice probability would be calculated from observed trips alone. A same-station trip is removed because its zero spatial distance is not meaningful for this interstation model. Distances use station points in SVY21; they are **not** rail travel times or network path lengths.</span>
+<span id="cb13-180"><a href="#cb13-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-183"><a href="#cb13-183" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-184"><a href="#cb13-184" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: interaction-schema</span></span>
+<span id="cb13-185"><a href="#cb13-185" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">data.frame</span>(</span>
+<span id="cb13-186"><a href="#cb13-186" aria-hidden="true" tabindex="-1"></a>  <span class="at">Table =</span> <span class="fu">c</span>(<span class="st">"Current interactions"</span>, <span class="st">"Proposed interactions"</span>, <span class="st">"Origins"</span>, <span class="st">"Destinations"</span>),</span>
+<span id="cb13-187"><a href="#cb13-187" aria-hidden="true" tabindex="-1"></a>  <span class="at">Key =</span> <span class="fu">c</span>(<span class="st">"origin + destination"</span>, <span class="st">"origin + destination"</span>, <span class="st">"origin"</span>, <span class="st">"destination"</span>),</span>
+<span id="cb13-188"><a href="#cb13-188" aria-hidden="true" tabindex="-1"></a>  <span class="at">Fields =</span> <span class="fu">c</span>(<span class="st">"observed trips, attraction, distance_km, probability"</span>,</span>
+<span id="cb13-189"><a href="#cb13-189" aria-hidden="true" tabindex="-1"></a>             <span class="st">"attraction, distance_km, probability"</span>,</span>
+<span id="cb13-190"><a href="#cb13-190" aria-hidden="true" tabindex="-1"></a>             <span class="st">"observed outbound weekday trips = market_potential"</span>,</span>
+<span id="cb13-191"><a href="#cb13-191" aria-hidden="true" tabindex="-1"></a>             <span class="st">"observed inbound weekday trips, HDB blocks, activity area, line count"</span>)</span>
+<span id="cb13-192"><a href="#cb13-192" aria-hidden="true" tabindex="-1"></a>), <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Data frame"</span>, <span class="st">"Join key"</span>, <span class="st">"Principal columns"</span>))</span>
+<span id="cb13-193"><a href="#cb13-193" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-194"><a href="#cb13-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-195"><a href="#cb13-195" aria-hidden="true" tabindex="-1"></a>LTA merges some interchange codes in the OD file (for example <span class="in">`CC1-NE6-NS24`</span>). <span class="in">`R/model.R`</span> splits these codes and maps their components to one physical station name. It saves unmatched codes and stops if they represent more than 5% of trip counts. The file must contain exactly one <span class="in">`YEAR_MONTH`</span>, valid hourly values, and non-negative trips. Only <span class="in">`WEEKDAY`</span> and <span class="in">`TRAIN`</span> rows enter this version of the model. The origin total is a monthly aggregate across weekdays, not a per-day rate.</span>
+<span id="cb13-196"><a href="#cb13-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-197"><a href="#cb13-197" aria-hidden="true" tabindex="-1"></a><span class="fu">## Calibration and validation</span></span>
+<span id="cb13-198"><a href="#cb13-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-199"><a href="#cb13-199" aria-hidden="true" tabindex="-1"></a>For an origin *i* and available destination *j*, the station-choice utility is</span>
+<span id="cb13-200"><a href="#cb13-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-201"><a href="#cb13-201" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-202"><a href="#cb13-202" aria-hidden="true" tabindex="-1"></a>U_{ij}=\beta_H\log(1+H_j)+\beta_A\log(1+A_j)+\beta_L\log(L_j)-\beta_D\log(d_{ij}+0.25),</span>
+<span id="cb13-203"><a href="#cb13-203" aria-hidden="true" tabindex="-1"></a>\qquad</span>
+<span id="cb13-204"><a href="#cb13-204" aria-hidden="true" tabindex="-1"></a>P_{ij}=\frac{\exp(U_{ij})}{\sum_{k\ne i}\exp(U_{ik})}.</span>
+<span id="cb13-205"><a href="#cb13-205" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb13-206"><a href="#cb13-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-207"><a href="#cb13-207" aria-hidden="true" tabindex="-1"></a>Here $H_j$ is HDB block count within 800 m, $A_j$ is approximate activity hectares, $L_j$ is the number of rail lines, and $d_{ij}$ is straight-line distance in kilometres. The 0.25 km offset keeps the distance term finite at very short separations. The four coefficients are fitted by maximising the conditional multinomial likelihood of observed OD trips. The coefficient bounds enforce non-negative attraction effects and non-negative distance decay; a boundary estimate would warn that a predictor may add little information. These are modelling choices, not measured behavioural constants.</span>
+<span id="cb13-208"><a href="#cb13-208" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-209"><a href="#cb13-209" aria-hidden="true" tabindex="-1"></a>I reserve 20% of origin stations, selected with seed 626, before fitting. Their trip-weighted log loss is compared with a fitted distance-only model. The final coefficients are then refitted to all observed origins. For the current network, estimated destination tap-outs are the sum of each origin's observed market potential multiplied by its destination probabilities. The code checks that probabilities sum to one per origin and that total estimated trips equal the observed trip total.</span>
+<span id="cb13-210"><a href="#cb13-210" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-213"><a href="#cb13-213" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-214"><a href="#cb13-214" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: model-results</span></span>
+<span id="cb13-215"><a href="#cb13-215" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: asis</span></span>
+<span id="cb13-216"><a href="#cb13-216" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_model) {</span>
+<span id="cb13-217"><a href="#cb13-217" aria-hidden="true" tabindex="-1"></a>  checks <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(model_dir, <span class="st">"checks.csv"</span>))</span>
+<span id="cb13-218"><a href="#cb13-218" aria-hidden="true" tabindex="-1"></a>  coefficients <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(model_dir, <span class="st">"coefficients.csv"</span>))</span>
+<span id="cb13-219"><a href="#cb13-219" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"The supplied OD file covers **"</span>, checks<span class="sc">$</span>month[<span class="dv">1</span>], <span class="st">"**. The model matched **"</span>,</span>
+<span id="cb13-220"><a href="#cb13-220" aria-hidden="true" tabindex="-1"></a>      <span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> checks<span class="sc">$</span>matched_trip_share[<span class="dv">1</span>], <span class="dv">1</span>),</span>
+<span id="cb13-221"><a href="#cb13-221" aria-hidden="true" tabindex="-1"></a>      <span class="st">"%** of weekday trips to the station coordinate table.</span><span class="sc">\n\n</span><span class="st">"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb13-222"><a href="#cb13-222" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(knitr<span class="sc">::</span><span class="fu">kable</span>(coefficients, <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb13-223"><a href="#cb13-223" aria-hidden="true" tabindex="-1"></a>                     <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Model term"</span>, <span class="st">"Fitted coefficient"</span>)))</span>
+<span id="cb13-224"><a href="#cb13-224" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">The held-out log loss per trip is **"</span>, <span class="fu">round</span>(checks<span class="sc">$</span>heldout_logloss_per_trip[<span class="dv">1</span>], <span class="dv">3</span>),</span>
+<span id="cb13-225"><a href="#cb13-225" aria-hidden="true" tabindex="-1"></a>      <span class="st">"**, compared with **"</span>, <span class="fu">round</span>(checks<span class="sc">$</span>distance_only_logloss_per_trip[<span class="dv">1</span>], <span class="dv">3</span>),</span>
+<span id="cb13-226"><a href="#cb13-226" aria-hidden="true" tabindex="-1"></a>      <span class="st">"** for distance alone. The current-network station MAE is **"</span>,</span>
+<span id="cb13-227"><a href="#cb13-227" aria-hidden="true" tabindex="-1"></a>      <span class="fu">fmt</span>(<span class="fu">round</span>(checks<span class="sc">$</span>station_mae[<span class="dv">1</span>])), <span class="st">"** monthly weekday tap-outs.</span><span class="sc">\n</span><span class="st">"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb13-228"><a href="#cb13-228" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb13-229"><a href="#cb13-229" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"::: {.callout-warning title=</span><span class="sc">\"</span><span class="st">Calibration pending</span><span class="sc">\"</span><span class="st">}</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb13-230"><a href="#cb13-230" aria-hidden="true" tabindex="-1"></a>      <span class="st">"The LTA OD Train file has not been supplied. There are no fitted coefficients,"</span>,</span>
+<span id="cb13-231"><a href="#cb13-231" aria-hidden="true" tabindex="-1"></a>      <span class="st">"validation scores or observed-versus-estimated station ridership values to report.</span><span class="sc">\n</span><span class="st">:::</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-232"><a href="#cb13-232" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-233"><a href="#cb13-233" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-234"><a href="#cb13-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-235"><a href="#cb13-235" aria-hidden="true" tabindex="-1"></a><span class="fu">## Proposed-network comparison</span></span>
+<span id="cb13-236"><a href="#cb13-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-237"><a href="#cb13-237" aria-hidden="true" tabindex="-1"></a>The first counterfactual holds each **existing origin's observed outbound trip total fixed** and adds the 29 distinct new station locations as possible destinations. Existing interchanges gain their proposed line connection. The fitted coefficients stay unchanged. This isolates a change in destination choice under the expanded set of stations. It does **not** estimate new trips generated by future housing, trips starting at new stations, or transfers inside paid rail areas. New-station figures from this scenario would be captured tap-outs from existing origins, not total future station ridership.</span>
+<span id="cb13-238"><a href="#cb13-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-241"><a href="#cb13-241" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb13-242"><a href="#cb13-242" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: scenario-results</span></span>
+<span id="cb13-243"><a href="#cb13-243" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: asis</span></span>
+<span id="cb13-244"><a href="#cb13-244" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (has_model) {</span>
+<span id="cb13-245"><a href="#cb13-245" aria-hidden="true" tabindex="-1"></a>  pred <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">file.path</span>(model_dir, <span class="st">"station-predictions.csv"</span>))</span>
+<span id="cb13-246"><a href="#cb13-246" aria-hidden="true" tabindex="-1"></a>  top_new <span class="ot">&lt;-</span> pred <span class="sc">|&gt;</span></span>
+<span id="cb13-247"><a href="#cb13-247" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(status <span class="sc">==</span> <span class="st">"Planned new"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-248"><a href="#cb13-248" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">arrange</span>(dplyr<span class="sc">::</span><span class="fu">desc</span>(estimated_scenario)) <span class="sc">|&gt;</span></span>
+<span id="cb13-249"><a href="#cb13-249" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(destination, estimated_scenario) <span class="sc">|&gt;</span></span>
+<span id="cb13-250"><a href="#cb13-250" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb13-251"><a href="#cb13-251" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(knitr<span class="sc">::</span><span class="fu">kable</span>(top_new, <span class="at">digits =</span> <span class="dv">0</span>,</span>
+<span id="cb13-252"><a href="#cb13-252" aria-hidden="true" tabindex="-1"></a>                     <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"New destination"</span>, <span class="st">"Captured monthly weekday tap-outs"</span>)))</span>
+<span id="cb13-253"><a href="#cb13-253" aria-hidden="true" tabindex="-1"></a>  existing_change <span class="ot">&lt;-</span> pred <span class="sc">|&gt;</span></span>
+<span id="cb13-254"><a href="#cb13-254" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(status <span class="sc">==</span> <span class="st">"Existing"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-255"><a href="#cb13-255" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">arrange</span>(change) <span class="sc">|&gt;</span></span>
+<span id="cb13-256"><a href="#cb13-256" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(destination, change, change_pct) <span class="sc">|&gt;</span></span>
+<span id="cb13-257"><a href="#cb13-257" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(<span class="dv">10</span>)</span>
+<span id="cb13-258"><a href="#cb13-258" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">The largest modelled reductions among existing destination stations are:</span><span class="sc">\n\n</span><span class="st">"</span>)</span>
+<span id="cb13-259"><a href="#cb13-259" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(knitr<span class="sc">::</span><span class="fu">kable</span>(existing_change, <span class="at">digits =</span> <span class="dv">1</span>,</span>
+<span id="cb13-260"><a href="#cb13-260" aria-hidden="true" tabindex="-1"></a>                     <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Existing station"</span>, <span class="st">"Trip change"</span>, <span class="st">"Change (%)"</span>)))</span>
+<span id="cb13-261"><a href="#cb13-261" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb13-262"><a href="#cb13-262" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"The comparison table will be populated from the LTA OD file. No future-station"</span>,</span>
+<span id="cb13-263"><a href="#cb13-263" aria-hidden="true" tabindex="-1"></a>      <span class="st">"ridership or existing-station share change is claimed yet.</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb13-264"><a href="#cb13-264" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-265"><a href="#cb13-265" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb13-266"><a href="#cb13-266" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-267"><a href="#cb13-267" aria-hidden="true" tabindex="-1"></a>The interaction outputs retain <span class="in">`origin`</span>, <span class="in">`destination`</span>, <span class="in">`attraction`</span>, <span class="in">`distance_km`</span> and probability for both networks. They can be inspected directly rather than relying on a map's colour scale. Since the scenario conserves origin totals, gains at new destinations must be balanced by losses at existing destinations; this is a feature of this *fixed-market* scenario, not a statement that systemwide rail demand cannot grow.</span>
+<span id="cb13-268"><a href="#cb13-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-269"><a href="#cb13-269" aria-hidden="true" tabindex="-1"></a><span class="fu">## Assumptions and limitations</span></span>
+<span id="cb13-270"><a href="#cb13-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-271"><a href="#cb13-271" aria-hidden="true" tabindex="-1"></a>The coordinate file is a secondary compilation and may not place every platform or entrance exactly where passengers enter. The <span class="in">`JS2A`</span> omission follows the brief's 24-code JRL scope rather than claiming the station is not planned. Station name grouping is suitable for physical locations, but it masks separate paid/unpaid transfer arrangements and platform-level paths.</span>
+<span id="cb13-272"><a href="#cb13-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-273"><a href="#cb13-273" aria-hidden="true" tabindex="-1"></a>HDB block counts are not residents. Master Plan zoning is not employment or footfall. The 800 m land-use summary uses parcel centroids and whole parcel areas, which can overstate nearby activity for large sites. Straight-line distance ignores network topology and travel time. The OD file counts fare transactions between entry and exit points, not all passengers moving through an interchange. If the supplied OD month predates a current station, the station list and observed demand need to be reconciled before calibration.</span>
+<span id="cb13-274"><a href="#cb13-274" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-275"><a href="#cb13-275" aria-hidden="true" tabindex="-1"></a>The fixed-origin counterfactual can describe redistribution among existing travellers but will understate demand at newly opened stations. A full forecast would need future households, jobs, bus feeder changes, train travel times, operating dates, and induced trips. Coefficients estimated on today's network may also change when the network changes. Until LTA's actual OD file is supplied, none of the model's numerical claims can be checked.</span>
+<span id="cb13-276"><a href="#cb13-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-277"><a href="#cb13-277" aria-hidden="true" tabindex="-1"></a><span class="fu">## Conclusion</span></span>
+<span id="cb13-278"><a href="#cb13-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-279"><a href="#cb13-279" aria-hidden="true" tabindex="-1"></a>The geographic scenario adds 29 distinct station locations after interchange codes are reconciled. In the HDB building layer, 1,319 blocks cross the 800 m straight-line proximity threshold, with the largest groups near Pasir Ris East, Serangoon North, and Tengah Plantation. That is evidence of a possible access gain, not evidence of station ridership. The model, validation and future tap-out comparison are ready to run on an authorised LTA OD Train extract; their results remain open until that observed file is available.</span>
+<span id="cb13-280"><a href="#cb13-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-281"><a href="#cb13-281" aria-hidden="true" tabindex="-1"></a><span class="fu">## References</span></span>
+<span id="cb13-282"><a href="#cb13-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-283"><a href="#cb13-283" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>ISSS626 course team. <span class="co">[</span><span class="ot">Take-home Exercise 3 brief</span><span class="co">](https://isss626-ay2026-27aug.netlify.app/take-home_ex03)</span>.</span>
+<span id="cb13-284"><a href="#cb13-284" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Land Transport Authority. <span class="co">[</span><span class="ot">Jurong Region Line</span><span class="co">](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/jurong_region_line.html)</span> and <span class="co">[</span><span class="ot">Cross Island Line</span><span class="co">](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line.html)</span>.</span>
+<span id="cb13-285"><a href="#cb13-285" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Land Transport Authority. <span class="co">[</span><span class="ot">DataMall dynamic datasets</span><span class="co">](https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html)</span> and <span class="co">[</span><span class="ot">API User Guide</span><span class="co">](https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf)</span>.</span>
+<span id="cb13-286"><a href="#cb13-286" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Housing &amp; Development Board. <span class="co">[</span><span class="ot">HDB Existing Building, November 2025</span><span class="co">](https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view)</span>.</span>
+<span id="cb13-287"><a href="#cb13-287" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Urban Redevelopment Authority. <span class="co">[</span><span class="ot">Master Plan 2025 Land Use Layer</span><span class="co">](https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view)</span>.</span>
+<span id="cb13-288"><a href="#cb13-288" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Wu Tingfeng. <span class="co">[</span><span class="ot">Singapore Train Station Coordinates</span><span class="co">](https://github.com/elliotwutingfeng/singapore_train_station_coordinates)</span>, source station coordinates and dataset licence.</span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>ISSS608 Visual Analytics and Applications</p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    </div>
+    <div class="nav-footer-right">
+<p>Built with Quarto</p>
+</div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

@@ -175,18 +175,10 @@ Open the submission hub for the [technical report](Take-home_Ex/Take-home_Ex02/T
 :::
 
 ::: {.exercise-card}
-### [Take-home Exercise 3a](Take-home_Ex/Take-home_Ex03a/Take-home_Ex03a.qmd)
+### [Take-home Exercise 3](Take-home_Ex/Take-home_Ex03/Take-home_Ex03.qmd)
 
-**Reserved**
+**Singapore rail expansion**
 
-The page is ready for the Exercise 3a brief and submission links.
-:::
-
-::: {.exercise-card}
-### [Take-home Exercise 3b](Take-home_Ex/Take-home_Ex03b/Take-home_Ex03b.qmd)
-
-**Reserved**
-
-The page is ready for the Exercise 3b brief and submission links.
+Open the submission hub for the [technical report](Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.qmd), [executive summary](Take-home_Ex/Take-home_Ex03/Executive-summary.qmd), and [project source](https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex03). The geographic analysis is complete; LTA ridership calibration awaits the OD file.
 :::
 :::

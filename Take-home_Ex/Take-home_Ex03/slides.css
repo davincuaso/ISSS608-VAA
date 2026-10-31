@@ -1,0 +1,10 @@
+.reveal {font-family: Arial, sans-serif; color:#243543; font-size:28px;}
+.reveal h1 {font-size:2.1em;color:#126b78;}
+.reveal h2 {font-size:1.45em;color:#126b78;text-transform:none;}
+.reveal .slide-number {font-size:16px;}
+.reveal .footer {font-size:13px;color:#52616b;}
+.reveal img {margin:0 auto; max-width:100%;object-fit:contain;}
+.reveal strong {color:#9b2335;}
+.reveal .columns {align-items:center;gap:1.3rem;}
+.reveal p, .reveal li {line-height:1.35;}
+.reveal a {color:#126b78;}

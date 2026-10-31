@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-09-09">
+<meta name="dcterms.date" content="2026-10-31">
 
-<title>Take-home Exercise 3b – ISSS608 Visual Analytics</title>
+<title>Take-home Exercise 3 – ISSS608 Visual Analytics</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -80,7 +80,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="../../styles.css">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -145,11 +145,11 @@ ul.task-list li input[type="checkbox"] {
         <li>
     <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07.html">
  <span class="dropdown-text">Hands-on Exercise 7: Geographical Accessibility</span></a>
-  </li>
+  </li>  
         <li>
     <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.html">
  <span class="dropdown-text">Hands-on Exercise 8: Huff Market Area Analysis</span></a>
-  </li>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -168,15 +168,15 @@ ul.task-list li input[type="checkbox"] {
         <li>
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex06/In-class_Ex06.html">
  <span class="dropdown-text">In-Class Exercise 6: EHSA Method Audit</span></a>
-  </li>
+  </li>  
         <li>
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex07/In-class_Ex07.html">
  <span class="dropdown-text">In-Class Exercise 7: Accessibility Catchment Methods</span></a>
-  </li>
+  </li>  
         <li>
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex08/In-class_Ex08.html">
  <span class="dropdown-text">In-Class Exercise 8: Huff Store Trade Areas</span></a>
-  </li>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -193,12 +193,8 @@ ul.task-list li input[type="checkbox"] {
  <span class="dropdown-text">Take-home Exercise 2</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex03a/Take-home_Ex03a.html">
- <span class="dropdown-text">Take-home Exercise 3a</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex03b/Take-home_Ex03b.html">
- <span class="dropdown-text">Take-home Exercise 3b</span></a>
+    <a class="dropdown-item" href="../../Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html">
+ <span class="dropdown-text">Take-home Exercise 3</span></a>
   </li>  
     </ul>
   </li>
@@ -221,34 +217,47 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#project-outputs" id="toc-project-outputs" class="nav-link active" data-scroll-target="#project-outputs">Project outputs</a></li>
+  <li><a href="#scope" id="toc-scope" class="nav-link" data-scroll-target="#scope">Scope</a></li>
+  <li><a href="#what-the-geographic-data-already-show" id="toc-what-the-geographic-data-already-show" class="nav-link" data-scroll-target="#what-the-geographic-data-already-show">What the geographic data already show</a></li>
+  <li><a href="#model-to-be-calibrated" id="toc-model-to-be-calibrated" class="nav-link" data-scroll-target="#model-to-be-calibrated">Model to be calibrated</a></li>
+  <li><a href="#reproducibility" id="toc-reproducibility" class="nav-link" data-scroll-target="#reproducibility">Reproducibility</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page-left" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Take-home Exercise 3b</h1>
+<h1 class="title">Take-home Exercise 3</h1>
+<p class="subtitle lead">Predicting station choice as Singapore’s rail network expands</p>
 </div>
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page-left">
 
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">9 September 2026</p>
+      <p class="date">31 October 2026</p>
     </div>
   </div>
   
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">12 September 2026</p>
+      <p class="date-modified">31 October 2026</p>
     </div>
   </div>
     
@@ -260,11 +269,59 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="hero-panel">
-<p>This page is reserved for Take-home Exercise 3b.</p>
+<p>This project studies how the Jurong Region Line and Cross Island Line Phase 1 could change the stations people use. It builds a current-network scenario and a 2030 scenario, then prepares an origin-constrained station-choice model for calibration with LTA’s train origin–destination counts.</p>
 </div>
-<p>The exercise brief, data sources, technical report, executive summary, and repository links will be added when the assignment is released.</p>
+<div class="callout callout-style-default callout-warning callout-titled" title="Ridership results await the LTA file">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Ridership results await the LTA file
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The course repository does not contain the train origin–destination CSV, and LTA DataMall requires an account key to download it. The station and catchment analysis below uses public geographic data. No station ridership has been inferred from a made-up trip table. Once the LTA CSV is supplied, the model script will generate the observed, fitted, and scenario ridership results.</p>
+</div>
+</div>
+<section id="project-outputs" class="level2">
+<h2 class="anchored" data-anchor-id="project-outputs">Project outputs</h2>
+<div class="exercise-grid">
+<section id="technical-report" class="level3 exercise-card">
+<h3 class="anchored" data-anchor-id="technical-report"><a href="../../Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html">Technical report</a></h3>
+<p>Data audit, station scenario, geographic measures, catchment findings, model design, validation protocol, assumptions, limitations, and references.</p>
+</section>
+<section id="executive-summary" class="level3 exercise-card">
+<h3 class="anchored" data-anchor-id="executive-summary"><a href="../../Take-home_Ex/Take-home_Ex03/Executive-summary.html">Executive summary</a></h3>
+<p>A revealjs presentation in the same visual style as Exercise 2. The current deck labels the ridership estimates as pending.</p>
+</section>
+<section id="github-project" class="level3 exercise-card">
+<h3 class="anchored" data-anchor-id="github-project"><a href="https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex03">GitHub project</a></h3>
+<p>Quarto source, R preparation and model scripts, geographic results, figures, source records, and reproduction steps.</p>
+</section>
+</div>
+</section>
+<section id="scope" class="level2">
+<h2 class="anchored" data-anchor-id="scope">Scope</h2>
+<p>The <a href="https://isss626-ay2026-27aug.netlify.app/take-home_ex03">Exercise 3 brief</a> asks for an existing-network interaction table, a second table with proposed stations, observed destination ridership, a calibrated probabilistic model, and a comparison of station market areas. This submission uses one Exercise 3 project, as the current brief specifies. It is not divided into 3a and 3b.</p>
+<p>The proposed network follows the brief’s <strong>24 Jurong Region Line codes</strong> and <strong>12 Cross Island Line Phase 1 codes</strong>. Three JRL and four CRL1 codes are new platforms at existing interchange locations. After those are joined to the existing stations, the geographic scenario adds <strong>29 distinct station locations</strong>.</p>
+</section>
+<section id="what-the-geographic-data-already-show" class="level2">
+<h2 class="anchored" data-anchor-id="what-the-geographic-data-already-show">What the geographic data already show</h2>
+<p>The current coordinate file resolves to <strong>181 physical MRT/LRT station locations</strong>. Of <strong>13,436 HDB blocks</strong> in the November 2025 building layer, <strong>9,645</strong> have centroids within 800 m of an existing station. Adding the 29 distinct proposed locations brings <strong>1,319 more blocks</strong> within that straight-line threshold. Pasir Ris East (216 blocks), Serangoon North (151), and Tengah Plantation (144) account for the largest newly reached block counts in this particular measure.</p>
+<p>These are block counts, not residents, boardings, or a forecast of patronage. An 800 m circle also does not account for roads, crossings, station entrances, or bus access. The <a href="../../Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html">technical report</a> shows the map and explains how the counts were made.</p>
+</section>
+<section id="model-to-be-calibrated" class="level2">
+<h2 class="anchored" data-anchor-id="model-to-be-calibrated">Model to be calibrated</h2>
+<p>Each observed origin station will contribute its weekday monthly outbound trips as market potential. A destination’s attraction is measured with HDB blocks, mapped activity land use, and rail-line connectivity within 800 m. Distance is measured between station points in SVY21. The model estimates the probability that a trip from origin <em>i</em> ends at destination <em>j</em> and checks those probabilities against held-out origins.</p>
+<p>The initial future scenario keeps the observed origin trip totals fixed. Its outputs therefore represent <strong>tap-outs captured from existing origins</strong>, not complete future station ridership or induced trips. The report preserves this distinction throughout.</p>
+</section>
+<section id="reproducibility" class="level2">
+<h2 class="anchored" data-anchor-id="reproducibility">Reproducibility</h2>
+<p>The <a href="https://github.com/davincuaso/ISSS608-VAA/blob/master/Take-home_Ex/Take-home_Ex03/README.md">README</a> gives exact commands, data links, file checks, and the one required private input. Raw HDB and land-use GeoJSON files are downloaded directly from data.gov.sg when the preparation script runs. The source station CSVs and all derived non-ridership results are saved in this project.</p>
 
 
+</section>
 
 <a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

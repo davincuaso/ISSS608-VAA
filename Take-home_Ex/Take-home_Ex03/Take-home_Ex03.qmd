@@ -1,0 +1,61 @@
+---
+title: "Take-home Exercise 3"
+subtitle: "Predicting station choice as Singapore's rail network expands"
+date: 2026-10-31
+date-modified: last-modified
+toc: true
+toc-depth: 2
+page-layout: full
+---
+
+::: {.hero-panel}
+This project studies how the Jurong Region Line and Cross Island Line Phase 1 could change the stations people use. It builds a current-network scenario and a 2030 scenario, then prepares an origin-constrained station-choice model for calibration with LTA's train origin–destination counts.
+:::
+
+::: {.callout-warning title="Ridership results await the LTA file"}
+The course repository does not contain the train origin–destination CSV, and LTA DataMall requires an account key to download it. The station and catchment analysis below uses public geographic data. No station ridership has been inferred from a made-up trip table. Once the LTA CSV is supplied, the model script will generate the observed, fitted, and scenario ridership results.
+:::
+
+## Project outputs
+
+::: {.exercise-grid}
+::: {.exercise-card}
+### [Technical report](Take-home_Ex03-report.qmd)
+
+Data audit, station scenario, geographic measures, catchment findings, model design, validation protocol, assumptions, limitations, and references.
+:::
+
+::: {.exercise-card}
+### [Executive summary](Executive-summary.qmd)
+
+A revealjs presentation in the same visual style as Exercise 2. The current deck labels the ridership estimates as pending.
+:::
+
+::: {.exercise-card}
+### [GitHub project](https://github.com/davincuaso/ISSS608-VAA/tree/master/Take-home_Ex/Take-home_Ex03)
+
+Quarto source, R preparation and model scripts, geographic results, figures, source records, and reproduction steps.
+:::
+:::
+
+## Scope
+
+The [Exercise 3 brief](https://isss626-ay2026-27aug.netlify.app/take-home_ex03) asks for an existing-network interaction table, a second table with proposed stations, observed destination ridership, a calibrated probabilistic model, and a comparison of station market areas. This submission uses one Exercise 3 project, as the current brief specifies. It is not divided into 3a and 3b.
+
+The proposed network follows the brief's **24 Jurong Region Line codes** and **12 Cross Island Line Phase 1 codes**. Three JRL and four CRL1 codes are new platforms at existing interchange locations. After those are joined to the existing stations, the geographic scenario adds **29 distinct station locations**.
+
+## What the geographic data already show
+
+The current coordinate file resolves to **181 physical MRT/LRT station locations**. Of **13,436 HDB blocks** in the November 2025 building layer, **9,645** have centroids within 800 m of an existing station. Adding the 29 distinct proposed locations brings **1,319 more blocks** within that straight-line threshold. Pasir Ris East (216 blocks), Serangoon North (151), and Tengah Plantation (144) account for the largest newly reached block counts in this particular measure.
+
+These are block counts, not residents, boardings, or a forecast of patronage. An 800 m circle also does not account for roads, crossings, station entrances, or bus access. The [technical report](Take-home_Ex03-report.qmd) shows the map and explains how the counts were made.
+
+## Model to be calibrated
+
+Each observed origin station will contribute its weekday monthly outbound trips as market potential. A destination's attraction is measured with HDB blocks, mapped activity land use, and rail-line connectivity within 800 m. Distance is measured between station points in SVY21. The model estimates the probability that a trip from origin *i* ends at destination *j* and checks those probabilities against held-out origins.
+
+The initial future scenario keeps the observed origin trip totals fixed. Its outputs therefore represent **tap-outs captured from existing origins**, not complete future station ridership or induced trips. The report preserves this distinction throughout.
+
+## Reproducibility
+
+The [README](https://github.com/davincuaso/ISSS608-VAA/blob/master/Take-home_Ex/Take-home_Ex03/README.md) gives exact commands, data links, file checks, and the one required private input. Raw HDB and land-use GeoJSON files are downloaded directly from data.gov.sg when the preparation script runs. The source station CSVs and all derived non-ridership results are saved in this project.

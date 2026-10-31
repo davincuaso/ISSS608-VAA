@@ -1,0 +1,165 @@
+---
+title: "Where might new rail stations draw travellers?"
+subtitle: "Jurong Region Line and Cross Island Line Phase 1"
+author: "Davin Cuaso · ISSS626 Take-home Exercise 3"
+date: 2026-10-31
+date-modified: last-modified
+format:
+  revealjs:
+    theme: simple
+    width: 1280
+    height: 800
+    margin: 0.06
+    slide-number: true
+    transition: none
+    embed-resources: true
+    css: slides.css
+    footer: "Station and land-use audit · LTA OD calibration pending"
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+## Contents
+
+1. Define the two rail networks and physical stations.
+2. Check the geographic opportunity near proposed stations.
+3. Calibrate and test station choice when the LTA trip file is available.
+4. Compare the fixed-market counterfactual and its limits.
+
+::: notes
+The current deck reports the verified station and HDB geography. The trip-dependent sections are labelled pending because the LTA OD Train file was not provided. The technical report contains all sources and scripts.
+:::
+
+## The decision question
+
+Where could new JRL and CRL1 stations change the rail destinations chosen by existing travellers?
+
+The model separates two things:
+
+- **A station's setting:** nearby HDB blocks, mapped activity land, rail connections.
+- **The trip cost:** straight-line distance from an origin station.
+
+The LTA OD file is required to learn the relative weight of these factors. Geography alone cannot produce observed ridership.
+
+::: notes
+The model estimates destination tap-outs conditional on the existing origin stations' recorded outbound trips. It does not forecast all future travel demand.
+:::
+
+## One project, two network scenarios
+
+::: columns
+::: {.column width="48%"}
+### Existing
+
+**213 line-code records** resolve to **181 physical station locations**.
+:::
+::: {.column width="52%"}
+### Proposed
+
+**24 JRL codes + 12 CRL1 codes**.
+
+Seven are interchanges at existing locations, leaving **29 new physical station locations**.
+:::
+:::
+
+The scenario stops at CRL Phase 1. The extra JS2A record in the coordinate file is outside the brief's 24-code JRL scope.
+
+::: notes
+The seven existing interchange locations are Choa Chu Kang, Boon Lay, Jurong East, Pasir Ris, Hougang, Ang Mo Kio and Bright Hill. Counting the new line code as a second station point would create a duplicate destination in the model.
+:::
+
+## Data and checks
+
+The geographic audit uses:
+
+- station coordinates compiled from LTA and URA records;
+- **13,436** completed HDB building polygons, dated November 2025;
+- Master Plan 2025 land-use polygons for nearby activity.
+
+Every distance is calculated in **SVY21 / Singapore TM**, not from raw latitude–longitude degrees. The scripts check missing coordinates, duplicate station codes, station grouping, and the exact 24 + 12 proposed-code selection.
+
+::: notes
+The HDB layer contains blocks, not households. Master Plan land use records zoning, not occupied employment. Source links and dataset licences are in the technical report.
+:::
+
+## The access screen: 800 m straight line
+
+**9,645 of 13,436 HDB blocks** have centroids within 800 m of an existing station.
+
+Adding the new locations brings **1,319 more blocks** within that threshold. **2,110 blocks** become nearer to a proposed station, even if they do not cross the 800 m line.
+
+The count screens for possible local access. It does not measure walking time, boardings, or people.
+
+::: notes
+The nearest-station calculation is made for every HDB building centroid. Newly covered blocks are outside 800 m from all existing station points but within 800 m of at least one new station point.
+:::
+
+## Where the newly reached blocks sit
+
+![](figures/hdb-new-coverage.png){height=525}
+
+The strongest clusters in this measure sit in the west and north-east.
+
+::: notes
+Grey dots show HDB building centroids, blue dots existing stations, orange dots new stations and newly covered HDB blocks. The geometry is a straight-line screen; roads and entrances are not in the calculation.
+:::
+
+## Which proposed stops sit nearest to them?
+
+![](figures/new-station-blocks.png){height=535}
+
+Pasir Ris East: **216**; Serangoon North: **151**; Tengah Plantation: **144** newly reached blocks.
+
+::: notes
+Each newly reached block goes to its nearest planned new station, so no block appears twice in the bar chart. This is not a ranking of future ridership. Industrial and interchange destinations may have few surrounding HDB blocks yet draw many travellers.
+:::
+
+## The 800 m choice is a sensitivity assumption
+
+```{r}
+#| label: sensitivity-table
+s <- read.csv("results/distance-sensitivity.csv")
+knitr::kable(s, col.names = c("Radius (m)", "Existing blocks", "Newly reached blocks"))
+```
+
+The threshold changes the count. The eventual choice model uses distance continuously, rather than drawing an absolute catchment boundary.
+
+::: notes
+The same block centroids and station points are used at each radius. A larger circle is more inclusive but less defensible as a walkable catchment, especially where roads or waterways intervene.
+:::
+
+## What the OD model will estimate
+
+For each existing origin station, observed weekday outbound trips define its market size. Each possible destination receives a score from nearby HDB blocks, activity land, line connections, and distance. Dividing by the sum of all destination scores gives a **choice probability**.
+
+The interaction tables retain origin, destination, attraction, distance and probability. A destination's estimated tap-outs are the sum of predicted trips from all origins.
+
+::: {.callout-warning}
+No LTA OD file is available yet, so the coefficients and trip totals are not reported.
+:::
+
+::: notes
+This is an origin-constrained Huff-type model fitted by conditional multinomial likelihood. Zero-flow pairs stay in the choice set. Same-station pairs are excluded. The technical report gives the equation and code.
+:::
+
+## How the estimate will be checked
+
+The script will hold out **20% of origin stations** and compare its trip-weighted log loss with a distance-only model. It will also compare observed and fitted station tap-outs, list unmatched LTA codes, and verify that each origin's probabilities total one.
+
+For the proposed network, the same fitted coefficients are applied to the expanded destination set. Existing origin trip totals remain fixed. This shows **redistribution among destinations**, not new systemwide demand.
+
+::: notes
+If unmatched station codes represent more than 5% of trips, the script stops instead of quietly dropping them. The same rule applies if the input has more than one data month.
+:::
+
+## What can be concluded now
+
+The proposed network adds **29 distinct physical station locations** in this scenario. On the HDB building map, **1,319 blocks** newly fall within 800 m of rail. That is a real geographic result, but it cannot say which stations will be busy.
+
+The unanswered part is station-level ridership. It requires the actual LTA OD Train file. Until then, the model's fit, new-station tap-outs, and changes at existing stations remain open.
+
+::: notes
+The technical report and project source are linked from the Exercise 3 submission hub. The finished counterfactual will be a fixed-market, existing-origin estimate and should not be described as total future ridership.
+:::

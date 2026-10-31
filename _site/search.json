@@ -494,7 +494,7 @@
     "href": "index.html#take-home-exercises",
     "title": "ISSS608 Visual Analytics and Applications",
     "section": "Take-home exercises",
-    "text": "Take-home exercises\n\n\nTake-home Exercise 1\nGeospatial analytics for public safety\nSubmission hub for the executive summary, technical report, data record, and reproducibility checklist.\n\n\nTake-home Exercise 2\nMyanmar conflict geography\nOpen the submission hub for the technical report, ten-slide summary, and reproducible project.\n\n\nTake-home Exercise 3a\nReserved\nThe page is ready for the Exercise 3a brief and submission links.\n\n\nTake-home Exercise 3b\nReserved\nThe page is ready for the Exercise 3b brief and submission links."
+    "text": "Take-home exercises\n\n\nTake-home Exercise 1\nGeospatial analytics for public safety\nSubmission hub for the executive summary, technical report, data record, and reproducibility checklist.\n\n\nTake-home Exercise 2\nMyanmar conflict geography\nOpen the submission hub for the technical report, ten-slide summary, and reproducible project.\n\n\nTake-home Exercise 3\nSingapore rail expansion\nOpen the submission hub for the technical report, executive summary, and project source. The geographic analysis is complete; LTA ridership calibration awaits the OD file."
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html",
@@ -1078,13 +1078,6 @@
     "text": "Analytical coverage\n\nThe data audit traces 81,735 raw records to 3,597 analysed events and documents missing coordinates, spatial filtering, province mismatches and duplicate handling.\nFirst-order analysis compares monthly and hourly patterns, provincial event density and edge-corrected KDE at 2 km, 3 km and 6 km bandwidths.\nSecond-order analysis uses transformed L-functions, translation edge correction and 99 conditional simulations under CSR and an inhomogeneous Poisson model.\nSensitivity checks compare KDE bandwidths and repeat the inhomogeneous test after removing repeated coordinates.\nThe bonus applies a 199-run Monte Carlo Knox test at three space-time thresholds.\nFixed URLs, source-file checksums, scripts, parameters, a simulation seed and session information document the workflow."
   },
   {
-    "objectID": "Take-home_Ex/Take-home_Ex03b/Take-home_Ex03b.html",
-    "href": "Take-home_Ex/Take-home_Ex03b/Take-home_Ex03b.html",
-    "title": "Take-home Exercise 3b",
-    "section": "",
-    "text": "This page is reserved for Take-home Exercise 3b.\n\nThe exercise brief, data sources, technical report, executive summary, and repository links will be added when the assignment is released.\n\n\n\n Back to top"
-  },
-  {
     "objectID": "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html",
     "href": "Take-home_Ex/Take-home_Ex02/Take-home_Ex02.html",
     "title": "Take-home Exercise 2",
@@ -1188,13 +1181,6 @@
     "title": "How to read and explain this analysis",
     "section": "",
     "text": "The maps can help decide where further local investigation is warranted. They cannot determine current travel safety, operational deployment or aid allocation on their own. The data end in September 2025, and reporting coverage is not known.\nOpen the report first, then the slides. Expand the code sections when you want to trace a decision to its implementation. The CSV outputs allow township-level checking without reading raw event records into every chart."
-  },
-  {
-    "objectID": "Take-home_Ex/Take-home_Ex03a/Take-home_Ex03a.html",
-    "href": "Take-home_Ex/Take-home_Ex03a/Take-home_Ex03a.html",
-    "title": "Take-home Exercise 3a",
-    "section": "",
-    "text": "This page is reserved for Take-home Exercise 3a.\n\nThe exercise brief, data sources, technical report, executive summary, and repository links will be added when the assignment is released.\n\n\n\n Back to top"
   },
   {
     "objectID": "In-class_Ex/In-class_Ex05/In-class_Ex05.html",
@@ -1685,5 +1671,208 @@
     "title": "In-Class Exercise 8",
     "section": "References",
     "text": "References\n\nKam, T. S. Chapter 18: Market Area Analysis for Retail and Service Locations using Huff model, with the classroom trade-area display and plotting sequence shown in the supplied reference photographs.\nWieland, T. MCI package documentation, particularly huff.shares() and shares.total().\nThe supplied course inputs and their source record in data/README.md."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "",
+    "text": "Submission hub · Executive summary · Project source"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#overview",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#overview",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "1 Overview",
+    "text": "1 Overview\nThe question is whether adding the Jurong Region Line (JRL) and the first phase of the Cross Island Line (CRL1) changes where rail users are likely to board and alight. A station does not draw passengers from a fixed circle. Travellers can choose among several stations, and the choice depends on the station’s setting and on the cost of reaching it. I use a probabilistic station-choice model for that comparison, with separate current and proposed networks.\nThis report currently has two different levels of evidence. The station and land-use analysis is complete and uses recorded public geographic layers. The ridership model is implemented but has not been calibrated, because the LTA origin–destination (OD) trip file is not in the course repository or the supplied workspace. I do not report trip estimates from a substitute or simulated OD table. The result sections identify exactly what the missing file will unlock.\nThe official brief calls for two interaction frames, origin market potential, destination observed ridership and attraction measures, calibration, validation, future-station prediction, and a comparison of existing station market areas. The project is organised around those outputs."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#study-questions-and-units",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#study-questions-and-units",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "2 Study questions and units",
+    "text": "2 Study questions and units\n\nHow many distinct station locations are in the current and proposed networks?\nWhich HDB blocks gain straight-line proximity to rail under the proposed network?\nOnce observed OD counts are available, how well can a model using local activity, connectivity and distance reproduce station-level tap-outs?\nHolding the observed origin market fixed, which destinations could gain or lose share when proposed stations enter the choice set?\n\nThe model’s unit will be a directed origin–destination station pair for one LTA data month, restricted to the WEEKDAY day type. Station-level ridership means recorded destination tap-outs summed across those pairs. In the geographic audit, a “station” is one physical location; the line codes of an interchange are grouped under one station name."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#data-sources-and-their-roles",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#data-sources-and-their-roles",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "3 Data sources and their roles",
+    "text": "3 Data sources and their roles\n\n\nShow the R code\nknitr::kable(data.frame(\n  Source = c(\"Operational and future station coordinates\", \"HDB Existing Building\",\n             \"Master Plan 2025 Land Use Layer\", \"LTA train OD passenger volume\"),\n  Snapshot = c(\"Repository snapshot, 31 Oct 2026\", \"Buildings dated Nov 2025\",\n               \"Gazetted Dec 2025\", \"Awaiting a monthly CSV or ZIP\"),\n  Role = c(\"Station locations and scenario codes\", \"Residential-building count and proximity\",\n           \"Mapped activity area near destinations\", \"Observed weekday station-to-station trips\")\n), col.names = c(\"Dataset\", \"Time reference\", \"Use\"))\n\n\n\n\n\n\n\n\n\n\nDataset\nTime reference\nUse\n\n\n\n\nOperational and future station coordinates\nRepository snapshot, 31 Oct 2026\nStation locations and scenario codes\n\n\nHDB Existing Building\nBuildings dated Nov 2025\nResidential-building count and proximity\n\n\nMaster Plan 2025 Land Use Layer\nGazetted Dec 2025\nMapped activity area near destinations\n\n\nLTA train OD passenger volume\nAwaiting a monthly CSV or ZIP\nObserved weekday station-to-station trips\n\n\n\n\n\nThe station coordinate repository derives most points from URA or LTA records and flags manual estimates in a source field. I saved its operational and future CSVs with the project so the scenario cannot silently change when that repository is updated. HDB Existing Building and the Master Plan 2025 Land Use Layer are downloaded directly from data.gov.sg by R/prepare_geography.R; the large raw GeoJSON files stay in an ignored local cache. Derived tables and figures are in results/ and figures/.\nThe LTA OD Train endpoint requires a DataMall Account Key. Its user guide defines YEAR_MONTH, DAY_TYPE, TIME_PER_HOUR, origin and destination station codes, and TOTAL_TRIPS. The code accepts LTA’s CSV or ZIP once obtained. The report will state the exact data month after ingestion; no month is assumed in advance."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#preparing-the-station-scenarios",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#preparing-the-station-scenarios",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "4 Preparing the station scenarios",
+    "text": "4 Preparing the station scenarios\nThe current CSV has 213 line-code records. Grouping records with the same physical station name gives 181 existing station locations. For the proposed scenario I retain JS1–JS12, JW1–JW5, and JE1–JE7 (24 JRL codes) plus CR2–CR13 (12 CRL1 codes). This matches the assignment’s 24 plus 12 scope and LTA’s CRL1 phase description. The extra JS2A Forest Hill record in the future coordinate file is excluded from this fixed 24-code JRL scenario. CRL Phase 2 and its Punggol extension are also excluded because they are outside CRL1.\nSeven proposed codes refer to existing interchange locations: Choa Chu Kang, Boon Lay, Jurong East, Pasir Ris, Hougang, Ang Mo Kio and Bright Hill. They add a line connection but not another destination point. The result is 29 new physical locations, giving 210 existing-plus-proposed stations. Double-counting an interchange as two destinations would inflate its predicted share, so the station-name grouping matters.\n\n\nShow the R code\nknitr::kable(coverage[1:3, ], col.names = c(\"Check\", \"Count\"))\n\n\n\n\n\nCheck\nCount\n\n\n\n\nExisting physical stations\n181\n\n\nNew physical stations\n29\n\n\nHDB blocks in source\n13436\n\n\n\n\n\nThe coordinates are converted from longitude and latitude (EPSG:4326) to SVY21 / Singapore TM (EPSG:3414) before distance calculations. In this projected system, the station-to-station and building-to-station distances are in metres. I validate missing coordinates, duplicate station codes, and the expected JRL/CRL1 code counts before any result is written."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#geographic-measures-before-ridership-calibration",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#geographic-measures-before-ridership-calibration",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "5 Geographic measures before ridership calibration",
+    "text": "5 Geographic measures before ridership calibration\n\n5.1 Residential blocks within reach\nI take the centroid of each completed HDB building polygon and find its nearest existing and proposed station. An 800 m threshold is a simple spatial screen: it asks whether a block’s mapped centre lies within 800 m in a straight line. The count is not a population estimate, because blocks differ in floor count and household size. It also does not measure an actual walking route.\n\n\nShow the R code\nknitr::kable(coverage[4:6, ], col.names = c(\"Measure\", \"HDB blocks\"))\n\n\n\n\n\n\nMeasure\nHDB blocks\n\n\n\n\n4\nHDB blocks within 800 m of existing rail\n9645\n\n\n5\nHDB blocks newly within 800 m\n1319\n\n\n6\nHDB blocks nearer to a new station\n2110\n\n\n\n\n\nOf 13,436 buildings, 9,645 are within 800 m of an existing physical station. The scenario adds 1,319 buildings to that threshold. A further 2,110 buildings are nearer to a proposed station than to any current one, whether or not they cross the 800 m line. These two figures answer different questions: new threshold coverage versus a shorter straight-line distance.\n\n\nShow the R code\nknitr::include_graphics(\"figures/hdb-new-coverage.png\")\n\n\n\n\n\n\n\n\n\nThe newly covered blocks are concentrated around planned stops in the west and north-east. The west contains much of the JRL extension’s residential catchment, while the eastern CRL1 stations add pockets around Pasir Ris East and Tampines North. This map is a geographic opportunity measure, not a forecast of journeys: some blocks may already reach rail by bus, and an apparently close station may require a longer walk around barriers.\n\n\nShow the R code\nknitr::kable(line_coverage,\n             col.names = c(\"Nearest proposed line\", \"Newly reached HDB blocks\"))\n\n\n\n\n\nNearest proposed line\nNewly reached HDB blocks\n\n\n\n\nCRL1\n586\n\n\nJRL\n733\n\n\n\n\n\nThe line totals assign each newly reached building to its closest new station. They should not be read as a benefit–cost comparison of the two projects: the lines serve different places, and HDB buildings exclude private housing and many work destinations.\n\n\nShow the R code\nknitr::include_graphics(\"figures/new-station-blocks.png\")\n\n\n\n\n\n\n\n\n\nPasir Ris East has the largest count in this measure (216), followed by Serangoon North (151) and Tengah Plantation (144). The chart assigns each newly reached block to its nearest proposed station, so a block is counted once. It does not imply that these will be the busiest new stations. Business districts and interchange stations can draw riders from much farther away than the surrounding HDB blocks.\n\n\n5.2 Sensitivity to the threshold\n\n\nShow the R code\nknitr::kable(sensitivity, col.names = c(\"Radius (m)\", \"Existing blocks reached\", \"Newly reached blocks\"))\n\n\n\n\n\nRadius (m)\nExisting blocks reached\nNewly reached blocks\n\n\n\n\n600\n7395\n1206\n\n\n800\n9645\n1319\n\n\n1000\n11178\n1106\n\n\n\n\n\nThe 800 m result is not a natural boundary. The table repeats the same centroid calculation at 600 m and 1,000 m. A larger radius includes more buildings but also accepts walks that may be unattractive or impossible in practice. The model itself uses continuous station-to-station distance rather than treating these circles as a rigid passenger market.\n\n\n5.3 Destination activity proxy\nFor each station, I count HDB block centroids and sum the area of mapped commercial, business, civic, education, health, hotel and mixed-use parcels whose centroids fall within 800 m. The land-use layer records zoning, not occupied jobs or realised visits. A large parcel whose centre lies just inside the circle is counted in full, so the figure is an approximate activity proxy. The two measures are kept separate in the model: one describes nearby housing blocks; the other describes mapped non-residential opportunities.\n\n\nShow the R code\nknitr::include_graphics(\"figures/proposed-activity.png\")\n\n\n\n\n\n\n\n\n\nThe activity ranking differs from the HDB-block ranking. That is the reason to include both predictors: a station serving industrial or commercial land could attract destination trips even with few completed HDB blocks nearby. The chart does not tell us how many workers or visitors use those parcels.\n\n\nShow the R code\npreview &lt;- features |&gt;\n  dplyr::filter(status == \"Planned new\") |&gt;\n  dplyr::arrange(dplyr::desc(activity_hectares_800m)) |&gt;\n  dplyr::select(station, hdb_blocks_800m, activity_hectares_800m) |&gt;\n  head(8)\nknitr::kable(preview, digits = 1,\n             col.names = c(\"Proposed station\", \"HDB blocks (800 m)\", \"Activity land (ha, approximate)\"))\n\n\n\n\n\nProposed station\nHDB blocks (800 m)\nActivity land (ha, approximate)\n\n\n\n\nNanyang Gateway\n0\n199.9\n\n\nNanyang Crescent\n0\n172.7\n\n\nPeng Kang Hill\n1\n172.7\n\n\nTukang\n0\n136.0\n\n\nEnterprise\n17\n128.8\n\n\nJurong Pier\n0\n126.5\n\n\nJurong Hill\n0\n120.4\n\n\nLoyang\n0\n97.1"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#interaction-data-and-observed-market-potential",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#interaction-data-and-observed-market-potential",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "6 Interaction data and observed market potential",
+    "text": "6 Interaction data and observed market potential\nThe model script constructs a full directed choice table rather than using only pairs that appear in the OD CSV. Zero-flow pairs must remain in the choice set; otherwise the denominator in a station-choice probability would be calculated from observed trips alone. A same-station trip is removed because its zero spatial distance is not meaningful for this interstation model. Distances use station points in SVY21; they are not rail travel times or network path lengths.\n\n\nShow the R code\nknitr::kable(data.frame(\n  Table = c(\"Current interactions\", \"Proposed interactions\", \"Origins\", \"Destinations\"),\n  Key = c(\"origin + destination\", \"origin + destination\", \"origin\", \"destination\"),\n  Fields = c(\"observed trips, attraction, distance_km, probability\",\n             \"attraction, distance_km, probability\",\n             \"observed outbound weekday trips = market_potential\",\n             \"observed inbound weekday trips, HDB blocks, activity area, line count\")\n), col.names = c(\"Data frame\", \"Join key\", \"Principal columns\"))\n\n\n\n\n\n\n\n\n\n\nData frame\nJoin key\nPrincipal columns\n\n\n\n\nCurrent interactions\norigin + destination\nobserved trips, attraction, distance_km, probability\n\n\nProposed interactions\norigin + destination\nattraction, distance_km, probability\n\n\nOrigins\norigin\nobserved outbound weekday trips = market_potential\n\n\nDestinations\ndestination\nobserved inbound weekday trips, HDB blocks, activity area, line count\n\n\n\n\n\nLTA merges some interchange codes in the OD file (for example CC1-NE6-NS24). R/model.R splits these codes and maps their components to one physical station name. It saves unmatched codes and stops if they represent more than 5% of trip counts. The file must contain exactly one YEAR_MONTH, valid hourly values, and non-negative trips. Only WEEKDAY and TRAIN rows enter this version of the model. The origin total is a monthly aggregate across weekdays, not a per-day rate."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#calibration-and-validation",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#calibration-and-validation",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "7 Calibration and validation",
+    "text": "7 Calibration and validation\nFor an origin i and available destination j, the station-choice utility is\n\\[\nU_{ij}=\\beta_H\\log(1+H_j)+\\beta_A\\log(1+A_j)+\\beta_L\\log(L_j)-\\beta_D\\log(d_{ij}+0.25),\n\\qquad\nP_{ij}=\\frac{\\exp(U_{ij})}{\\sum_{k\\ne i}\\exp(U_{ik})}.\n\\]\nHere \\(H_j\\) is HDB block count within 800 m, \\(A_j\\) is approximate activity hectares, \\(L_j\\) is the number of rail lines, and \\(d_{ij}\\) is straight-line distance in kilometres. The 0.25 km offset keeps the distance term finite at very short separations. The four coefficients are fitted by maximising the conditional multinomial likelihood of observed OD trips. The coefficient bounds enforce non-negative attraction effects and non-negative distance decay; a boundary estimate would warn that a predictor may add little information. These are modelling choices, not measured behavioural constants.\nI reserve 20% of origin stations, selected with seed 626, before fitting. Their trip-weighted log loss is compared with a fitted distance-only model. The final coefficients are then refitted to all observed origins. For the current network, estimated destination tap-outs are the sum of each origin’s observed market potential multiplied by its destination probabilities. The code checks that probabilities sum to one per origin and that total estimated trips equal the observed trip total.\n\nShow the R code\nif (has_model) {\n  checks &lt;- read.csv(file.path(model_dir, \"checks.csv\"))\n  coefficients &lt;- read.csv(file.path(model_dir, \"coefficients.csv\"))\n  cat(\"The supplied OD file covers **\", checks$month[1], \"**. The model matched **\",\n      round(100 * checks$matched_trip_share[1], 1),\n      \"%** of weekday trips to the station coordinate table.\\n\\n\", sep = \"\")\n  print(knitr::kable(coefficients, digits = 3,\n                     col.names = c(\"Model term\", \"Fitted coefficient\")))\n  cat(\"\\nThe held-out log loss per trip is **\", round(checks$heldout_logloss_per_trip[1], 3),\n      \"**, compared with **\", round(checks$distance_only_logloss_per_trip[1], 3),\n      \"** for distance alone. The current-network station MAE is **\",\n      fmt(round(checks$station_mae[1])), \"** monthly weekday tap-outs.\\n\", sep = \"\")\n} else {\n  cat(\"::: {.callout-warning title=\\\"Calibration pending\\\"}\\n\",\n      \"The LTA OD Train file has not been supplied. There are no fitted coefficients,\",\n      \"validation scores or observed-versus-estimated station ridership values to report.\\n:::\\n\")\n}\n\n\n\n\n\n\n\nWarningCalibration pending\n\n\n\nThe LTA OD Train file has not been supplied. There are no fitted coefficients, validation scores or observed-versus-estimated station ridership values to report."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#proposed-network-comparison",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#proposed-network-comparison",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "8 Proposed-network comparison",
+    "text": "8 Proposed-network comparison\nThe first counterfactual holds each existing origin’s observed outbound trip total fixed and adds the 29 distinct new station locations as possible destinations. Existing interchanges gain their proposed line connection. The fitted coefficients stay unchanged. This isolates a change in destination choice under the expanded set of stations. It does not estimate new trips generated by future housing, trips starting at new stations, or transfers inside paid rail areas. New-station figures from this scenario would be captured tap-outs from existing origins, not total future station ridership.\n\nShow the R code\nif (has_model) {\n  pred &lt;- read.csv(file.path(model_dir, \"station-predictions.csv\"))\n  top_new &lt;- pred |&gt;\n    dplyr::filter(status == \"Planned new\") |&gt;\n    dplyr::arrange(dplyr::desc(estimated_scenario)) |&gt;\n    dplyr::select(destination, estimated_scenario) |&gt;\n    head(10)\n  print(knitr::kable(top_new, digits = 0,\n                     col.names = c(\"New destination\", \"Captured monthly weekday tap-outs\")))\n  existing_change &lt;- pred |&gt;\n    dplyr::filter(status == \"Existing\") |&gt;\n    dplyr::arrange(change) |&gt;\n    dplyr::select(destination, change, change_pct) |&gt;\n    head(10)\n  cat(\"\\nThe largest modelled reductions among existing destination stations are:\\n\\n\")\n  print(knitr::kable(existing_change, digits = 1,\n                     col.names = c(\"Existing station\", \"Trip change\", \"Change (%)\")))\n} else {\n  cat(\"The comparison table will be populated from the LTA OD file. No future-station\",\n      \"ridership or existing-station share change is claimed yet.\\n\")\n}\n\nThe comparison table will be populated from the LTA OD file. No future-station ridership or existing-station share change is claimed yet.\nThe interaction outputs retain origin, destination, attraction, distance_km and probability for both networks. They can be inspected directly rather than relying on a map’s colour scale. Since the scenario conserves origin totals, gains at new destinations must be balanced by losses at existing destinations; this is a feature of this fixed-market scenario, not a statement that systemwide rail demand cannot grow."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#assumptions-and-limitations",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#assumptions-and-limitations",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "9 Assumptions and limitations",
+    "text": "9 Assumptions and limitations\nThe coordinate file is a secondary compilation and may not place every platform or entrance exactly where passengers enter. The JS2A omission follows the brief’s 24-code JRL scope rather than claiming the station is not planned. Station name grouping is suitable for physical locations, but it masks separate paid/unpaid transfer arrangements and platform-level paths.\nHDB block counts are not residents. Master Plan zoning is not employment or footfall. The 800 m land-use summary uses parcel centroids and whole parcel areas, which can overstate nearby activity for large sites. Straight-line distance ignores network topology and travel time. The OD file counts fare transactions between entry and exit points, not all passengers moving through an interchange. If the supplied OD month predates a current station, the station list and observed demand need to be reconciled before calibration.\nThe fixed-origin counterfactual can describe redistribution among existing travellers but will understate demand at newly opened stations. A full forecast would need future households, jobs, bus feeder changes, train travel times, operating dates, and induced trips. Coefficients estimated on today’s network may also change when the network changes. Until LTA’s actual OD file is supplied, none of the model’s numerical claims can be checked."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#conclusion",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#conclusion",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "10 Conclusion",
+    "text": "10 Conclusion\nThe geographic scenario adds 29 distinct station locations after interchange codes are reconciled. In the HDB building layer, 1,319 blocks cross the 800 m straight-line proximity threshold, with the largest groups near Pasir Ris East, Serangoon North, and Tengah Plantation. That is evidence of a possible access gain, not evidence of station ridership. The model, validation and future tap-out comparison are ready to run on an authorised LTA OD Train extract; their results remain open until that observed file is available."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#references",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03-report.html#references",
+    "title": "Take-home Exercise 3: Technical Report",
+    "section": "11 References",
+    "text": "11 References\n\nISSS626 course team. Take-home Exercise 3 brief.\nLand Transport Authority. Jurong Region Line and Cross Island Line.\nLand Transport Authority. DataMall dynamic datasets and API User Guide.\nHousing & Development Board. HDB Existing Building, November 2025.\nUrban Redevelopment Authority. Master Plan 2025 Land Use Layer.\nWu Tingfeng. Singapore Train Station Coordinates, source station coordinates and dataset licence."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#contents",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#contents",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "Contents",
+    "text": "Contents\n\nDefine the two rail networks and physical stations.\nCheck the geographic opportunity near proposed stations.\nCalibrate and test station choice when the LTA trip file is available.\nCompare the fixed-market counterfactual and its limits.\n\n\nThe current deck reports the verified station and HDB geography. The trip-dependent sections are labelled pending because the LTA OD Train file was not provided. The technical report contains all sources and scripts."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#the-decision-question",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#the-decision-question",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "The decision question",
+    "text": "The decision question\nWhere could new JRL and CRL1 stations change the rail destinations chosen by existing travellers?\nThe model separates two things:\n\nA station’s setting: nearby HDB blocks, mapped activity land, rail connections.\nThe trip cost: straight-line distance from an origin station.\n\nThe LTA OD file is required to learn the relative weight of these factors. Geography alone cannot produce observed ridership.\n\nThe model estimates destination tap-outs conditional on the existing origin stations’ recorded outbound trips. It does not forecast all future travel demand."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#one-project-two-network-scenarios",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#one-project-two-network-scenarios",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "One project, two network scenarios",
+    "text": "One project, two network scenarios\n\n\nExisting\n213 line-code records resolve to 181 physical station locations.\n\nProposed\n24 JRL codes + 12 CRL1 codes.\nSeven are interchanges at existing locations, leaving 29 new physical station locations.\n\nThe scenario stops at CRL Phase 1. The extra JS2A record in the coordinate file is outside the brief’s 24-code JRL scope.\n\nThe seven existing interchange locations are Choa Chu Kang, Boon Lay, Jurong East, Pasir Ris, Hougang, Ang Mo Kio and Bright Hill. Counting the new line code as a second station point would create a duplicate destination in the model."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#data-and-checks",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#data-and-checks",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "Data and checks",
+    "text": "Data and checks\nThe geographic audit uses:\n\nstation coordinates compiled from LTA and URA records;\n13,436 completed HDB building polygons, dated November 2025;\nMaster Plan 2025 land-use polygons for nearby activity.\n\nEvery distance is calculated in SVY21 / Singapore TM, not from raw latitude–longitude degrees. The scripts check missing coordinates, duplicate station codes, station grouping, and the exact 24 + 12 proposed-code selection.\n\nThe HDB layer contains blocks, not households. Master Plan land use records zoning, not occupied employment. Source links and dataset licences are in the technical report."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#the-access-screen-800-m-straight-line",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#the-access-screen-800-m-straight-line",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "The access screen: 800 m straight line",
+    "text": "The access screen: 800 m straight line\n9,645 of 13,436 HDB blocks have centroids within 800 m of an existing station.\nAdding the new locations brings 1,319 more blocks within that threshold. 2,110 blocks become nearer to a proposed station, even if they do not cross the 800 m line.\nThe count screens for possible local access. It does not measure walking time, boardings, or people.\n\nThe nearest-station calculation is made for every HDB building centroid. Newly covered blocks are outside 800 m from all existing station points but within 800 m of at least one new station point."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#where-the-newly-reached-blocks-sit",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#where-the-newly-reached-blocks-sit",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "Where the newly reached blocks sit",
+    "text": "Where the newly reached blocks sit\n\nThe strongest clusters in this measure sit in the west and north-east.\n\nGrey dots show HDB building centroids, blue dots existing stations, orange dots new stations and newly covered HDB blocks. The geometry is a straight-line screen; roads and entrances are not in the calculation."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#which-proposed-stops-sit-nearest-to-them",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#which-proposed-stops-sit-nearest-to-them",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "Which proposed stops sit nearest to them?",
+    "text": "Which proposed stops sit nearest to them?\n\nPasir Ris East: 216; Serangoon North: 151; Tengah Plantation: 144 newly reached blocks.\n\nEach newly reached block goes to its nearest planned new station, so no block appears twice in the bar chart. This is not a ranking of future ridership. Industrial and interchange destinations may have few surrounding HDB blocks yet draw many travellers."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#the-800-m-choice-is-a-sensitivity-assumption",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#the-800-m-choice-is-a-sensitivity-assumption",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "The 800 m choice is a sensitivity assumption",
+    "text": "The 800 m choice is a sensitivity assumption\n\n\n\n\n\nRadius (m)\nExisting blocks\nNewly reached blocks\n\n\n\n\n600\n7395\n1206\n\n\n800\n9645\n1319\n\n\n1000\n11178\n1106\n\n\n\n\n\nThe threshold changes the count. The eventual choice model uses distance continuously, rather than drawing an absolute catchment boundary.\n\nThe same block centroids and station points are used at each radius. A larger circle is more inclusive but less defensible as a walkable catchment, especially where roads or waterways intervene."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#what-the-od-model-will-estimate",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#what-the-od-model-will-estimate",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "What the OD model will estimate",
+    "text": "What the OD model will estimate\nFor each existing origin station, observed weekday outbound trips define its market size. Each possible destination receives a score from nearby HDB blocks, activity land, line connections, and distance. Dividing by the sum of all destination scores gives a choice probability.\nThe interaction tables retain origin, destination, attraction, distance and probability. A destination’s estimated tap-outs are the sum of predicted trips from all origins.\n\n\n\n\n\n\nWarning\n\n\nNo LTA OD file is available yet, so the coefficients and trip totals are not reported.\n\n\n\n\nThis is an origin-constrained Huff-type model fitted by conditional multinomial likelihood. Zero-flow pairs stay in the choice set. Same-station pairs are excluded. The technical report gives the equation and code."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#how-the-estimate-will-be-checked",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#how-the-estimate-will-be-checked",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "How the estimate will be checked",
+    "text": "How the estimate will be checked\nThe script will hold out 20% of origin stations and compare its trip-weighted log loss with a distance-only model. It will also compare observed and fitted station tap-outs, list unmatched LTA codes, and verify that each origin’s probabilities total one.\nFor the proposed network, the same fitted coefficients are applied to the expanded destination set. Existing origin trip totals remain fixed. This shows redistribution among destinations, not new systemwide demand.\n\nIf unmatched station codes represent more than 5% of trips, the script stops instead of quietly dropping them. The same rule applies if the input has more than one data month."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#what-can-be-concluded-now",
+    "href": "Take-home_Ex/Take-home_Ex03/Executive-summary.html#what-can-be-concluded-now",
+    "title": "Where might new rail stations draw travellers?",
+    "section": "What can be concluded now",
+    "text": "What can be concluded now\nThe proposed network adds 29 distinct physical station locations in this scenario. On the HDB building map, 1,319 blocks newly fall within 800 m of rail. That is a real geographic result, but it cannot say which stations will be busy.\nThe unanswered part is station-level ridership. It requires the actual LTA OD Train file. Until then, the model’s fit, new-station tap-outs, and changes at existing stations remain open.\n\nThe technical report and project source are linked from the Exercise 3 submission hub. The finished counterfactual will be a fixed-market, existing-origin estimate and should not be described as total future ridership."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html",
+    "title": "Take-home Exercise 3",
+    "section": "",
+    "text": "This project studies how the Jurong Region Line and Cross Island Line Phase 1 could change the stations people use. It builds a current-network scenario and a 2030 scenario, then prepares an origin-constrained station-choice model for calibration with LTA’s train origin–destination counts."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#project-outputs",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#project-outputs",
+    "title": "Take-home Exercise 3",
+    "section": "Project outputs",
+    "text": "Project outputs\n\n\nTechnical report\nData audit, station scenario, geographic measures, catchment findings, model design, validation protocol, assumptions, limitations, and references.\n\n\nExecutive summary\nA revealjs presentation in the same visual style as Exercise 2. The current deck labels the ridership estimates as pending.\n\n\nGitHub project\nQuarto source, R preparation and model scripts, geographic results, figures, source records, and reproduction steps."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#scope",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#scope",
+    "title": "Take-home Exercise 3",
+    "section": "Scope",
+    "text": "Scope\nThe Exercise 3 brief asks for an existing-network interaction table, a second table with proposed stations, observed destination ridership, a calibrated probabilistic model, and a comparison of station market areas. This submission uses one Exercise 3 project, as the current brief specifies. It is not divided into 3a and 3b.\nThe proposed network follows the brief’s 24 Jurong Region Line codes and 12 Cross Island Line Phase 1 codes. Three JRL and four CRL1 codes are new platforms at existing interchange locations. After those are joined to the existing stations, the geographic scenario adds 29 distinct station locations."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#what-the-geographic-data-already-show",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#what-the-geographic-data-already-show",
+    "title": "Take-home Exercise 3",
+    "section": "What the geographic data already show",
+    "text": "What the geographic data already show\nThe current coordinate file resolves to 181 physical MRT/LRT station locations. Of 13,436 HDB blocks in the November 2025 building layer, 9,645 have centroids within 800 m of an existing station. Adding the 29 distinct proposed locations brings 1,319 more blocks within that straight-line threshold. Pasir Ris East (216 blocks), Serangoon North (151), and Tengah Plantation (144) account for the largest newly reached block counts in this particular measure.\nThese are block counts, not residents, boardings, or a forecast of patronage. An 800 m circle also does not account for roads, crossings, station entrances, or bus access. The technical report shows the map and explains how the counts were made."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#model-to-be-calibrated",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#model-to-be-calibrated",
+    "title": "Take-home Exercise 3",
+    "section": "Model to be calibrated",
+    "text": "Model to be calibrated\nEach observed origin station will contribute its weekday monthly outbound trips as market potential. A destination’s attraction is measured with HDB blocks, mapped activity land use, and rail-line connectivity within 800 m. Distance is measured between station points in SVY21. The model estimates the probability that a trip from origin i ends at destination j and checks those probabilities against held-out origins.\nThe initial future scenario keeps the observed origin trip totals fixed. Its outputs therefore represent tap-outs captured from existing origins, not complete future station ridership or induced trips. The report preserves this distinction throughout."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#reproducibility",
+    "href": "Take-home_Ex/Take-home_Ex03/Take-home_Ex03.html#reproducibility",
+    "title": "Take-home Exercise 3",
+    "section": "Reproducibility",
+    "text": "Reproducibility\nThe README gives exact commands, data links, file checks, and the one required private input. Raw HDB and land-use GeoJSON files are downloaded directly from data.gov.sg when the preparation script runs. The source station CSVs and all derived non-ridership results are saved in this project."
   }
 ]

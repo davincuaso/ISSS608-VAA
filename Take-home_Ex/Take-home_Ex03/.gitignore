@@ -1,0 +1,9 @@
+data/cache/
+data/private/
+results/model/interaction-*.csv
+results/model/unmatched-codes.csv
+.quarto/
+*_files/
+*.knit.md
+*.rmarkdown
+.DS_Store
