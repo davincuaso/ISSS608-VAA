@@ -1,0 +1,9 @@
+Check,Result
+Transactions,1436
+Original CSV fields,23
+Subzones,323
+Missing values,0
+Duplicate full rows,0
+Unique coordinate pairs,1367
+Invalid polygons repaired,9
+Transactions outside the subzones,0

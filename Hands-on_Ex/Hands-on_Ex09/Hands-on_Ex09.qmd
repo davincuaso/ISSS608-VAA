@@ -1,0 +1,668 @@
+---
+title: "Hands-on Exercise 9"
+subtitle: "Hedonic Pricing with Geographically Weighted Regression"
+author: "Davin Cuaso"
+date: 2026-10-31
+date-modified: last-modified
+format:
+  html:
+    code-fold: true
+    code-summary: "Show the R code"
+    code-tools: true
+    toc: true
+    toc-depth: 3
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Overview
+
+This exercise follows [Chapter 13](https://r4gdsa.netlify.app/chap13.html), using the original 2015 Singapore condominium resale teaching data. A hedonic model relates a property's selling price to its recorded characteristics. Ordinary least squares (OLS) estimates one set of relationships for the whole sample. Geographically weighted regression (GWR) allows those relationships to vary by location.
+
+I examine how much floor area explains on its own, what the chapter's multiple regression adds, whether its residuals have spatial structure, and how fixed and adaptive GWR compare. The final maps show local fit, the floor-area coefficient and its uncertainty. These are historical associations within the teaching sample, not current property valuations or estimates of the causal effect of an amenity.
+
+## Getting started
+
+All packages are attached in one `pacman::p_load()` call. The chapter's analysis packages are retained. `knitr`, `broom` and `broom.helpers` support the result tables; `ragg` renders figures without an X11 dependency. `sp` provides an explicit compatibility bridge for GWmodel.
+
+```{r}
+#| label: setup
+
+if (!requireNamespace("pacman", quietly = TRUE)) {
+  install.packages("pacman", repos = "https://cloud.r-project.org")
+}
+pacman::p_load(
+  olsrr, corrplot, ggpubr, sf, sfdep, GWmodel, tmap,
+  tidyverse, gtsummary, performance, RColorBrewer,
+  knitr, broom, broom.helpers, ragg, sp
+)
+options(scipen = 999)
+theme_set(theme_minimal(base_size = 12))
+knitr::opts_chunk$set(dev = "ragg_png")
+tmap_mode("plot")
+source("scripts/analysis_helpers.R")
+dir.create("results", showWarnings = FALSE)
+fmt <- function(x, digits = 0) {
+  format(round(x, digits), big.mark = ",", trim = TRUE, scientific = FALSE)
+}
+inputs <- c("data/aspatial/Condo_resale_2015.csv",
+            paste0("data/geospatial/MP14_SUBZONE_WEB_PL.", c("shp", "shx", "dbf", "prj")))
+if (!all(file.exists(inputs))) {
+  stop("Restore the original inputs with Rscript scripts/download_data.R first.")
+}
+```
+
+## Data and spatial preparation
+
+### Original course files
+
+The CSV and Master Plan 2014 subzone shapefile come from the [professor's public course archive](https://github.com/tskam/IS415/tree/acaa1f9995d3d778a02a09c6bbdd5ef4f4eae773/Hands-on_Ex/Hands-on_Ex09/data), pinned to a specific commit. The [data record](data/README.md) documents the source and fingerprints. Run `Rscript scripts/download_data.R` from this exercise folder to restore the same local inputs. No simulated transactions are used.
+
+```{r}
+#| label: read-and-audit-data
+
+mpsz_raw <- st_read("data/geospatial", "MP14_SUBZONE_WEB_PL", quiet = TRUE)
+condo_raw <- read_csv(
+  "data/aspatial/Condo_resale_2015.csv", show_col_types = FALSE,
+  col_types = cols(POSTCODE = col_character(), .default = col_double())
+)
+missing_values <- tibble(
+  Variable = names(condo_raw), Missing = colSums(is.na(condo_raw))
+)
+invalid_polygons <- sum(!st_is_valid(mpsz_raw))
+stopifnot(
+  nrow(condo_raw) == 1436, ncol(condo_raw) == 23,
+  nrow(mpsz_raw) == 323, nrow(problems(condo_raw)) == 0,
+  sum(missing_values$Missing) == 0,
+  all(is.finite(as.matrix(select(condo_raw, -POSTCODE)))),
+  !is.na(st_crs(mpsz_raw)),
+  all(condo_raw$SELLING_PRICE > 0), all(condo_raw$AREA_SQM > 0),
+  all(condo_raw$AGE >= 0), all(condo_raw$NO_Of_UNITS > 0),
+  all(condo_raw$LATITUDE > 1 & condo_raw$LATITUDE < 2),
+  all(condo_raw$LONGITUDE > 103 & condo_raw$LONGITUDE < 105),
+  all(as.matrix(select(condo_raw, starts_with("PROX_"))) >= 0),
+  all(as.matrix(select(condo_raw, FAMILY_FRIENDLY, FREEHOLD, LEASEHOLD_99YR)) %in% c(0, 1))
+)
+mpsz <- mpsz_raw |> st_make_valid() |> st_transform(3414)
+condo <- condo_raw |>
+  mutate(transaction_id = row_number(),
+         POSTCODE = str_pad(POSTCODE, 6, pad = "0"),
+         LOG_SELLING_PRICE = log(SELLING_PRICE))
+condo_sf <- condo |>
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326, remove = FALSE) |>
+  st_transform(3414)
+coordinates <- st_coordinates(condo_sf)
+outside_subzones <- sum(lengths(st_intersects(condo_sf, mpsz)) == 0)
+audit <- tibble(
+  Check = c("Transactions", "Original CSV fields", "Subzones", "Missing values",
+            "Duplicate full rows", "Unique coordinate pairs", "Invalid polygons repaired",
+            "Transactions outside the subzones"),
+  Result = c(nrow(condo), ncol(condo_raw), nrow(mpsz), sum(missing_values$Missing),
+             sum(duplicated(condo_raw)), nrow(unique(coordinates)),
+             invalid_polygons, outside_subzones)
+)
+stopifnot(all(st_is_valid(mpsz)), st_crs(mpsz)$epsg == 3414,
+          st_crs(condo_sf)$epsg == 3414, outside_subzones == 0)
+kable(audit, format.args = list(big.mark = ","))
+```
+
+The shapefile has a declared SVY21 coordinate system but lacks an EPSG identifier. `st_transform()` converts that declared system to EPSG 3414; assigning a label to unknown coordinates would not establish their location. The CSV longitude and latitude start in EPSG 4326 and are transformed to the same metre-based system. The supplied proximity attributes are left in their original units; GWR bandwidths refer to distances calculated from the projected coordinates.
+
+There are `r nrow(condo) - nrow(unique(coordinates))` additional records sharing an already recorded coordinate pair, but no duplicate full rows. Different units can share a development's coordinates. I retain all transactions and do not jitter their locations. This also means transaction-level validation is not equivalent to testing on entirely unseen developments.
+
+## Exploratory data analysis
+
+### Price distribution and summary statistics
+
+```{r}
+#| label: summary-statistics
+
+summary_table <- map_dfr(c("SELLING_PRICE", "AREA_SQM", "AGE", "NO_Of_UNITS"), function(v) {
+  x <- condo[[v]]
+  tibble(Variable = v, Minimum = min(x), Q1 = unname(quantile(x, 0.25)),
+         Median = median(x), Mean = mean(x), Q3 = unname(quantile(x, 0.75)), Maximum = max(x))
+})
+kable(summary_table, digits = 1, format.args = list(big.mark = ","))
+```
+
+The median selling price is `r fmt(median(condo$SELLING_PRICE))`, below the mean of `r fmt(mean(condo$SELLING_PRICE))`. The maximum is `r fmt(max(condo$SELLING_PRICE))`, so a few high-priced transactions can exert substantial influence on a model fitted in price units.
+
+```{r}
+#| label: price-distributions
+#| fig-width: 12
+#| fig-height: 4.5
+#| fig-cap: "The same 2015 transactions on the recorded price and natural-log price scales"
+
+price_hist <- ggplot(condo, aes(SELLING_PRICE)) +
+  geom_histogram(bins = 20, fill = "#75A9CF", colour = "white") +
+  scale_x_continuous(labels = scales::label_number(scale = 1e-6, suffix = "m")) +
+  labs(x = "Selling price (recorded currency units)", y = "Transactions", title = "Recorded price")
+log_hist <- ggplot(condo, aes(LOG_SELLING_PRICE)) +
+  geom_histogram(bins = 20, fill = "#75A9CF", colour = "white") +
+  labs(x = "Natural log of selling price", y = "Transactions", title = "Log price")
+ggarrange(price_hist, log_hist, ncol = 2)
+```
+
+Logging price compresses the upper tail. The chapter's OLS and GWR models nevertheless use `SELLING_PRICE`, so the model comparison below stays on that same response scale. The log histogram does not by itself justify claiming that the fitted model's residuals are normal.
+
+### Structural and location attributes
+
+```{r}
+#| label: attribute-distributions
+#| fig-width: 12
+#| fig-height: 10
+#| fig-cap: "Distributions of the twelve attributes examined in the chapter"
+
+eda_variables <- c("AREA_SQM", "AGE", "PROX_CBD", "PROX_CHILDCARE", "PROX_ELDERLYCARE",
+                   "PROX_URA_GROWTH_AREA", "PROX_HAWKER_MARKET", "PROX_KINDERGARTEN",
+                   "PROX_MRT", "PROX_PARK", "PROX_PRIMARY_SCH", "PROX_TOP_PRIMARY_SCH")
+condo |> select(all_of(eda_variables)) |>
+  pivot_longer(everything(), names_to = "Variable", values_to = "Value") |>
+  ggplot(aes(Value)) +
+  geom_histogram(bins = 20, fill = "#75A9CF", colour = "white") +
+  facet_wrap(~Variable, scales = "free", ncol = 3) +
+  labs(x = "Attribute value (source units; AREA_SQM in square metres, AGE in years)",
+       y = "Transactions")
+```
+
+Many proximity variables have long upper tails. A constant slope assumes that an extra source-unit of proximity has the same association across that range. The residual plots later check whether this linear approximation is adequate; the histogram alone cannot establish it.
+
+### Interactive price map
+
+```{r}
+#| label: price-map
+
+tmap_mode("view")
+tm_shape(mpsz) + tm_polygons(fill = "grey95", col = "grey70", popup.vars = FALSE) +
+  tm_shape(condo_sf) +
+  tm_dots(
+    fill = "SELLING_PRICE", fill_alpha = 0.7, size = 0.5,
+    fill.scale = tm_scale_intervals(style = "quantile", n = 5,
+                                    values = brewer.pal(7, "Blues")[3:7]),
+    fill.legend = tm_legend(title = "Selling price (source units)"),
+    popup.vars = c("Record" = "transaction_id", "Postcode" = "POSTCODE",
+                   "Price" = "SELLING_PRICE", "Area (sq m)" = "AREA_SQM")
+  ) + tm_view(set_zoom_limits = c(11, 14))
+```
+
+```{r}
+#| label: static-mode
+#| include: false
+tmap_mode("plot")
+```
+
+The dots describe the sampled transactions. They do not measure how many homes exist in each area, and coincident dots can hide several records. Spatial differences in raw prices can also reflect differences in unit size and tenure, which motivates a model with more than location alone.
+
+## Global hedonic models
+
+### Floor area alone
+
+```{r}
+#| label: simple-linear-regression
+
+condo_slr <- lm(SELLING_PRICE ~ AREA_SQM, data = condo)
+kable(tidy(condo_slr, conf.int = TRUE) |>
+        mutate(p.value = format.pval(p.value, digits = 3, eps = 1e-12)), digits = 3)
+```
+
+```{r}
+#| label: area-price-scatter
+#| fig-width: 10
+#| fig-height: 5.5
+#| fig-cap: "Floor area and recorded selling price, with the global OLS line"
+
+ggplot(condo, aes(AREA_SQM, SELLING_PRICE)) +
+  geom_point(alpha = 0.4, size = 1.2, colour = "#35638D") +
+  geom_smooth(method = "lm", formula = y ~ x, colour = "#BB5544") +
+  scale_y_continuous(labels = scales::label_number(scale = 1e-6, suffix = "m")) +
+  labs(x = "Floor area (square metres)", y = "Selling price (recorded currency units)")
+```
+
+The fitted area-only slope is `r fmt(coef(condo_slr)[["AREA_SQM"]])` price units per square metre, with R² of `r round(summary(condo_slr)$r.squared, 3)`. This explains about `r round(100 * summary(condo_slr)$r.squared, 1)`% of the sample's price variation. It does not imply that increasing a particular unit's area would cause that price increase. The intercept describes an impossible zero-area unit and has little practical meaning.
+
+### Correlation and the full model
+
+```{r}
+#| label: predictor-correlations
+#| fig-width: 12
+#| fig-height: 10
+#| fig-cap: "Pearson correlations among the named predictor fields; price and coordinates are excluded"
+
+predictors <- c("AREA_SQM", "AGE", "PROX_CBD", "PROX_CHILDCARE", "PROX_ELDERLYCARE",
+                "PROX_URA_GROWTH_AREA", "PROX_HAWKER_MARKET", "PROX_KINDERGARTEN",
+                "PROX_MRT", "PROX_PARK", "PROX_PRIMARY_SCH", "PROX_TOP_PRIMARY_SCH",
+                "PROX_SHOPPING_MALL", "PROX_SUPERMARKET", "PROX_BUS_STOP",
+                "NO_Of_UNITS", "FAMILY_FRIENDLY", "FREEHOLD", "LEASEHOLD_99YR")
+correlation <- cor(select(condo, all_of(predictors)))
+corrplot(correlation, diag = FALSE, order = "AOE", tl.pos = "td", tl.cex = 0.6,
+         number.cex = 0.55, method = "number", type = "upper")
+```
+
+`FREEHOLD` and `LEASEHOLD_99YR` have correlation `r round(correlation["FREEHOLD", "LEASEHOLD_99YR"], 3)`. I retain `FREEHOLD` and omit the other tenure field, as in the chapter. They are strongly negatively related, but are not exact complements: the source also contains records where both are zero. A freehold coefficient therefore compares against all non-freehold records in this specification.
+
+```{r}
+#| label: multiple-linear-regression
+
+full_formula <- reformulate(setdiff(predictors, "LEASEHOLD_99YR"), response = "SELLING_PRICE")
+condo_mlr <- lm(full_formula, data = condo, na.action = na.fail)
+revised_formula <- SELLING_PRICE ~ AREA_SQM + AGE + PROX_CBD + PROX_CHILDCARE +
+  PROX_ELDERLYCARE + PROX_URA_GROWTH_AREA + PROX_MRT + PROX_PARK +
+  PROX_PRIMARY_SCH + PROX_SHOPPING_MALL + PROX_BUS_STOP + NO_Of_UNITS +
+  FAMILY_FRIENDLY + FREEHOLD
+condo_mlr1 <- lm(revised_formula, data = condo, na.action = na.fail)
+removed_terms <- c("PROX_HAWKER_MARKET", "PROX_KINDERGARTEN",
+                   "PROX_TOP_PRIMARY_SCH", "PROX_SUPERMARKET")
+kable(tidy(condo_mlr) |> filter(term %in% removed_terms), digits = 4,
+      caption = "Terms omitted by the chapter's revised specification")
+ols_comparison <- bind_rows(
+  glance(condo_slr) |> mutate(Model = "Area-only OLS"),
+  glance(condo_mlr) |> mutate(Model = "Full OLS"),
+  glance(condo_mlr1) |> mutate(Model = "Revised OLS")
+) |> select(Model, nobs, r.squared, adj.r.squared, sigma, AIC)
+kable(ols_comparison, digits = 3, format.args = list(big.mark = ","))
+```
+
+The revised model reproduces the chapter's 14-predictor specification. Its adjusted R² is `r round(summary(condo_mlr1)$adj.r.squared, 3)`, compared with `r round(summary(condo_mlr)$adj.r.squared, 3)` for the full model. The four omitted terms have conventional OLS p-values above 0.05 in the full fit. Removing terms after inspecting the same data is exploratory selection, so the remaining p-values should not be treated as independent confirmation of a pre-specified theory.
+
+```{r}
+#| label: regression-table
+
+tbl_regression(condo_mlr1, intercept = TRUE) |>
+  add_glance_source_note(
+    include = c(r.squared, adj.r.squared, AIC, sigma),
+    label = list(sigma ~ "Residual standard error")
+  )
+```
+
+Holding the other recorded attributes constant, the area slope is `r fmt(coef(condo_mlr1)[["AREA_SQM"]])` per square metre and the age slope is `r fmt(coef(condo_mlr1)[["AGE"]])` per year. Some proximity coefficients have unexpected signs. Omitted characteristics and correlated neighbourhood attributes are plausible explanations; these signs do not establish that a park, bus stop or school lowers property values.
+
+## Regression diagnostics
+
+```{r}
+#| label: diagnostic-tests
+
+vif <- as.data.frame(check_collinearity(condo_mlr1))
+normality <- check_normality(condo_mlr1)
+bp <- ols_test_breusch_pagan(condo_mlr1)
+kable(vif |> select(Term, VIF, Tolerance), digits = 3)
+test_p_values <- c(as.numeric(normality), bp$p)
+stopifnot(length(test_p_values) == 2, all(is.finite(test_p_values)),
+          all(test_p_values >= 0 & test_p_values <= 1))
+diagnostic_tests <- tibble(
+  Test = c("Shapiro-Wilk on standardised residuals", "Breusch-Pagan using fitted values"),
+  P_value = test_p_values
+)
+kable(diagnostic_tests |> mutate(P_value = format.pval(P_value, digits = 3, eps = 1e-12)))
+influence <- tibble(transaction_id = condo$transaction_id, POSTCODE = condo$POSTCODE,
+                    Price = condo$SELLING_PRICE, Cooks_distance = cooks.distance(condo_mlr1),
+                    Leverage = hatvalues(condo_mlr1))
+kable(influence |> arrange(desc(Cooks_distance)) |> head(5), digits = 3,
+      caption = "The five most influential records by Cook's distance")
+```
+
+The largest global VIF is `r round(max(vif$VIF), 2)`. This is below the chapter's warning threshold of 10, though a threshold cannot prove complete absence of collinearity. The normality and constant-variance tests reject their respective null hypotheses. The extreme upper-price tail and influential observations need attention even when most residuals appear close to zero. I retain these records because there is no evidence here that they are recording errors.
+
+```{r}
+#| label: diagnostic-plots
+#| fig-width: 12
+#| fig-height: 8
+#| fig-cap: "OLS diagnostics: curvature, tail behaviour, changing spread and influential records"
+
+diagnostic_data <- augment(condo_mlr1)
+p_fit <- ggplot(diagnostic_data, aes(.fitted, .resid)) +
+  geom_point(alpha = 0.35, size = 1) + geom_hline(yintercept = 0, linetype = 2) +
+  geom_smooth(method = "loess", formula = y ~ x, se = FALSE, colour = "#BB5544") +
+  labs(x = "Fitted selling price", y = "Residual (observed - fitted)", title = "Residuals versus fitted")
+p_qq <- ggplot(diagnostic_data, aes(sample = .std.resid)) +
+  stat_qq(alpha = 0.4, size = 1) + stat_qq_line(colour = "#BB5544") +
+  labs(x = "Theoretical normal quantile", y = "Standardised residual", title = "Normal Q-Q plot")
+p_scale <- ggplot(diagnostic_data, aes(.fitted, sqrt(abs(.std.resid)))) +
+  geom_point(alpha = 0.35, size = 1) +
+  geom_smooth(method = "loess", formula = y ~ x, se = FALSE, colour = "#BB5544") +
+  labs(x = "Fitted selling price", y = "Square root of absolute standardised residual",
+       title = "Scale-location")
+p_cook <- ggplot(influence, aes(transaction_id, Cooks_distance)) +
+  geom_col(fill = "#35638D") + geom_hline(yintercept = 4 / nrow(condo), linetype = 2) +
+  labs(x = "Source record number", y = "Cook's distance", title = "Influence; dashed line = 4/n")
+ggarrange(p_fit, p_qq, p_scale, p_cook, ncol = 2, nrow = 2)
+```
+
+A curved residual trend would question linearity, a changing vertical spread questions constant variance, and the Q-Q tail departures question normality. The plots support those specific concerns. Neither a small coefficient p-value nor a high R² is an assumption check.
+
+## Spatial structure in the residuals
+
+### Joining and mapping residuals
+
+I attach fitted values and residuals through the explicit `transaction_id` key. This preserves the geometry and prevents a reordered output table from being joined to the wrong property.
+
+```{r}
+#| label: join-residuals-and-map-helper
+
+ols_output <- tibble(transaction_id = condo$transaction_id,
+                     OLS_FITTED = fitted(condo_mlr1), OLS_RESIDUAL = residuals(condo_mlr1))
+condo_sf <- condo_sf |>
+  left_join(ols_output, by = "transaction_id", relationship = "one-to-one")
+stopifnot(nrow(condo_sf) == nrow(condo), !anyNA(condo_sf$OLS_RESIDUAL))
+point_map <- function(data, variable, title, legend_title,
+                      palette = brewer.pal(7, "Blues")[3:7], scale = NULL) {
+  if (is.null(scale)) {
+    breaks <- unique(as.numeric(quantile(data[[variable]], seq(0, 1, 0.2))))
+    labels <- paste(trimws(formatC(head(breaks, -1), format = "g", digits = 4)),
+                     "to", trimws(formatC(tail(breaks, -1), format = "g", digits = 4)))
+    scale <- tm_scale_intervals(breaks = breaks, labels = labels, values = palette,
+                                interval.closure = "right")
+  }
+  tm_shape(mpsz) + tm_polygons(fill = "grey97", col = "grey80", lwd = 0.3) +
+    tm_shape(data) +
+    tm_dots(fill = variable, size = 0.5, col = "grey35", lwd = 0.1,
+            fill_alpha = 0.8, fill.scale = scale,
+            fill.legend = tm_legend(title = legend_title,
+                                    position = tm_pos_out("right", "center"))) +
+    tm_title(title) + tm_layout(frame = FALSE)
+}
+residual_scale <- tm_scale_intervals(
+  breaks = c(-Inf, -1e6, -5e5, 0, 5e5, 1e6, Inf),
+  labels = c("Below -1m", "-1m to -500k", "-500k to 0", "0 to 500k", "500k to 1m", "Above 1m"),
+  values = rev(brewer.pal(6, "RdBu")), midpoint = 0
+)
+```
+
+```{r}
+#| label: ols-residual-map
+#| fig-width: 12
+#| fig-height: 7
+#| fig-cap: "Positive OLS residuals are under-predictions; negative residuals are over-predictions"
+
+point_map(condo_sf, "OLS_RESIDUAL", "Revised OLS residuals",
+          "Residual (price units)", scale = residual_scale)
+```
+
+### Distance-band weights and Moran's I
+
+The chapter uses a 1,500 m distance band with row-standardised weights. This is a separate choice from either GWR bandwidth. Each record is excluded from its own neighbour list; different records at the same coordinates remain valid neighbours.
+
+```{r}
+#| label: spatial-weights-and-moran
+
+nb <- st_dist_band(st_geometry(condo_sf), lower = 0, upper = 1500)
+wt <- st_weights(nb, style = "W", allow_zero = TRUE)
+neighbour_count <- spdep::card(nb)
+components <- spdep::n.comp.nb(nb)$nc
+stopifnot(!any(neighbour_count == 0),
+          all(map2_lgl(nb, seq_along(nb), ~ !(.y %in% .x))),
+          max(abs(map_dbl(wt, sum) - 1)) < 1e-10)
+moran_result <- function(x, model_name) {
+  set.seed(1234)
+  test <- global_moran_perm(x, nb = nb, wt = wt, alternative = "two.sided", nsim = 499)
+  observed <- unname(test$statistic)
+  simulations <- head(test$res, -1)
+  stopifnot(length(simulations) == 499,
+            abs(tail(test$res, 1) - observed) < 1e-12)
+  tibble(Model = model_name, Moran_I = observed, Package_p = test$p.value,
+         Permutation_p = finite_permutation_p(observed, simulations),
+         Simulations = length(simulations))
+}
+ols_moran <- moran_result(condo_sf$OLS_RESIDUAL, "Revised OLS")
+kable(tibble(Minimum_neighbours = min(neighbour_count), Median_neighbours = median(neighbour_count),
+             Maximum_neighbours = max(neighbour_count), Connected_components = components))
+kable(ols_moran |> select(-Package_p), digits = 4)
+```
+
+There are `r components` connected components and no records without neighbours. Revised OLS has Moran's I of `r round(ols_moran$Moran_I, 4)`, with the reported finite-permutation p-value of `r ols_moran$Permutation_p`. Nearby residuals are more alike than the shuffled-label benchmark, so the global model leaves a spatial pattern.
+
+The installed permutation routine returns zero at the most extreme two-sided rank. With only 499 simulations, a claim such as p < 0.00000000000000022 is not supported. I calculate each tail with an add-one correction, double the smaller tail, and cap the result at one. The smallest p-value under this convention is 0.004. The package value is retained in the audit CSV. This remains an exploratory exchangeable-label benchmark: heteroskedasticity and repeated development locations also limit a literal independence interpretation.
+
+## Geographically weighted regression
+
+GWR fits a weighted regression around each location. Nearby records receive more weight under the Gaussian kernel, $w_{ij}=\exp[-\tfrac12(d_{ij}/b_i)^2]$. Fixed GWR uses the same distance scale everywhere. Adaptive GWR derives a local distance scale from a chosen neighbour count, allowing a wider geographical reach in sparsely sampled areas. A Gaussian kernel has no hard cutoff: “30 neighbours” sets the distance scale, rather than restricting each fit to only 30 observations. See the [GWmodel bandwidth documentation](https://rpkgs.github.io/GWmodel/reference/bw.gwr.html).
+
+I keep exactly the revised OLS response, predictors and transactions for both GWR fits. Current GWmodel accepts `sf` as well as `sp` objects. Here `as(..., "Spatial")` makes the older compatibility step explicit; mapped results are converted back to `sf` afterwards.
+
+### Selecting fixed and adaptive bandwidths
+
+```{r}
+#| label: select-gwr-bandwidths
+
+condo_sp <- as(select(condo_sf, transaction_id, all_of(all.vars(revised_formula))), "Spatial")
+distance_matrix <- gw.dist(dp.locat = coordinates, longlat = FALSE)
+stopifnot(identical(dim(distance_matrix), c(nrow(condo), nrow(condo))),
+          all(is.finite(distance_matrix)), max(abs(diag(distance_matrix))) < 1e-10,
+          max(abs(distance_matrix - t(distance_matrix))) < 1e-8)
+fixed_search <- capture.output(bw_fixed <- bw.gwr(
+  revised_formula, data = condo_sp, approach = "CV", kernel = "gaussian",
+  adaptive = FALSE, longlat = FALSE, dMat = distance_matrix
+))
+adaptive_search <- capture.output(bw_adaptive <- bw.gwr(
+  revised_formula, data = condo_sp, approach = "CV", kernel = "gaussian",
+  adaptive = TRUE, longlat = FALSE, dMat = distance_matrix
+))
+kable(tibble(Scheme = c("Fixed Gaussian", "Adaptive Gaussian"),
+             Bandwidth = c(bw_fixed, bw_adaptive),
+             Unit = c("Metres", "Nearest-neighbour count")), digits = 3)
+```
+
+Cross-validation selects `r fmt(bw_fixed, 2)` metres for the fixed model and `r bw_adaptive` neighbours for the adaptive model, reproducing the chapter to numerical tolerance. The unit is metres because the coordinates are projected in EPSG 3414. Neither value is chosen manually to reproduce a desired map.
+
+### Calibrating the models
+
+```{r}
+#| label: fit-gwr-models
+
+gwr_fixed <- gwr.basic(
+  revised_formula, data = condo_sp, bw = bw_fixed, kernel = "gaussian",
+  adaptive = FALSE, longlat = FALSE, dMat = distance_matrix, cv = TRUE
+)
+gwr_adaptive <- gwr.basic(
+  revised_formula, data = condo_sp, bw = bw_adaptive, kernel = "gaussian",
+  adaptive = TRUE, longlat = FALSE, dMat = distance_matrix, cv = TRUE
+)
+gwr_fixed_sf <- st_as_sf(gwr_fixed$SDF) |> st_transform(3414)
+gwr_adaptive_sf <- st_as_sf(gwr_adaptive$SDF) |> st_transform(3414)
+stopifnot(
+  nrow(gwr_adaptive_sf) == nrow(condo), nrow(gwr_fixed_sf) == nrow(condo),
+  max(abs(st_coordinates(gwr_adaptive_sf) - coordinates)) < 1e-8,
+  max(abs(st_coordinates(gwr_fixed_sf) - coordinates)) < 1e-8,
+  max(abs(gwr_adaptive_sf$y - condo$SELLING_PRICE)) < 1e-6,
+  max(abs(gwr_adaptive_sf$y - gwr_adaptive_sf$yhat - gwr_adaptive_sf$residual)) < 1e-6
+)
+gwr_adaptive_sf$transaction_id <- condo$transaction_id
+gwr_fixed_sf$transaction_id <- condo$transaction_id
+```
+
+The row, coordinate, observed-price and residual identities are checked before assigning IDs to the returned GWR output. A successful conversion to `sf` alone would not establish that records were aligned correctly.
+
+## Comparing global and local models
+
+```{r}
+#| label: model-comparison
+
+gwr_metrics <- function(model, name) {
+  d <- model$GW.diagnostic
+  tibble(Model = name, AICc = d$AICc, R_squared = d$gw.R2,
+         Adjusted_R_squared = d$gwR2.adj,
+         Training_RMSE = sqrt(mean(model$SDF$residual^2)),
+         LOO_RMSE = sqrt(mean(model$SDF$CV_Score^2)))
+}
+model_comparison <- bind_rows(
+  tibble(Model = "Revised OLS", AICc = aicc_lm(condo_mlr1),
+         R_squared = summary(condo_mlr1)$r.squared,
+         Adjusted_R_squared = summary(condo_mlr1)$adj.r.squared,
+         Training_RMSE = sqrt(mean(residuals(condo_mlr1)^2)),
+         LOO_RMSE = sqrt(mean((residuals(condo_mlr1) / (1 - hatvalues(condo_mlr1)))^2))),
+  gwr_metrics(gwr_fixed, "Fixed Gaussian GWR"),
+  gwr_metrics(gwr_adaptive, "Adaptive Gaussian GWR")
+)
+stopifnot(all(is.finite(as.matrix(select(model_comparison, -Model)))))
+kable(model_comparison, digits = c(0, 2, 3, 3, 0, 0),
+      format.args = list(big.mark = ","),
+      caption = "Same 1,436 records and price-scale response; both RMSE columns are in price units")
+residual_moran <- bind_rows(
+  ols_moran,
+  moran_result(gwr_fixed_sf$residual, "Fixed Gaussian GWR"),
+  moran_result(gwr_adaptive_sf$residual, "Adaptive Gaussian GWR")
+)
+kable(residual_moran |> select(-Package_p), digits = 4,
+      caption = "The same 1,500 m weights and permutation convention for all residuals")
+```
+
+Adaptive GWR has the lowest AICc (`r fmt(gwr_adaptive$GW.diagnostic$AICc, 2)`), compared with `r fmt(gwr_fixed$GW.diagnostic$AICc, 2)` for fixed GWR and `r fmt(aicc_lm(condo_mlr1), 2)` for revised OLS. Its adjusted R² is `r round(gwr_adaptive$GW.diagnostic$gwR2.adj, 3)`. AICc uses a complexity penalty, so the improvement is more informative than the increase in training R² alone.
+
+The `CV_Score` field contains leave-one-out residuals, not squared errors; I square them before calculating RMSE. Adaptive GWR's leave-one-out RMSE is `r fmt(model_comparison$LOO_RMSE[3])`, against `r fmt(model_comparison$LOO_RMSE[1])` for OLS. Because these same cross-validation errors helped select bandwidth, this is a model-selection comparison rather than an independent test-set estimate. Nearby and co-located transactions can also make leave-one-out performance optimistic for a new development.
+
+GWR changes the residual pattern rather than making spatial dependence disappear. The adaptive residual Moran's I is `r round(residual_moran$Moran_I[3], 4)` with p = `r residual_moran$Permutation_p[3]`: a small negative association remains under this diagnostic. Lower AICc therefore does not support claiming independent residuals or a fully validated prediction model.
+
+## Local fit, coefficients and uncertainty
+
+### Local collinearity and local R²
+
+Global VIF can look acceptable while predictors become hard to distinguish within a local neighbourhood. I therefore run `gwr.collin.diagno()` using the same adaptive bandwidth and Gaussian kernel. Its [local condition numbers](https://rpkgs.github.io/GWmodel/reference/gwr.collin.diagno.html) are checked alongside the fitted coefficients.
+
+```{r}
+#| label: local-diagnostics
+
+local_diagnostics <- gwr.collin.diagno(
+  revised_formula, data = condo_sp, bw = bw_adaptive, kernel = "gaussian",
+  adaptive = TRUE, longlat = FALSE, dMat = distance_matrix
+)
+local_diag_sf <- st_as_sf(local_diagnostics$SDF) |> st_transform(3414)
+stopifnot(max(abs(st_coordinates(local_diag_sf) - coordinates)) < 1e-8,
+          all(is.finite(local_diagnostics$local_CN)))
+gwr_adaptive_sf$local_CN <- local_diagnostics$local_CN
+local_summary <- tibble(
+  Measure = c("Local R-squared", "Local condition number", "Area coefficient", "Area standard error"),
+  Minimum = c(min(gwr_adaptive_sf$Local_R2), min(gwr_adaptive_sf$local_CN),
+              min(gwr_adaptive_sf$AREA_SQM), min(gwr_adaptive_sf$AREA_SQM_SE)),
+  Median = c(median(gwr_adaptive_sf$Local_R2), median(gwr_adaptive_sf$local_CN),
+             median(gwr_adaptive_sf$AREA_SQM), median(gwr_adaptive_sf$AREA_SQM_SE)),
+  Maximum = c(max(gwr_adaptive_sf$Local_R2), max(gwr_adaptive_sf$local_CN),
+              max(gwr_adaptive_sf$AREA_SQM), max(gwr_adaptive_sf$AREA_SQM_SE))
+)
+kable(local_summary, digits = 3, format.args = list(big.mark = ","))
+```
+
+```{r}
+#| label: local-diagnostic-maps
+#| fig-width: 14
+#| fig-height: 5.5
+#| fig-cap: "Adaptive GWR local fit and local collinearity; legends use quantile classes and sit outside the maps"
+
+tmap_arrange(
+  point_map(gwr_adaptive_sf, "Local_R2", "Adaptive GWR: local R-squared", "Local R-squared"),
+  point_map(gwr_adaptive_sf, "local_CN", "Adaptive GWR: local collinearity",
+            "Condition number", palette = brewer.pal(7, "Oranges")[3:7]), ncol = 2
+)
+```
+
+Local R² ranges from `r round(min(gwr_adaptive_sf$Local_R2), 3)` to `r round(max(gwr_adaptive_sf$Local_R2), 3)`, with median `r round(median(gwr_adaptive_sf$Local_R2), 3)`. It is a local in-sample fit measure, not a map of held-out predictive accuracy. Quantile colours show relative differences within this sample.
+
+The collinearity result is a substantial limitation: `r sum(gwr_adaptive_sf$local_CN > 30)` of `r nrow(condo)` local fits exceed the chapter's condition-number warning threshold of 30 (`r round(100 * mean(gwr_adaptive_sf$local_CN > 30), 1)`%). The median is `r round(median(gwr_adaptive_sf$local_CN), 1)`. Good overall fit can coexist with unstable individual local coefficients. The coefficient maps below are exploratory displays and should not be used as precise neighbourhood price premiums.
+
+### Floor-area association and its uncertainty
+
+```{r}
+#| label: area-coefficient-map
+#| fig-width: 12
+#| fig-height: 7
+#| fig-cap: "Adaptive GWR floor-area coefficient: price units per additional square metre, conditional on the other recorded predictors"
+
+point_map(gwr_adaptive_sf, "AREA_SQM", "Adaptive GWR: floor-area coefficient",
+          "Price units per sq m")
+```
+
+The local floor-area slopes are positive throughout this fit, ranging from `r fmt(min(gwr_adaptive_sf$AREA_SQM))` to `r fmt(max(gwr_adaptive_sf$AREA_SQM))` per square metre, with median `r fmt(median(gwr_adaptive_sf$AREA_SQM))`. Their variation shows what the local model estimates under its assumptions. It is not, on its own, a formal test that every difference between places is real.
+
+```{r}
+#| label: area-uncertainty-maps
+#| fig-width: 14
+#| fig-height: 5.5
+#| fig-cap: "The chapter's AREA_SQM_SE and AREA_SQM_TV outputs: uncertainty and coefficient-to-standard-error ratio"
+
+stopifnot(max(abs(gwr_adaptive_sf$AREA_SQM / gwr_adaptive_sf$AREA_SQM_SE -
+                  gwr_adaptive_sf$AREA_SQM_TV)) < 1e-8)
+tmap_arrange(
+  point_map(gwr_adaptive_sf, "AREA_SQM_SE", "Area coefficient: standard error",
+            "SE (price units per sq m)", palette = brewer.pal(7, "Oranges")[3:7]),
+  point_map(gwr_adaptive_sf, "AREA_SQM_TV", "Area coefficient: pseudo-t statistic",
+            "Coefficient / SE"), ncol = 2
+)
+```
+
+The standard error describes estimated coefficient uncertainty under the local model. The pseudo-t statistic divides a coefficient by its standard error. I do not label locations “significant” using an unadjusted 1.96 cutoff: many overlapping local fits, local collinearity and remaining spatial dependence complicate that interpretation.
+
+### Inspecting local results interactively
+
+```{r}
+#| label: interactive-local-fit
+
+tmap_mode("view")
+tm_shape(mpsz) + tm_polygons(fill = "grey95", col = "grey70", popup.vars = FALSE) +
+  tm_shape(gwr_adaptive_sf) +
+  tm_dots(fill = "Local_R2", size = 0.5, fill_alpha = 0.8,
+          fill.scale = tm_scale_intervals(n = 5, style = "quantile",
+                                          values = brewer.pal(7, "Blues")[3:7]),
+          fill.legend = tm_legend(title = "Adaptive local R-squared"),
+          popup.vars = c("Record" = "transaction_id", "Fitted price" = "yhat",
+                         "Residual" = "residual", "Local R-squared" = "Local_R2",
+                         "Area coefficient" = "AREA_SQM", "Area SE" = "AREA_SQM_SE",
+                         "Area pseudo-t" = "AREA_SQM_TV", "Condition number" = "local_CN")) +
+  tm_view(set_zoom_limits = c(11, 14))
+```
+
+```{r}
+#| label: reset-map-mode
+#| include: false
+tmap_mode("plot")
+```
+
+## Conclusion
+
+Floor area alone explains about `r round(100 * summary(condo_slr)$r.squared, 1)`% of the observed price variation. Adding the chapter's structural and location attributes improves the global fit, but the residual diagnostics reveal heteroskedasticity, a heavy upper tail and positive spatial autocorrelation.
+
+Adaptive Gaussian GWR is the strongest of the chapter's three comparable specifications on AICc and leave-one-out RMSE. Its selected bandwidth is `r bw_adaptive` neighbours, and its AICc is `r fmt(gwr_adaptive$GW.diagnostic$AICc, 2)`. This supports using a local specification to describe these 2015 transactions more closely than a single global relationship.
+
+The evidence does not support using the local coefficient values as reliable valuations: `r sum(gwr_adaptive_sf$local_CN > 30)` local fits have condition numbers above 30, and residual spatial structure remains. Before practical prediction, I would assess a log-price or robust specification, simplify locally redundant predictors, and validate by holding out whole developments or spatial blocks. Those would be additional models requiring their own comparison; they are not claimed as completed here.
+
+The analysis is also limited to the supplied historical transactions and attributes. It omits unrecorded interior quality, view and other potential price determinants. Its associations do not establish the effect of building a new amenity, changing tenure, or altering a specific property.
+
+## Reproducibility and references
+
+The download script verifies five source files against their pinned Git fingerprints. The render exports the input audit, global coefficients, diagnostics, bandwidth searches, model comparison, permutation-test results and transaction-linked GWR output. Synthetic helper tests check the p-value convention and AICc algebra only; they never replace the real study data.
+
+```{r}
+#| label: save-results
+#| include: false
+
+write_csv(audit, "results/input-audit.csv")
+write_csv(missing_values, "results/missing-values.csv")
+write_csv(summary_table, "results/summary-statistics.csv")
+write_csv(tidy(condo_slr, conf.int = TRUE), "results/ols-area-only-coefficients.csv")
+write_csv(tidy(condo_mlr, conf.int = TRUE), "results/ols-full-coefficients.csv")
+write_csv(tidy(condo_mlr1, conf.int = TRUE), "results/ols-revised-coefficients.csv")
+write_csv(vif, "results/global-vif.csv")
+write_csv(diagnostic_tests, "results/diagnostic-tests.csv")
+write_csv(influence, "results/influence.csv")
+write_csv(model_comparison, "results/model-comparison.csv")
+write_csv(residual_moran, "results/residual-moran.csv")
+write_csv(local_summary, "results/local-summary.csv")
+write_csv(tibble(Scheme = c("Fixed Gaussian", "Adaptive Gaussian"),
+                 Bandwidth = c(bw_fixed, bw_adaptive)), "results/bandwidths.csv")
+writeLines(c("Fixed Gaussian CV search", fixed_search,
+             "Adaptive Gaussian CV search", adaptive_search), "results/bandwidth-search.txt")
+write_csv(st_drop_geometry(condo_sf) |>
+            select(transaction_id, POSTCODE, LONGITUDE, LATITUDE, SELLING_PRICE,
+                   OLS_FITTED, OLS_RESIDUAL), "results/ols-observed-fitted.csv")
+write_csv(st_drop_geometry(gwr_adaptive_sf) |>
+            relocate(transaction_id), "results/adaptive-gwr-output.csv")
+write_csv(st_drop_geometry(gwr_fixed_sf) |>
+            relocate(transaction_id), "results/fixed-gwr-output.csv")
+write_csv(tibble(File = inputs, MD5 = unname(tools::md5sum(inputs))), "results/input-checksums.csv")
+writeLines(trimws(capture.output(sessionInfo()), which = "right"), "results/session-info.txt")
+```
+
+- Kam, T. S. [Chapter 13: Calibrating Hedonic Pricing Model for Private Highrise Property with GWR Method](https://r4gdsa.netlify.app/chap13.html).
+- [Original course inputs in the professor's IS415 archive](https://github.com/tskam/IS415/tree/acaa1f9995d3d778a02a09c6bbdd5ef4f4eae773/Hands-on_Ex/Hands-on_Ex09/data).
+- Gollini, I., Lu, B., Charlton, M., Brunsdon, C. and Harris, P. (2015). [GWmodel: An R Package for Exploring Spatial Heterogeneity Using Geographically Weighted Models](https://doi.org/10.18637/jss.v063.i17).
+- GWmodel documentation for [bandwidth selection](https://rpkgs.github.io/GWmodel/reference/bw.gwr.html) and [local collinearity diagnostics](https://rpkgs.github.io/GWmodel/reference/gwr.collin.diagno.html).
+- [spdep documentation for the Moran permutation test](https://r-spatial.github.io/spdep/reference/moran.mc.html), accessed through `sfdep::global_moran_perm()`.

@@ -11,6 +11,7 @@ project:
     - "In-class_Ex/In-class_Ex07/scripts/**"
     - "Hands-on_Ex/Hands-on_Ex08/scripts/**"
     - "In-class_Ex/In-class_Ex08/scripts/**"
+    - "Hands-on_Ex/Hands-on_Ex09/scripts/**"
 
 website:
   title: "ISSS608 Visual Analytics"
@@ -46,6 +47,8 @@ website:
             text: "Hands-on Exercise 7: Geographical Accessibility"
           - href: Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.qmd
             text: "Hands-on Exercise 8: Huff Market Area Analysis"
+          - href: Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.qmd
+            text: "Hands-on Exercise 9: Hedonic Pricing with GWR"
       - text: In-Class Exercise
         menu:
           - href: In-class_Ex/In-class_Ex04/In-class_Ex04.qmd

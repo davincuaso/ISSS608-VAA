@@ -1,0 +1,70 @@
+R version 4.6.1 (2026-06-24)
+Platform: aarch64-apple-darwin23
+Running under: macOS Golden Gate 27.0.1
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: Asia/Singapore
+tzcode source: internal
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base
+
+other attached packages:
+ [1] ragg_1.5.2           broom.helpers_1.23.0 broom_1.0.13
+ [4] knitr_1.51           RColorBrewer_1.1-3   performance_0.18.2
+ [7] gtsummary_2.6.1      lubridate_1.9.5      forcats_1.0.1
+[10] stringr_1.6.0        dplyr_1.2.1          purrr_1.2.2
+[13] readr_2.2.0          tidyr_1.3.2          tibble_3.3.1
+[16] tidyverse_2.0.0      tmap_4.4-1           GWmodel_2.4-1
+[19] Rcpp_1.1.2           sp_2.2-3             robustbase_0.99-7
+[22] sfdep_0.2.5          sf_1.1-2             ggpubr_1.0.0
+[25] ggplot2_4.0.3        corrplot_0.95        olsrr_0.7.0
+
+loaded via a namespace (and not attached):
+  [1] jsonlite_2.0.0          wk_0.9.5                magrittr_2.0.5
+  [4] TH.data_1.1-5           farver_2.1.2            rmarkdown_2.31
+  [7] fs_2.1.0                vctrs_0.7.3             spdep_1.4-2
+ [10] base64enc_0.1-6         terra_1.9-46            rstatix_1.1.0
+ [13] htmltools_0.5.9         leafsync_0.1.0          haven_2.5.5
+ [16] raster_3.6-32           s2_1.1.11               Formula_1.2-6
+ [19] LearnBayes_2.15.2       sass_0.4.10             spData_2.3.5
+ [22] KernSmooth_2.23-26      htmlwidgets_1.6.4       sandwich_3.1-3
+ [25] zoo_1.9-1               stars_0.7-3             gt_1.4.0
+ [28] commonmark_2.0.0        lifecycle_1.0.5         pkgconfig_2.0.3
+ [31] cols4all_0.10           Matrix_1.7-5            R6_2.6.1
+ [34] fastmap_1.2.0           digest_0.6.39           colorspace_2.1-3
+ [37] leafem_0.2.5            textshaping_1.0.5       crosstalk_1.2.2
+ [40] labeling_0.4.3          lwgeom_0.2-17           spacesXYZ_1.6-0
+ [43] spatialreg_1.4-3        timechange_0.4.0        mgcv_1.9-4
+ [46] abind_1.4-8             compiler_4.6.1          proxy_0.4-29
+ [49] intervals_0.15.5        bit64_4.8.4             withr_3.0.3
+ [52] S7_0.2.2                backports_1.5.1         carData_3.0-6
+ [55] DBI_1.3.0               logger_0.4.3            ggsignif_0.6.4
+ [58] MASS_7.3-65             maptiles_0.12.0         tmaptools_3.3
+ [61] leaflet_2.2.3           classInt_0.4-11         tools_4.6.1
+ [64] units_1.0-1             otel_0.2.0              leaflegend_1.2.8
+ [67] goftest_1.2-3           glue_1.8.1              leafgl_0.2.4
+ [70] nlme_3.1-169            grid_4.6.1              generics_0.1.4
+ [73] leaflet.providers_3.0.0 gtable_0.3.6            labelled_2.16.1
+ [76] nortest_1.0-4           tzdb_0.5.0              class_7.3-23
+ [79] data.table_1.18.6.1     hms_1.1.4               xml2_1.6.0
+ [82] car_3.1-5               markdown_2.1            pillar_1.11.1
+ [85] vroom_1.7.1             splines_4.6.1           lattice_0.22-9
+ [88] bit_4.6.0               survival_3.8-6          FNN_1.1.4.1
+ [91] deldir_2.0-4            tidyselect_1.2.1        gridExtra_2.3.1
+ [94] litedown_0.11           stats4_4.6.1            xfun_0.60
+ [97] DEoptimR_1.2-2          stringi_1.8.9           yaml_2.3.12
+[100] pacman_0.5.1            boot_1.3-32             evaluate_1.0.5
+[103] codetools_0.2-20        cli_3.6.6               systemfonts_1.3.2
+[106] jquerylib_0.1.4         spacetime_1.3-4         coda_0.19-4.1
+[109] png_0.1-9               yyjsonr_0.1.22          XML_3.99-0.24
+[112] parallel_4.6.1          marginaleffects_1.0.0   mvtnorm_1.4-2
+[115] scales_1.4.0            xts_0.14.3              e1071_1.7-17
+[118] crayon_1.5.3            insight_1.5.4           rlang_1.3.0
+[121] cowplot_1.2.0           multcomp_1.4-32         cards_0.9.0

@@ -1,0 +1,8 @@
+data/aspatial/
+data/geospatial/
+cache/
+*.knit.md
+*.utf8.md
+Rplots.pdf
+*_cache/
+*_files/

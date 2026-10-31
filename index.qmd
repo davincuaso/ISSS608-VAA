@@ -104,6 +104,14 @@ Compare Hansen, KD2SFCA, and SAM access to eldercare using network distances, re
 Model village-to-store patronage probabilities in Taichung, map BT's market area, and compare population-weighted allocations with recorded sales.
 :::
 
+::: {.exercise-card}
+### [Hands-on Exercise 9](Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.qmd)
+
+**Hedonic Pricing with GWR**
+
+Compare global OLS with fixed and adaptive geographically weighted models of 2015 condominium prices, then examine residuals, local fit and coefficient uncertainty.
+:::
+
 :::
 
 ::: {.callout-note appearance="simple"}
