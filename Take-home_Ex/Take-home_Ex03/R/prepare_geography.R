@@ -29,7 +29,9 @@ raw_now <- read.csv("data/source/operational_stations.csv", stringsAsFactors = F
 raw_future <- read.csv("data/source/future_stations.csv", stringsAsFactors = FALSE)
 stopifnot(nrow(raw_now) == 213L, nrow(raw_future) == 65L,
           !anyNA(raw_now[, c("station_code", "station_name", "lat", "lon")]),
-          !anyNA(raw_future[, c("station_code", "station_name", "lat", "lon")]))
+          !anyNA(raw_future[, c("station_code", "station_name", "lat", "lon")]),
+          !anyDuplicated(raw_now$station_code),
+          !anyDuplicated(raw_future$station_code))
 
 # The brief asks for 24 JRL and 12 CRL Phase 1 station codes. JS2A Forest Hill
 # is an additional code in the source file, so it is outside this fixed scenario.

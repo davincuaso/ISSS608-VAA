@@ -42,8 +42,10 @@ resolve_station <- function(x) {
     if (length(matched) == 1L) matched else NA_character_
   }, character(1))
 }
-od[, origin := resolve_station(ORIGIN_PT_CODE)]
-od[, destination := resolve_station(DESTINATION_PT_CODE)]
+all_codes <- unique(c(od$ORIGIN_PT_CODE, od$DESTINATION_PT_CODE))
+code_lookup <- setNames(resolve_station(all_codes), all_codes)
+od[, origin := unname(code_lookup[ORIGIN_PT_CODE])]
+od[, destination := unname(code_lookup[DESTINATION_PT_CODE])]
 unmatched <- od[is.na(origin) | is.na(destination),
                 .(rows = .N, trips = sum(TOTAL_TRIPS)),
                 by = .(ORIGIN_PT_CODE, DESTINATION_PT_CODE)]
@@ -83,7 +85,11 @@ dest_table <- features |>
   transmute(destination = station, status, hdb_blocks_800m,
             activity_hectares_800m, line_count_current = n_lines,
             line_count_scenario = scenario_lines) |>
-  left_join(as.data.frame(observed_dest), by = "destination")
+  left_join(as.data.frame(observed_dest), by = "destination") |>
+  mutate(observed_ridership = coalesce(observed_ridership, 0))
+data.table::fwrite(dest_table |>
+                     filter(status == "Existing", observed_ridership == 0),
+                   file.path(out_dir, "zero-observed-stations.csv"))
 data.table::fwrite(origin_market, file.path(out_dir, "origins.csv"))
 data.table::fwrite(dest_table, file.path(out_dir, "destinations.csv"))
 
@@ -115,11 +121,14 @@ fit <- function(X, y, groups, distance_only = FALSE) {
   if (distance_only) {
     f <- function(v) loss(c(0, 0, 0, v), X, y, groups)
     opt <- optim(1, f, method = "L-BFGS-B", lower = 0, upper = 4)
+    stopifnot(opt$convergence == 0L)
     return(c(0, 0, 0, opt$par))
   }
-  optim(c(.4, .4, .3, 1), loss, X = X, y = y, groups = groups,
-        method = "L-BFGS-B", lower = rep(0, 4), upper = c(3, 3, 3, 4),
-        control = list(maxit = 300))$par
+  opt <- optim(c(.4, .4, .3, 1), loss, X = X, y = y, groups = groups,
+               method = "L-BFGS-B", lower = rep(0, 4), upper = c(3, 3, 3, 4),
+               control = list(maxit = 300))
+  stopifnot(opt$convergence == 0L)
+  opt$par
 }
 probabilities <- function(X, b, groups) {
   u <- as.vector(X %*% b)
@@ -186,8 +195,8 @@ checks <- data.frame(
   heldout_origins = length(holdout),
   heldout_logloss_per_trip = test_loss / sum(y[test_rows]),
   distance_only_logloss_per_trip = base_loss / sum(y[test_rows]),
-  station_mae = mean(abs(comparison$estimated_existing -
-                           comparison$observed_ridership), na.rm = TRUE)
+  station_mae = mean(abs(comparison$estimated_existing[comparison$status == "Existing"] -
+                           comparison$observed_ridership[comparison$status == "Existing"]))
 )
 stopifnot(abs(checks$existing_predicted_trips - checks$observed_trips) < 1e-4,
           abs(checks$scenario_predicted_trips - checks$observed_trips) < 1e-4,
