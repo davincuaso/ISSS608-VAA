@@ -63,15 +63,20 @@ The model's unit will be a **directed origin–destination station pair** for on
 #| label: data-sources
 knitr::kable(data.frame(
   Source = c("Operational and future station coordinates", "HDB Existing Building",
-             "Master Plan 2025 Land Use Layer", "LTA train OD passenger volume"),
+             "LTA Bus Stop", "Master Plan 2025 Land Use Layer",
+             "LTA train OD passenger volume"),
   Snapshot = c("Repository snapshot, 31 Oct 2026", "Buildings dated Nov 2025",
-               "Gazetted Dec 2025", "Awaiting a monthly CSV or ZIP"),
+               "Downloaded 31 Oct 2026", "Gazetted Dec 2025",
+               "Awaiting a monthly CSV or ZIP"),
   Role = c("Station locations and scenario codes", "Residential-building count and proximity",
-           "Mapped activity area near destinations", "Observed weekday station-to-station trips")
+           "Bus-stop poles near proposed stations", "Mapped activity area near destinations",
+           "Observed weekday station-to-station trips")
 ), col.names = c("Dataset", "Time reference", "Use"))
 ```
 
-The [station coordinate repository](https://github.com/elliotwutingfeng/singapore_train_station_coordinates) derives most points from URA or LTA records and flags manual estimates in a `source` field. I saved its operational and future CSVs with the project so the scenario cannot silently change when that repository is updated. [HDB Existing Building](https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view) and the [Master Plan 2025 Land Use Layer](https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view) are downloaded directly from data.gov.sg by `R/prepare_geography.R`; the large raw GeoJSON files stay in an ignored local cache. Derived tables and figures are in `results/` and `figures/`.
+The [station coordinate repository](https://github.com/elliotwutingfeng/singapore_train_station_coordinates) derives most points from URA or LTA records and flags manual estimates in a `source` field. I saved its operational and future CSVs with the project so the scenario cannot silently change when that repository is updated. The brief's direct [LTA Train Station ZIP](https://datamall.lta.gov.sg/content/dam/datamall/datasets/Geospatial/TrainStation_Sep2026.zip) returned HTTP 403 when checked on 31 October, so the saved compilation remains the coordinate source. [HDB Existing Building](https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view), [LTA Bus Stop](https://data.gov.sg/datasets/d_3f172c6feb3f4f92a2f47d93eed2908a/view), and the [Master Plan 2025 Land Use Layer](https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view) are downloaded directly from data.gov.sg by `R/prepare_geography.R`; the raw GeoJSON files stay in an ignored local cache. Derived tables and figures are in `results/` and `figures/`.
+
+These choices cover four of the brief's six recommended data roles: current station locations, future locations, HDB buildings and bus stops. The fifth, LTA train OD passenger volume, is specified in the model but still needs an Account Key and a genuine monthly extract. The sixth, [OpenStreetMap POIs via Geofabrik](https://download.geofabrik.de/asia/malaysia-singapore-brunei.html), was considered but not added: the Master Plan layer gives a consistent island-wide zoning measure for this first model, while POI tagging and completeness vary by place. That decision does not make zoning a count of jobs or visits.
 
 The [LTA OD Train endpoint](https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html) requires a DataMall Account Key. Its [user guide](https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf) defines `YEAR_MONTH`, `DAY_TYPE`, `TIME_PER_HOUR`, origin and destination station codes, and `TOTAL_TRIPS`. The code accepts LTA's CSV or ZIP once obtained. The report will state the exact data month after ingestion; no month is assumed in advance.
 
@@ -153,6 +158,17 @@ preview <- features |>
 knitr::kable(preview, digits = 1,
              col.names = c("Proposed station", "HDB blocks (800 m)", "Activity land (ha, approximate)"))
 ```
+
+### Nearby bus stops
+
+The LTA bus-stop layer has 5,205 unique stop codes. For each of the 29 new physical station locations, I count mapped stop poles within 400 m of the station point. This is a different check from the 800 m HDB building screen: it describes nearby bus infrastructure, not the number of residents or a catchment of passengers.
+
+```{r}
+#| label: bus-stop-chart
+knitr::include_graphics("figures/proposed-bus-stops.png")
+```
+
+Choa Chu Kang West has 16 mapped stops within 400 m; Pandan Reservoir and Serangoon North have 14 each. The [complete station table](https://github.com/davincuaso/ISSS608-VAA/blob/master/Take-home_Ex/Take-home_Ex03/results/new-station-bus-stops.csv) includes all 29 locations. These counts cannot distinguish a busy transfer point from a group of lightly served roadside stops. Routes, headways, stop direction and walking connections would be needed before treating bus access as a behavioural predictor.
 
 ## Interaction data and observed market potential
 
@@ -244,7 +260,7 @@ The interaction outputs retain `origin`, `destination`, `attraction`, `distance_
 
 The coordinate file is a secondary compilation and may not place every platform or entrance exactly where passengers enter. The `JS2A` omission follows the brief's 24-code JRL scope rather than claiming the station is not planned. Station name grouping is suitable for physical locations, but it masks separate paid/unpaid transfer arrangements and platform-level paths.
 
-HDB block counts are not residents. Master Plan zoning is not employment or footfall. The 800 m land-use summary uses parcel centroids and whole parcel areas, which can overstate nearby activity for large sites. Straight-line distance ignores network topology and travel time. The OD file counts fare transactions between entry and exit points, not all passengers moving through an interchange. If the supplied OD month predates a current station, the station list and observed demand need to be reconciled before calibration.
+HDB block counts are not residents. Master Plan zoning is not employment or footfall. The 800 m land-use summary uses parcel centroids and whole parcel areas, which can overstate nearby activity for large sites. Bus-stop locations do not show service frequency, capacity or transfer demand; the 400 m count is therefore descriptive and is not part of the uncalibrated station-choice utility. Straight-line distance ignores network topology and travel time. The OD file counts fare transactions between entry and exit points, not all passengers moving through an interchange. If the supplied OD month predates a current station, the station list and observed demand need to be reconciled before calibration.
 
 The fixed-origin counterfactual can describe redistribution among existing travellers but will understate demand at newly opened stations. A full forecast would need future households, jobs, bus feeder changes, train travel times, operating dates, and induced trips. Coefficients estimated on today's network may also change when the network changes. Until LTA's actual OD file is supplied, none of the model's numerical claims can be checked.
 
@@ -258,5 +274,6 @@ The geographic scenario adds 29 distinct station locations after interchange cod
 - Land Transport Authority. [Jurong Region Line](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/jurong_region_line.html) and [Cross Island Line](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line.html).
 - Land Transport Authority. [DataMall dynamic datasets](https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html) and [API User Guide](https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf).
 - Housing & Development Board. [HDB Existing Building, November 2025](https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view).
+- Land Transport Authority. [LTA Bus Stop](https://data.gov.sg/datasets/d_3f172c6feb3f4f92a2f47d93eed2908a/view).
 - Urban Redevelopment Authority. [Master Plan 2025 Land Use Layer](https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view).
 - Wu Tingfeng. [Singapore Train Station Coordinates](https://github.com/elliotwutingfeng/singapore_train_station_coordinates), source station coordinates and dataset licence.

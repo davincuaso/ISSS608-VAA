@@ -76,12 +76,13 @@ The geographic audit uses:
 
 - station coordinates compiled from LTA and URA records;
 - **13,436** completed HDB building polygons, dated November 2025;
+- **5,205** LTA bus-stop poles for a separate 400 m proximity check;
 - Master Plan 2025 land-use polygons for nearby activity.
 
 Every distance is calculated in **SVY21 / Singapore TM**, not from raw latitude–longitude degrees. The scripts check missing coordinates, duplicate station codes, station grouping, and the exact 24 + 12 proposed-code selection.
 
 ::: notes
-The HDB layer contains blocks, not households. Master Plan land use records zoning, not occupied employment. Source links and dataset licences are in the technical report.
+The HDB layer contains blocks, not households. The bus-stop layer shows poles, not routes or frequency. Master Plan land use records zoning, not occupied employment. Source links and dataset licences are in the technical report.
 :::
 
 ## The access screen: 800 m straight line

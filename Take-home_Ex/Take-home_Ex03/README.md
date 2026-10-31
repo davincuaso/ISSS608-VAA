@@ -7,7 +7,7 @@ This is one Exercise 3 project: a Quarto submission hub, technical report, and e
 - `Take-home_Ex03.qmd`: submission hub.
 - `Take-home_Ex03-report.qmd`: methods, geographic findings, model specification, limitations, and references.
 - `Executive-summary.qmd`: ten content slides, plus cover and contents.
-- `R/prepare_geography.R`: public station and land-use data preparation.
+- `R/prepare_geography.R`: public station, land-use and bus-stop data preparation.
 - `R/model.R`: LTA OD ingestion, station-code reconciliation, Huff-type calibration, validation, and proposed-network projection.
 - `data/source/`: saved station coordinate CSVs and their dataset licence.
 - `results/`: non-ridership derived tables and an R session record.
@@ -23,9 +23,9 @@ quarto render Take-home_Ex03-report.qmd
 quarto render Executive-summary.qmd
 ```
 
-The preparation script downloads the November 2025 [HDB Existing Building](https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view) layer and [Master Plan 2025 Land Use Layer](https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view) from data.gov.sg into ignored `data/cache/`. If you already have the raw GeoJSON files, set `EX03_HDB_GEOJSON` and `EX03_LANDUSE_GEOJSON` to their absolute paths. Station coordinates are saved in `data/source/` and were fetched from [`elliotwutingfeng/singapore_train_station_coordinates`](https://github.com/elliotwutingfeng/singapore_train_station_coordinates) at commit `9f5972c71db8a529801eee9c527946a45a78e409` (5 March 2026).
+The preparation script downloads the November 2025 [HDB Existing Building](https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view) layer, [LTA Bus Stop](https://data.gov.sg/datasets/d_3f172c6feb3f4f92a2f47d93eed2908a/view), and [Master Plan 2025 Land Use Layer](https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view) from data.gov.sg into ignored `data/cache/`. If you already have the raw GeoJSON files, set `EX03_HDB_GEOJSON`, `EX03_BUS_GEOJSON` and `EX03_LANDUSE_GEOJSON` to their absolute paths. Station coordinates are saved in `data/source/` and were fetched from [`elliotwutingfeng/singapore_train_station_coordinates`](https://github.com/elliotwutingfeng/singapore_train_station_coordinates) at commit `9f5972c71db8a529801eee9c527946a45a78e409` (5 March 2026). The brief's [LTA Train Station ZIP](https://datamall.lta.gov.sg/content/dam/datamall/datasets/Geospatial/TrainStation_Sep2026.zip) returned HTTP 403 in this environment on 31 October 2026.
 
-The scenario selects `JS1–JS12`, `JW1–JW5`, `JE1–JE7`, and `CR2–CR13`: 24 JRL and 12 CRL Phase 1 line codes. It excludes `JS2A` so the JRL code count stays aligned with the brief. Interchanges are grouped by physical station name. The script uses EPSG:3414 for all metric distances and writes checks for 181 existing locations, 29 new locations and 13,436 HDB building polygons.
+The scenario selects `JS1–JS12`, `JW1–JW5`, `JE1–JE7`, and `CR2–CR13`: 24 JRL and 12 CRL Phase 1 line codes. It excludes `JS2A` so the JRL code count stays aligned with the brief. Interchanges are grouped by physical station name. The script uses EPSG:3414 for all metric distances and writes checks for 181 existing locations, 29 new locations, 13,436 HDB building polygons and 5,205 unique bus-stop poles. The bus-stop count within 400 m is descriptive and does not enter the ridership model.
 
 ## Add the observed LTA OD file
 
@@ -59,5 +59,6 @@ SHA-256 hashes of the 31 October 2026 copies used for the current geographic res
 | `data/source/future_stations.csv` | `16f61a996ca6b9d295d3efc751ef93a8fe233a62c18f3c34f86468141ba13b28` |
 | HDB Existing Building GeoJSON | `7c987511548de3a82da403cabca02702031e02ade8703a9e401417883dfeb702` |
 | Master Plan 2025 Land Use GeoJSON | `69477dedbb67fc557dcb2f8da55486d32cb9938cde8a386c2d5e281e9c02d13c` |
+| LTA Bus Stop GeoJSON | `ea16db2e53038b2b3352b57cb008e484c253091367b45bc3564b6cc3fe8d491b` |
 
-The HDB and land-use raw files are available under the [Singapore Open Data Licence](https://data.gov.sg/open-data-licence). See `data/source/LICENSE-DATASET.md` for the coordinate compilation's source and licence notes.
+The HDB, bus-stop and land-use raw files are available under the [Singapore Open Data Licence](https://data.gov.sg/open-data-licence). See `data/source/LICENSE-DATASET.md` for the coordinate compilation's source and licence notes.

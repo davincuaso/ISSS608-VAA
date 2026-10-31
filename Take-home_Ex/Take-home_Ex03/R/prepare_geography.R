@@ -1,4 +1,4 @@
-# Prepare the station scenario and two independent land-use measures.
+# Prepare the station scenario, land-use measures and nearby bus-stop counts.
 # Run from the Take-home_Ex03 directory: Rscript R/prepare_geography.R
 suppressPackageStartupMessages({
   library(sf)
@@ -22,8 +22,10 @@ download_dgs <- function(id, path) {
 
 hdb_path <- Sys.getenv("EX03_HDB_GEOJSON", "data/cache/hdb_existing_building.geojson")
 land_path <- Sys.getenv("EX03_LANDUSE_GEOJSON", "data/cache/masterplan2025_landuse.geojson")
+bus_path <- Sys.getenv("EX03_BUS_GEOJSON", "data/cache/lta_bus_stops.geojson")
 hdb_path <- download_dgs("d_16b157c52ed637edd6ba1232e026258d", hdb_path)
 land_path <- download_dgs("d_a8c3546b26712e35021f3a681d0353ae", land_path)
+bus_path <- download_dgs("d_3f172c6feb3f4f92a2f47d93eed2908a", bus_path)
 
 raw_now <- read.csv("data/source/operational_stations.csv", stringsAsFactors = FALSE)
 raw_future <- read.csv("data/source/future_stations.csv", stringsAsFactors = FALSE)
@@ -112,12 +114,26 @@ within_800 <- st_is_within_distance(station_sf, land_pts, dist = 800)
 activity_ha <- vapply(within_800, function(idx) sum(land$area_ha[idx]), numeric(1))
 hdb_within_800 <- st_is_within_distance(station_sf, hdb_pts, dist = 800)
 blocks_800 <- lengths(hdb_within_800)
+# This records the number of mapped bus-stop poles near each station. It does
+# not measure bus routes, service frequency or actual feeder passengers.
+bus <- st_read(bus_path, quiet = TRUE) |> st_transform(3414)
+stopifnot(nrow(bus) > 5000L, !anyNA(bus$BUS_STOP_NUM),
+          !anyDuplicated(bus$BUS_STOP_NUM), all(st_is_valid(bus)))
+bus_within_400 <- st_is_within_distance(station_sf, bus, dist = 400)
+bus_stops_400 <- lengths(bus_within_400)
 features <- st_drop_geometry(station_sf) |>
   mutate(hdb_blocks_800m = blocks_800,
          activity_hectares_800m = round(activity_ha, 2),
+         bus_stops_400m = bus_stops_400,
          scenario_lines = n_lines + if_else(station %in% planned$station &
                                               status == "Existing", 1L, 0L))
 write.csv(features, "results/station-features.csv", row.names = FALSE)
+
+new_station_bus <- features |>
+  filter(status == "Planned new") |>
+  select(station, line, bus_stops_400m) |>
+  arrange(desc(bus_stops_400m), station)
+write.csv(new_station_bus, "results/new-station-bus-stops.csv", row.names = FALSE)
 
 coverage <- data.frame(
   metric = c("Existing physical stations", "New physical stations",
@@ -196,6 +212,21 @@ p_activity <- features |>
 ggsave("figures/proposed-activity.png", p_activity,
        width = 8.5, height = 6, dpi = 180)
 
+p_bus <- new_station_bus |>
+  slice_max(bus_stops_400m, n = 14) |>
+  ggplot(aes(x = reorder(station, bus_stops_400m), y = bus_stops_400m,
+             fill = line)) +
+  geom_col(width = .72) + coord_flip() +
+  scale_fill_manual(values = c(CRL1 = blue, JRL = orange), name = "Line") +
+  labs(title = "Existing bus stops near proposed stations",
+       subtitle = "Number of mapped bus-stop poles within 400 m of each station point",
+       x = NULL, y = "Bus stops",
+       caption = "Straight-line distance in SVY21; LTA Bus Stop layer via data.gov.sg, downloaded 31 Oct 2026") +
+  theme(plot.title = element_text(face = "bold"))
+ggsave("figures/proposed-bus-stops.png", p_bus,
+       width = 8.5, height = 6, dpi = 180)
+
 writeLines(capture.output(sessionInfo()), "results/geography-session-info.txt")
 cat("Prepared", nrow(existing), "existing stations,", nrow(new_stations),
-    "new station locations and", sum(newly_reached), "newly reached HDB blocks.\n")
+    "new station locations,", nrow(bus), "bus stops and", sum(newly_reached),
+    "newly reached HDB blocks.\n")

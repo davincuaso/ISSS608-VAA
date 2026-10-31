@@ -48,7 +48,7 @@ The proposed network follows the brief's **24 Jurong Region Line codes** and **1
 
 The current coordinate file resolves to **181 physical MRT/LRT station locations**. Of **13,436 HDB blocks** in the November 2025 building layer, **9,645** have centroids within 800 m of an existing station. Adding the 29 distinct proposed locations brings **1,319 more blocks** within that straight-line threshold. Pasir Ris East (216 blocks), Serangoon North (151), and Tengah Plantation (144) account for the largest newly reached block counts in this particular measure.
 
-These are block counts, not residents, boardings, or a forecast of patronage. An 800 m circle also does not account for roads, crossings, station entrances, or bus access. The [technical report](Take-home_Ex03-report.qmd) shows the map and explains how the counts were made.
+These are block counts, not residents, boardings, or a forecast of patronage. An 800 m circle also does not account for roads, crossings or station entrances. A separate check of the official LTA bus-stop layer found **5,205 stop poles** and counts those within 400 m of each proposed station. The [technical report](Take-home_Ex03-report.qmd) shows both analyses and explains their limits.
 
 ## Model to be calibrated
 
@@ -58,4 +58,4 @@ The initial future scenario keeps the observed origin trip totals fixed. Its out
 
 ## Reproducibility
 
-The [README](https://github.com/davincuaso/ISSS608-VAA/blob/master/Take-home_Ex/Take-home_Ex03/README.md) gives exact commands, data links, file checks, and the one required private input. Raw HDB and land-use GeoJSON files are downloaded directly from data.gov.sg when the preparation script runs. The source station CSVs and all derived non-ridership results are saved in this project.
+The [README](https://github.com/davincuaso/ISSS608-VAA/blob/master/Take-home_Ex/Take-home_Ex03/README.md) gives exact commands, data links, file checks, and the one required private input. Raw HDB, bus-stop and land-use GeoJSON files are downloaded directly from data.gov.sg when the preparation script runs. The source station CSVs and all derived non-ridership results are saved in this project.
