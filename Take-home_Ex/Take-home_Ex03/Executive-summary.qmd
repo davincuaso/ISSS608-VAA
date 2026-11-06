@@ -87,7 +87,7 @@ Each building is assigned using its centroid. The count is not residents or a re
 
 Each current origin contributes its observed outbound trips. A destination's score uses nearby **HDB blocks**, **activity-zoned land**, **rail-line count**, **LRT-only status**, and **straight-line distance**. The scores become probabilities across all available destinations, including pairs with zero observed trips.
 
-The model is fitted to observed OD flows. **36 origins** are held out to test prediction against a distance-only version.
+This generalised **Huff/MCI model** is fitted to observed OD flows. **36 origins** are held out to test prediction against a distance-only version.
 
 ::: notes
 The technical report gives the conditional multinomial likelihood and utility equation. The fitted terms are 0.169 for log HDB blocks, 0.020 for log activity hectares, 1.098 for log line count, -1.897 for LRT-only stops, and 0.783 for log distance decay. The LRT flag prevents small LRT-only stops from being treated as MRT destinations. These are current-network associations.
@@ -139,8 +139,8 @@ The **1,319 newly reached HDB blocks** show a geographic access opportunity, sub
 
 The **7.55 million allocated trips** show what the model does when new destinations enter a fixed September 2026 market. The failed new-station test and interchange sensitivity rule out treating that allocation as a planning forecast.
 
-Use the model to test assumptions and identify places needing better travel-time, opening-stage employment, housing and feeder-bus data before making a patronage claim.
+Check station entrances, road crossings and accessible walking routes before treating the mapped blocks as safely connected to rail. Capacity and crowd-management decisions need peak-hour flows and operational checks.
 
 ::: notes
-The report includes the independent station-volume reconciliation, a spatial residual audit, origin-market map, model equations and scenario files. The residuals show geographic clustering (six-neighbour Moran's I = 0.13, permutation p = 0.003), suggesting omitted spatial factors without identifying their cause. Future-origin demand and induced trips require a separate forecast.
+The report includes the independent station-volume reconciliation, a spatial residual audit, origin-market map, model equations and scenario files. The residuals show geographic clustering (six-neighbour Moran's I = 0.13, permutation p = 0.003), suggesting omitted spatial factors without identifying their cause. Future-origin demand and induced trips require a separate forecast. Better travel-time, opening-stage employment, housing and feeder-bus data are needed for patronage forecasts. The current monthly totals cannot establish platform crowding or evacuation performance.
 :::

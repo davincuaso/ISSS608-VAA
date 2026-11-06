@@ -231,6 +231,15 @@ The current choice set includes **2,216 zero-flow pairs**. LTA merges some inter
 
 ## Calibration and validation
 
+I use a **generalised Huff model with multiple attraction variables**, also called a multiplicative competitive interaction (MCI) choice form. In this family, each destination's attraction and distance weight is divided by the sum of competing weights; [Wieland (2017)](https://journal.r-project.org/articles/RJ-2017-020/index.html) sets out the connection between Huff and MCI. Here the unnormalised weight is
+
+$$
+W_{ij}=(1+H_j)^{\beta_H}(1+A_j)^{\beta_A}L_j^{\beta_L}
+\exp(\beta_R R_j)(d_{ij}+0.25)^{-\beta_D}.
+$$
+
+Taking its logarithm gives the utility below. I estimate the coefficients directly from trip counts by maximising $\ell(\beta)=\sum_i\sum_{j\ne i}y_{ij}\log P_{ij}$, conditional on each origin's total. A zero-flow pair contributes zero to this sum but remains an available destination in the denominator.
+
 For an origin *i* and available destination *j*, the station-choice utility is
 
 $$
@@ -239,7 +248,9 @@ U_{ij}=\beta_H\log(1+H_j)+\beta_A\log(1+A_j)+\beta_L\log(L_j)+\beta_R R_j-\beta_
 P_{ij}=\frac{\exp(U_{ij})}{\sum_{k\ne i}\exp(U_{ik})}.
 $$
 
-Here $H_j$ is HDB block count within 800 m, $A_j$ is approximate activity hectares, $L_j$ is the number of rail lines, $R_j$ marks an LRT-only stop, and $d_{ij}$ is straight-line distance in kilometres. The 0.25 km offset keeps the distance term finite at very short separations. There are 38 LRT-only destinations; MRT/LRT interchanges and all proposed stations have $R_j=0$. This distinction matters because LRT-only stops account for 2.55 million of the 66.78 million recorded trips and should not receive the same baseline attraction as MRT stations. The five coefficients maximise the conditional multinomial likelihood of observed OD trips. Housing, activity, connectivity and distance decay are constrained non-negative; the LRT coefficient can be negative. These are modelling choices, not measured behavioural constants.
+Here $H_j$ is HDB block count within 800 m, $A_j$ is approximate activity hectares, $L_j$ is the number of rail lines, $R_j$ marks an LRT-only stop, and $d_{ij}$ is straight-line distance in kilometres. The 0.25 km offset keeps the distance term finite at very short separations. There are 38 LRT-only destinations; MRT/LRT interchanges and all proposed stations have $R_j=0$. This distinction matters because LRT-only stops account for 2.55 million of the 66.78 million recorded trips and should not receive the same baseline attraction as MRT stations. The optimisation bounds are 0–3 for housing, activity and line count, −5–0 for the LRT effect, and 0–4 for distance decay. All five fitted coefficients lie inside those bounds. The sign and range restrictions are modelling choices, not measured behavioural constants.
+
+This choice form also assumes that the probability ratio between two unchanged destinations stays unchanged when a third station is added. That restriction, often called independence of irrelevant alternatives, can miss substitution between stations on the same corridor. The scenario changes competition between destination weights; it does not calculate passenger rerouting through the rail network.
 
 I reserve 20% of origin stations, selected with seed 626, before fitting. Their trip-weighted log loss and station-total error are compared with a fitted distance-only model. The final coefficients are then refitted to all observed origins. For the current network, estimated destination tap-outs are the sum of each origin's observed market potential multiplied by its destination probabilities. The code checks that probabilities sum to one per origin and that total estimated trips equal the observed trip total.
 
@@ -364,6 +375,12 @@ The map follows the *origin stations* from which an existing destination draws f
 
 The interaction files retain `origin`, `destination`, attraction, `distance_km` and probabilities for both networks; `results/model/station-predictions.csv` contains the public station-level summary. The fixed origin totals make scenario trips sum to the observed 66.78 million in every specification. Gains at new destinations must therefore be balanced by losses elsewhere; the exercise cannot infer induced systemwide rail demand from this setup.
 
+## Implications for station planning and safety
+
+The 1,319 HDB blocks that newly cross the 800 m threshold identify places worth checking for walking connections and feeder-bus access. Pasir Ris East, Serangoon North and Tengah Plantation have the largest groups in this measure. A site review should check station entrances, road crossings, barriers and accessible routes before calling those buildings walkable to rail. The straight-line screen alone cannot establish safe access.
+
+The failed new-station test gives a different planning message: these modelled tap-outs are too uncertain to set platform capacity, staffing or crowd-management arrangements. Monthly weekday totals also hide peak-hour loads and interchange passenger movements. Public-safety decisions would need peak-period passenger flows, platform and walkway capacity, and operational assessment. The present analysis can help identify questions for that work; it does not establish crowding, evacuation performance or safety risk.
+
 ## Assumptions and limitations
 
 Most station points come from a secondary coordinate compilation. The three newly opened Circle Line points are centroids of LTA station polygons, not entrance locations. Neither source necessarily places a passenger's actual access point. The `JS2A` omission follows the brief's 24-code JRL scope rather than claiming the station is not planned. Grouping line codes by station name gives distinct locations but hides platform paths and transfer arrangements.
@@ -387,3 +404,4 @@ The geographic scenario adds 29 distinct station locations after interchange cod
 - Land Transport Authority. [LTA Bus Stop](https://data.gov.sg/datasets/d_3f172c6feb3f4f92a2f47d93eed2908a/view).
 - Urban Redevelopment Authority. [Master Plan 2025 Land Use Layer](https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view).
 - Wu Tingfeng. [Singapore Train Station Coordinates](https://github.com/elliotwutingfeng/singapore_train_station_coordinates), source station coordinates and dataset licence.
+- Wieland, T. (2017). [Market Area Analysis for Retail and Service Locations with MCI](https://journal.r-project.org/articles/RJ-2017-020/index.html). *The R Journal*, 9(1), 298–323.

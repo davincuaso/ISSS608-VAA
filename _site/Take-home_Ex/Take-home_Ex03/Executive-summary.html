@@ -1124,7 +1124,7 @@ display:block!important;
 <section id="fitting-station-choice" class="slide level2">
 <h2>Fitting station choice</h2>
 <p>Each current origin contributes its observed outbound trips. A destination’s score uses nearby <strong>HDB blocks</strong>, <strong>activity-zoned land</strong>, <strong>rail-line count</strong>, <strong>LRT-only status</strong>, and <strong>straight-line distance</strong>. The scores become probabilities across all available destinations, including pairs with zero observed trips.</p>
-<p>The model is fitted to observed OD flows. <strong>36 origins</strong> are held out to test prediction against a distance-only version.</p>
+<p>This generalised <strong>Huff/MCI model</strong> is fitted to observed OD flows. <strong>36 origins</strong> are held out to test prediction against a distance-only version.</p>
 <aside class="notes">
 <p>The technical report gives the conditional multinomial likelihood and utility equation. The fitted terms are 0.169 for log HDB blocks, 0.020 for log activity hectares, 1.098 for log line count, -1.897 for LRT-only stops, and 0.783 for log distance decay. The LRT flag prevents small LRT-only stops from being treated as MRT destinations. These are current-network associations.</p>
 <style type="text/css">
@@ -1235,9 +1235,9 @@ display:block!important;
 <h2>What the results support</h2>
 <p>The <strong>1,319 newly reached HDB blocks</strong> show a geographic access opportunity, subject to actual walking routes and block populations.</p>
 <p>The <strong>7.55 million allocated trips</strong> show what the model does when new destinations enter a fixed September 2026 market. The failed new-station test and interchange sensitivity rule out treating that allocation as a planning forecast.</p>
-<p>Use the model to test assumptions and identify places needing better travel-time, opening-stage employment, housing and feeder-bus data before making a patronage claim.</p>
+<p>Check station entrances, road crossings and accessible walking routes before treating the mapped blocks as safely connected to rail. Capacity and crowd-management decisions need peak-hour flows and operational checks.</p>
 <aside class="notes">
-<p>The report includes the independent station-volume reconciliation, a spatial residual audit, origin-market map, model equations and scenario files. The residuals show geographic clustering (six-neighbour Moran’s I = 0.13, permutation p = 0.003), suggesting omitted spatial factors without identifying their cause. Future-origin demand and induced trips require a separate forecast.</p>
+<p>The report includes the independent station-volume reconciliation, a spatial residual audit, origin-market map, model equations and scenario files. The residuals show geographic clustering (six-neighbour Moran’s I = 0.13, permutation p = 0.003), suggesting omitted spatial factors without identifying their cause. Future-origin demand and induced trips require a separate forecast. Better travel-time, opening-stage employment, housing and feeder-bus data are needed for patronage forecasts. The current monthly totals cannot establish platform crowding or evacuation performance.</p>
 <style type="text/css">
 span.MJX_Assistive_MathML {
 position:absolute!important;
