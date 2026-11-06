@@ -29,7 +29,7 @@ bus_path <- download_dgs("d_3f172c6feb3f4f92a2f47d93eed2908a", bus_path)
 
 raw_now <- read.csv("data/source/operational_stations.csv", stringsAsFactors = FALSE)
 raw_future <- read.csv("data/source/future_stations.csv", stringsAsFactors = FALSE)
-stopifnot(nrow(raw_now) == 213L, nrow(raw_future) == 65L,
+stopifnot(nrow(raw_now) == 216L, nrow(raw_future) == 65L,
           !anyNA(raw_now[, c("station_code", "station_name", "lat", "lon")]),
           !anyNA(raw_future[, c("station_code", "station_name", "lat", "lon")]),
           !anyDuplicated(raw_now$station_code),
@@ -64,7 +64,7 @@ new_stations <- planned |>
 all_stations <- bind_rows(existing, new_stations) |>
   arrange(status, station) |>
   mutate(station_id = sprintf("S%03d", row_number()))
-stopifnot(!anyDuplicated(all_stations$station), nrow(existing) == 181L)
+stopifnot(!anyDuplicated(all_stations$station), nrow(existing) == 184L)
 
 station_sf <- st_as_sf(all_stations, coords = c("lon", "lat"), crs = 4326,
                        remove = FALSE) |> st_transform(3414)

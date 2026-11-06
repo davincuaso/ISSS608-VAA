@@ -2,7 +2,7 @@
 title: "Take-home Exercise 3: Technical Report"
 subtitle: "Station choice under the Jurong Region and Cross Island Line Phase 1 scenarios"
 author: "Davin Cuaso"
-date: 2026-10-31
+date: 2026-11-06
 date-modified: last-modified
 format:
   html:
@@ -22,11 +22,12 @@ params:
 ```{r}
 #| label: load-analysis
 #| include: false
-# Rendering from the checked result files needs no network connection.
-# Set recompute:true to rebuild them; set EX03_OD_FILE to add LTA calibration.
+# Rendering uses the checked result files. Recompute only when the private
+# LTA extracts are available locally; the account key is never embedded here.
 if (params$recompute) {
   source("R/prepare_geography.R")
-  if (nzchar(Sys.getenv("EX03_OD_FILE"))) source("R/model.R")
+  source("R/model.R")
+  source("R/plot_model.R")
 }
 coverage <- read.csv("results/coverage-summary.csv")
 features <- read.csv("results/station-features.csv")
@@ -34,7 +35,13 @@ new_coverage <- read.csv("results/new-station-coverage.csv")
 line_coverage <- read.csv("results/line-coverage.csv")
 sensitivity <- read.csv("results/distance-sensitivity.csv")
 model_dir <- "results/model"
-has_model <- file.exists(file.path(model_dir, "checks.csv"))
+checks <- read.csv(file.path(model_dir, "checks.csv"))
+coefficients <- read.csv(file.path(model_dir, "coefficients.csv"))
+pred <- read.csv(file.path(model_dir, "station-predictions.csv"))
+station_reconciliation <- read.csv(file.path(model_dir, "station-volume-reconciliation.csv"))
+fit_existing <- pred |> dplyr::filter(status == "Existing")
+fit_r2 <- 1 - sum((fit_existing$observed_ridership - fit_existing$estimated_existing)^2) /
+  sum((fit_existing$observed_ridership - mean(fit_existing$observed_ridership))^2)
 fmt <- function(x) format(x, big.mark = ",", trim = TRUE, scientific = FALSE)
 ```
 
@@ -44,7 +51,7 @@ fmt <- function(x) format(x, big.mark = ",", trim = TRUE, scientific = FALSE)
 
 The question is whether adding the Jurong Region Line (JRL) and the first phase of the Cross Island Line (CRL1) changes where rail users are likely to board and alight. A station does not draw passengers from a fixed circle. Travellers can choose among several stations, and the choice depends on the station's setting and on the cost of reaching it. I use a probabilistic station-choice model for that comparison, with separate current and proposed networks.
 
-This report currently has two different levels of evidence. The station and land-use analysis is complete and uses recorded public geographic layers. The ridership model is implemented but **has not been calibrated**, because the LTA origin–destination (OD) trip file is not in the course repository or the supplied workspace. I do not report trip estimates from a substitute or simulated OD table. The result sections identify exactly what the missing file will unlock.
+The model is fitted to LTA's September 2026 train origin–destination (OD) counts. Its station-level fit is weak despite improving on a distance-only reference for held-out origins. I therefore report the proposed-network numbers as **conditional redistribution estimates**, alongside model error and sensitivity to the interchange assumption. They are not a forecast of all future journeys.
 
 The [official brief](https://isss626-ay2026-27aug.netlify.app/take-home_ex03) calls for two interaction frames, origin market potential, destination observed ridership and attraction measures, calibration, validation, future-station prediction, and a comparison of existing station market areas. The project is organised around those outputs.
 
@@ -52,39 +59,39 @@ The [official brief](https://isss626-ay2026-27aug.netlify.app/take-home_ex03) ca
 
 1. How many distinct station locations are in the current and proposed networks?
 2. Which HDB blocks gain straight-line proximity to rail under the proposed network?
-3. Once observed OD counts are available, how well can a model using local activity, connectivity and distance reproduce station-level tap-outs?
+3. How well can a model using local activity, connectivity and distance reproduce observed station-level tap-outs?
 4. Holding the observed origin market fixed, which destinations could gain or lose share when proposed stations enter the choice set?
 
-The model's unit will be a **directed origin–destination station pair** for one LTA data month, restricted to the `WEEKDAY` day type. Station-level ridership means recorded destination tap-outs summed across those pairs. In the geographic audit, a “station” is one physical location; the line codes of an interchange are grouped under one station name.
+The model's unit is a **directed origin–destination station pair** for September 2026, restricted to the `WEEKDAY` day type. Station-level ridership means recorded destination tap-outs summed across those pairs. In the geographic audit, a “station” is one physical location; the line codes of an interchange are grouped under one station name.
 
 ## Data sources and their roles
 
 ```{r}
 #| label: data-sources
 knitr::kable(data.frame(
-  Source = c("Operational and future station coordinates", "HDB Existing Building",
+  Source = c("Current and future station coordinates", "HDB Existing Building",
              "LTA Bus Stop", "Master Plan 2025 Land Use Layer",
-             "LTA train OD passenger volume"),
-  Snapshot = c("Repository snapshot, 31 Oct 2026", "Buildings dated Nov 2025",
+             "LTA OD Train", "LTA Passenger Volume by Train Stations"),
+  Snapshot = c("March 2026 compilation + September 2026 LTA layer", "Nov 2025",
                "Downloaded 31 Oct 2026", "Gazetted Dec 2025",
-               "Awaiting a monthly CSV or ZIP"),
+               "Sep 2026", "Sep 2026"),
   Role = c("Station locations and scenario codes", "Residential-building count and proximity",
            "Bus-stop poles near proposed stations", "Mapped activity area near destinations",
-           "Observed weekday station-to-station trips")
+           "Observed weekday station-to-station trips", "Independent tap-out reconciliation")
 ), col.names = c("Dataset", "Time reference", "Use"))
 ```
 
-The [station coordinate repository](https://github.com/elliotwutingfeng/singapore_train_station_coordinates) derives most points from URA or LTA records and flags manual estimates in a `source` field. I saved its operational and future CSVs with the project so the scenario cannot silently change when that repository is updated. The brief's direct [LTA Train Station ZIP](https://datamall.lta.gov.sg/content/dam/datamall/datasets/Geospatial/TrainStation_Sep2026.zip) returned HTTP 403 when checked on 31 October, so the saved compilation remains the coordinate source. [HDB Existing Building](https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view), [LTA Bus Stop](https://data.gov.sg/datasets/d_3f172c6feb3f4f92a2f47d93eed2908a/view), and the [Master Plan 2025 Land Use Layer](https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view) are downloaded directly from data.gov.sg by `R/prepare_geography.R`; the raw GeoJSON files stay in an ignored local cache. Derived tables and figures are in `results/` and `figures/`.
+The [station coordinate repository](https://github.com/elliotwutingfeng/singapore_train_station_coordinates) provides the saved current and future station CSVs. It derives most points from URA or LTA records and flags manual estimates. Because that snapshot predates the July 2026 opening of [Circle Line Stage 6](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/circle_line_6.html), I add Keppel, Cantonment and Prince Edward Road using centroids of their polygons in LTA's September 2026 Train Station layer. I also replace the former `CE1` and `CE2` codes with `CC34` and `CC33` for Bayfront and Marina Bay. The [HDB](https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view), [bus-stop](https://data.gov.sg/datasets/d_3f172c6feb3f4f92a2f47d93eed2908a/view) and [Master Plan land-use](https://data.gov.sg/datasets/d_a8c3546b26712e35021f3a681d0353ae/view) layers are downloaded from data.gov.sg.
 
-These choices cover four of the brief's six recommended data roles: current station locations, future locations, HDB buildings and bus stops. The fifth, LTA train OD passenger volume, is specified in the model but still needs an Account Key and a genuine monthly extract. The sixth, [OpenStreetMap POIs via Geofabrik](https://download.geofabrik.de/asia/malaysia-singapore-brunei.html), was considered but not added: the Master Plan layer gives a consistent island-wide zoning measure for this first model, while POI tagging and completeness vary by place. That decision does not make zoning a count of jobs or visits.
+These choices use five of the brief's six recommended data roles. [OpenStreetMap POIs via Geofabrik](https://download.geofabrik.de/asia/malaysia-singapore-brunei.html) were considered but not added: POI tagging and completeness vary by place, while the Master Plan layer provides a consistent island-wide zoning measure. Zoning still cannot be read as observed employment or visits.
 
-The [LTA OD Train endpoint](https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html) requires a DataMall Account Key. Its [user guide](https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf) defines `YEAR_MONTH`, `DAY_TYPE`, `TIME_PER_HOUR`, origin and destination station codes, and `TOTAL_TRIPS`. The code accepts LTA's CSV or ZIP once obtained. The report will state the exact data month after ingestion; no month is assumed in advance.
+The September OD Train and station-volume ZIPs were downloaded on 6 November 2026 through [LTA DataMall](https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html). The [API guide](https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf) defines their fields and monthly release cycle. The raw ZIPs and Account Key are excluded from Git; `R/download_lta.R` reads the key from an environment variable. The checked aggregate outputs are saved under `results/model/`.
 
 ## Preparing the station scenarios
 
-The current CSV has 213 line-code records. Grouping records with the same physical station name gives **181 existing station locations**. For the proposed scenario I retain `JS1–JS12`, `JW1–JW5`, and `JE1–JE7` (24 JRL codes) plus `CR2–CR13` (12 CRL1 codes). This matches the assignment's 24 plus 12 scope and [LTA's CRL1 phase description](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line.html). The extra `JS2A` Forest Hill record in the future coordinate file is excluded from this fixed 24-code JRL scenario. CRL Phase 2 and its Punggol extension are also excluded because they are outside CRL1.
+The reconciled current CSV has **216 line-code records**. Grouping records with the same physical station name gives **184 existing station locations**. For the proposed scenario I retain `JS1–JS12`, `JW1–JW5`, and `JE1–JE7` (24 JRL codes) plus `CR2–CR13` (12 CRL1 codes). This matches the assignment's 24 plus 12 scope and [LTA's CRL1 phase description](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line.html). The extra `JS2A` Forest Hill record in the future coordinate file is excluded from this fixed 24-code JRL scenario. CRL Phase 2 and its Punggol extension are also excluded because they are outside CRL1.
 
-Seven proposed codes refer to existing interchange locations: Choa Chu Kang, Boon Lay, Jurong East, Pasir Ris, Hougang, Ang Mo Kio and Bright Hill. They add a line connection but not another destination point. The result is **29 new physical locations**, giving 210 existing-plus-proposed stations. Double-counting an interchange as two destinations would inflate its predicted share, so the station-name grouping matters.
+Seven proposed codes refer to existing interchange locations: Choa Chu Kang, Boon Lay, Jurong East, Pasir Ris, Hougang, Ang Mo Kio and Bright Hill. They add a line connection but not another destination point. The result is **29 new physical locations**, giving **213 existing-plus-proposed stations**. Double-counting an interchange as two destinations would inflate its predicted share, so the station-name grouping matters.
 
 ```{r}
 #| label: station-audit
@@ -93,7 +100,7 @@ knitr::kable(coverage[1:3, ], col.names = c("Check", "Count"))
 
 The coordinates are converted from longitude and latitude (EPSG:4326) to SVY21 / Singapore TM (EPSG:3414) before distance calculations. In this projected system, the station-to-station and building-to-station distances are in metres. I validate missing coordinates, duplicate station codes, and the expected JRL/CRL1 code counts before any result is written.
 
-## Geographic measures before ridership calibration
+## Geographic measures
 
 ### Residential blocks within reach
 
@@ -104,7 +111,7 @@ I take the centroid of each completed HDB building polygon and find its nearest 
 knitr::kable(coverage[4:6, ], col.names = c("Measure", "HDB blocks"))
 ```
 
-Of 13,436 buildings, 9,645 are within 800 m of an existing physical station. The scenario adds 1,319 buildings to that threshold. A further 2,110 buildings are nearer to a proposed station than to any current one, whether or not they cross the 800 m line. These two figures answer different questions: new threshold coverage versus a shorter straight-line distance.
+Of 13,436 buildings, **9,676** are within 800 m of an existing physical station. The scenario adds **1,319** buildings to that threshold. A further 2,110 buildings are nearer to a proposed station than to any current one, whether or not they cross the 800 m line. These two figures answer different questions: new threshold coverage versus a shorter straight-line distance.
 
 ```{r}
 #| label: coverage-map
@@ -170,6 +177,25 @@ knitr::include_graphics("figures/proposed-bus-stops.png")
 
 Choa Chu Kang West has 16 mapped stops within 400 m; Pandan Reservoir and Serangoon North have 14 each. The [complete station table](https://github.com/davincuaso/ISSS608-VAA/blob/master/Take-home_Ex/Take-home_Ex03/results/new-station-bus-stops.csv) includes all 29 locations. These counts cannot distinguish a busy transfer point from a group of lightly served roadside stops. Routes, headways, stop direction and walking connections would be needed before treating bus access as a behavioural predictor.
 
+## Checking the LTA trip extracts
+
+The OD ZIP contains 887,478 rows across both day types. I retain its **475,395 weekday rows**, which sum to 66,784,543 trips. The station-code join resolves every recorded trip after adding Circle Line Stage 6 and the `CC33`/`CC34` aliases. Same-station rows account for just 238 trips; these are excluded because the interstation distance term does not represent them. The modelled market is therefore **66,784,305 weekday trips across 184 origins**.
+
+```{r}
+#| label: od-quality-checks
+knitr::kable(data.frame(
+  Check = c("Weekday OD rows", "Weekday OD trips before same-station exclusion",
+            "Matched code share", "Excluded same-station trips",
+            "Trips in the model", "Independent station-file tap-outs"),
+  Result = c(fmt(checks$raw_weekday_rows), fmt(checks$raw_weekday_trips),
+             sprintf("%.2f%%", 100 * checks$matched_trip_share),
+             fmt(checks$excluded_same_station_trips), fmt(checks$observed_trips),
+             fmt(checks$station_tapouts))
+), col.names = c("Audit", "September 2026 weekday result"))
+```
+
+LTA's separate station-volume ZIP reports 67,421,973 weekday tap-outs for the same 184 stations. The OD destinations sum to **99.05%** of that total, a gap of 637,668 trips. The two published files are close but not identical, and their fields do not explain the difference. I keep the OD totals as the model's market and publish the station-by-station reconciliation in `results/model/station-volume-reconciliation.csv`; I do not scale one file to force agreement with the other.
+
 ## Interaction data and observed market potential
 
 The model script constructs a full directed choice table rather than using only pairs that appear in the OD CSV. Zero-flow pairs must remain in the choice set; otherwise the denominator in a station-choice probability would be calculated from observed trips alone. A same-station trip is removed because its zero spatial distance is not meaningful for this interstation model. Distances use station points in SVY21; they are **not** rail travel times or network path lengths.
@@ -186,7 +212,7 @@ knitr::kable(data.frame(
 ), col.names = c("Data frame", "Join key", "Principal columns"))
 ```
 
-LTA merges some interchange codes in the OD file (for example `CC1-NE6-NS24`). `R/model.R` splits these codes and maps their components to one physical station name. It saves unmatched codes and stops if they represent more than 5% of trip counts. The file must contain exactly one `YEAR_MONTH`, valid hourly values, and non-negative trips. Only `WEEKDAY` and `TRAIN` rows enter this version of the model. The origin total is a monthly aggregate across weekdays, not a per-day rate.
+LTA merges some interchange codes in the OD file (for example `CC1-NE6-NS24`). `R/model.R` splits these codes and maps their components to one physical station name. It writes an unmatched-code audit and stops if those records carry more than 5% of trips. It also checks one `YEAR_MONTH`, valid hourly values and non-negative trip counts. Only `WEEKDAY` and `TRAIN` rows enter this version of the model. An origin total is a monthly aggregate across weekdays, not a per-day rate.
 
 ## Calibration and validation
 
@@ -203,75 +229,93 @@ Here $H_j$ is HDB block count within 800 m, $A_j$ is approximate activity hectar
 I reserve 20% of origin stations, selected with seed 626, before fitting. Their trip-weighted log loss is compared with a fitted distance-only model. The final coefficients are then refitted to all observed origins. For the current network, estimated destination tap-outs are the sum of each origin's observed market potential multiplied by its destination probabilities. The code checks that probabilities sum to one per origin and that total estimated trips equal the observed trip total.
 
 ```{r}
-#| label: model-results
-#| results: asis
-if (has_model) {
-  checks <- read.csv(file.path(model_dir, "checks.csv"))
-  coefficients <- read.csv(file.path(model_dir, "coefficients.csv"))
-  cat("The supplied OD file covers **", checks$month[1], "**. The model matched **",
-      round(100 * checks$matched_trip_share[1], 1),
-      "%** of weekday trips to the station coordinate table.\n\n", sep = "")
-  print(knitr::kable(coefficients, digits = 3,
-                     col.names = c("Model term", "Fitted coefficient")))
-  cat("\nThe held-out log loss per trip is **", round(checks$heldout_logloss_per_trip[1], 3),
-      "**, compared with **", round(checks$distance_only_logloss_per_trip[1], 3),
-      "** for distance alone. The current-network station MAE is **",
-      fmt(round(checks$station_mae[1])), "** monthly weekday tap-outs.\n", sep = "")
-} else {
-  cat("::: {.callout-warning title=\"Calibration pending\"}\n",
-      "The LTA OD Train file has not been supplied. There are no fitted coefficients,",
-      "validation scores or observed-versus-estimated station ridership values to report.\n:::\n")
-}
+#| label: fitted-coefficients
+knitr::kable(coefficients, digits = 3,
+             col.names = c("Model term", "Fitted coefficient"))
 ```
+
+All four estimated coefficients are positive under the stated sign constraints. The line-count coefficient is the largest, but it may absorb features of current interchange locations that will not transfer to new lines. It is an association in this model, not evidence that adding a line causes a proportional increase in tap-outs.
+
+```{r}
+#| label: model-quality
+knitr::kable(data.frame(
+  Measure = c("Held-out origins", "Held-out loss, fitted model (nats/trip)",
+              "Held-out loss, distance only (nats/trip)",
+              "In-sample station MAE (trips)", "In-sample station R²"),
+  Value = c(checks$heldout_origins, sprintf("%.3f", checks$heldout_logloss_per_trip),
+            sprintf("%.3f", checks$distance_only_logloss_per_trip),
+            fmt(round(checks$station_mae)), sprintf("%.2f", fit_r2))
+), col.names = c("Validation measure", "Result"))
+```
+
+The fitted model improves held-out origin log loss by 0.133 nats per trip over the distance-only reference. That is useful evidence that the geographic predictors add information. Station-level fit is nevertheless weak: the in-sample MAE is **237,987 monthly trips**, about **66% of the mean observed station total**, and $R^2$ is **0.23**. For example, Boon Lay records about 1.23 million tap-outs but the model fits only 285,000; Outram Park records 823,000 but the model fits 1.71 million. These errors limit the credibility of the new-station point estimates.
+
+```{r}
+#| label: model-fit-chart
+knitr::include_graphics("figures/model-fit.png")
+```
+
+The dashed diagonal marks exact agreement. Many stations lie far from it, including some of the busiest. The model is therefore a transparent *scenario baseline*, not a high-accuracy station forecast.
 
 ## Proposed-network comparison
 
-The first counterfactual holds each **existing origin's observed outbound trip total fixed** and adds the 29 distinct new station locations as possible destinations. Existing interchanges gain their proposed line connection. The fitted coefficients stay unchanged. This isolates a change in destination choice under the expanded set of stations. It does **not** estimate new trips generated by future housing, trips starting at new stations, or transfers inside paid rail areas. New-station figures from this scenario would be captured tap-outs from existing origins, not total future station ridership.
+The first counterfactual holds each **existing origin's observed outbound trip total fixed** and adds the 29 distinct new station locations as possible destinations. Existing interchanges gain their proposed line connection. The fitted coefficients stay unchanged. This isolates a change in destination choice under the expanded set of stations. It does **not** estimate new trips generated by future housing, trips starting at new stations, or transfers inside paid rail areas. New-station figures are captured tap-outs from existing origins, not total future station ridership.
 
 ```{r}
-#| label: scenario-results
-#| results: asis
-if (has_model) {
-  pred <- read.csv(file.path(model_dir, "station-predictions.csv"))
-  top_new <- pred |>
-    dplyr::filter(status == "Planned new") |>
-    dplyr::arrange(dplyr::desc(estimated_scenario)) |>
-    dplyr::select(destination, estimated_scenario) |>
-    head(10)
-  print(knitr::kable(top_new, digits = 0,
-                     col.names = c("New destination", "Captured monthly weekday tap-outs")))
-  existing_change <- pred |>
-    dplyr::filter(status == "Existing") |>
-    dplyr::arrange(change) |>
-    dplyr::select(destination, change, change_pct) |>
-    head(10)
-  cat("\nThe largest modelled reductions among existing destination stations are:\n\n")
-  print(knitr::kable(existing_change, digits = 1,
-                     col.names = c("Existing station", "Trip change", "Change (%)")))
-} else {
-  cat("The comparison table will be populated from the LTA OD file. No future-station",
-      "ridership or existing-station share change is claimed yet.\n")
-}
+#| label: proposed-station-ranking
+top_new <- pred |>
+  dplyr::filter(status == "Planned new") |>
+  dplyr::arrange(dplyr::desc(estimated_scenario)) |>
+  dplyr::select(destination, estimated_scenario) |>
+  head(5)
+top_new$estimated_scenario <- fmt(round(top_new$estimated_scenario))
+knitr::kable(top_new,
+             col.names = c("Proposed destination", "Captured monthly weekday tap-outs"))
 ```
 
-The interaction outputs retain `origin`, `destination`, `attraction`, `distance_km` and probability for both networks. They can be inspected directly rather than relying on a map's colour scale. Since the scenario conserves origin totals, gains at new destinations must be balanced by losses at existing destinations; this is a feature of this *fixed-market* scenario, not a statement that systemwide rail demand cannot grow.
+The fitted model allocates **6.29 million** of the fixed 66.78 million weekday trips to new destinations, about **9.4%** of the current-origin market. Teck Ghee, Serangoon North and Tavistock rank highest under this specification. A distance-only version allocates **7.59 million** trips to new destinations. The 1.30 million difference shows that the estimates depend materially on how destination attraction is represented; it is **not** a statistical confidence interval.
+
+```{r}
+#| label: proposed-station-comparison-chart
+knitr::include_graphics("figures/new-station-modelled-trips.png")
+```
+
+```{r}
+#| label: proposed-station-map
+knitr::include_graphics("figures/modelled-new-station-map.png")
+```
+
+The map locates the scenario estimates against the current station network and HDB blocks. The marker sizes should be read with the fit errors above in mind; the model does not know the eventual train schedule, future jobs or housing, or trips originating at the new stations.
+
+### Existing station market shares and interchange sensitivity
+
+Under the main specification, seven existing interchanges gain modelled destination trips because their proposed line increases `line_count`; the other 177 existing stations lose share to the expanded choice set. Ang Mo Kio gains about 363,000 modelled tap-outs, while Outram Park loses about 202,000. These changes are relative to **fitted current-network trips**, not directly to observed tap-outs.
+
+```{r}
+#| label: existing-market-change-chart
+knitr::include_graphics("figures/existing-station-change.png")
+```
+
+The paired points change one assumption: if the seven interchanges retain their current attraction score, **all 184 existing destinations lose modelled share**, including those seven. New destinations then capture **6.56 million** trips rather than 6.29 million. The reversal at interchange stations is a warning against reading the blue gains as a firm operational forecast. The model is transferring a present-day line-count association to future interchanges without evidence about future transfer behaviour.
+
+The interaction files retain `origin`, `destination`, attraction, `distance_km` and probabilities for both networks; `results/model/station-predictions.csv` contains the public station-level summary. The fixed origin totals make scenario trips sum to the observed 66.78 million in every specification. Gains at new destinations must therefore be balanced by losses elsewhere; the exercise cannot infer induced systemwide rail demand from this setup.
 
 ## Assumptions and limitations
 
-The coordinate file is a secondary compilation and may not place every platform or entrance exactly where passengers enter. The `JS2A` omission follows the brief's 24-code JRL scope rather than claiming the station is not planned. Station name grouping is suitable for physical locations, but it masks separate paid/unpaid transfer arrangements and platform-level paths.
+Most station points come from a secondary coordinate compilation. The three newly opened Circle Line points are centroids of LTA station polygons, not entrance locations. Neither source necessarily places a passenger's actual access point. The `JS2A` omission follows the brief's 24-code JRL scope rather than claiming the station is not planned. Grouping line codes by station name gives distinct locations but hides platform paths and transfer arrangements.
 
-HDB block counts are not residents. Master Plan zoning is not employment or footfall. The 800 m land-use summary uses parcel centroids and whole parcel areas, which can overstate nearby activity for large sites. Bus-stop locations do not show service frequency, capacity or transfer demand; the 400 m count is therefore descriptive and is not part of the uncalibrated station-choice utility. Straight-line distance ignores network topology and travel time. The OD file counts fare transactions between entry and exit points, not all passengers moving through an interchange. If the supplied OD month predates a current station, the station list and observed demand need to be reconciled before calibration.
+HDB block counts are not residents. Master Plan zoning is not employment or footfall. The 800 m land-use summary uses parcel centroids and whole parcel areas, which can overstate nearby activity for large sites. Bus-stop locations do not show service frequency, capacity or transfer demand; the 400 m count is descriptive and does not enter the station-choice utility. Straight-line distance ignores rail routes, travel time and station entrances. The OD file counts entry-to-exit fare transactions, not every passenger moving through an interchange. The separate LTA station file has 637,668 more weekday tap-outs than the OD destination sum; the available fields do not establish why.
 
-The fixed-origin counterfactual can describe redistribution among existing travellers but will understate demand at newly opened stations. A full forecast would need future households, jobs, bus feeder changes, train travel times, operating dates, and induced trips. Coefficients estimated on today's network may also change when the network changes. Until LTA's actual OD file is supplied, none of the model's numerical claims can be checked.
+The model misses large station totals even on its training month: its station MAE is 237,987 trips and its in-sample $R^2$ is 0.23. In particular, the apparent gains at seven interchanges disappear when the proposed lines are not given an automatic attraction uplift. The fixed-origin counterfactual omits trips starting at new stations, new housing and jobs, feeder-service changes, operating dates and induced trips. Its 6.29 million new-station allocation is therefore an assumption-dependent redistribution within the September 2026 market, not a forecast with a statistical uncertainty interval. The OD data cover MRT and LRT stations together; the model does not separate the two modes' choice processes.
 
 ## Conclusion
 
-The geographic scenario adds 29 distinct station locations after interchange codes are reconciled. In the HDB building layer, 1,319 blocks cross the 800 m straight-line proximity threshold, with the largest groups near Pasir Ris East, Serangoon North, and Tengah Plantation. That is evidence of a possible access gain, not evidence of station ridership. The model, validation and future tap-out comparison are ready to run on an authorised LTA OD Train extract; their results remain open until that observed file is available.
+The geographic scenario adds 29 distinct station locations after interchange codes are reconciled. In the HDB building layer, 1,319 blocks cross the 800 m straight-line proximity threshold, with the largest groups near Pasir Ris East, Serangoon North and Tengah Plantation. September 2026 OD data provide 66.78 million weekday trips for calibration. Under a fixed-origin market, the fitted model assigns 6.29 million of those trips to proposed destinations. Its large station-level errors and sensitivity to the interchange rule mean that figure is useful as a stress test of the assumptions, not as a planning forecast. The HDB access result is more direct, although it too is limited by straight-line distance and building rather than resident counts.
 
 ## References
 
 - ISSS626 course team. [Take-home Exercise 3 brief](https://isss626-ay2026-27aug.netlify.app/take-home_ex03).
-- Land Transport Authority. [Jurong Region Line](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/jurong_region_line.html) and [Cross Island Line](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line.html).
+- Land Transport Authority. [Jurong Region Line](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/jurong_region_line.html), [Cross Island Line](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/cross_island_line.html), and [Circle Line Stage 6](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/circle_line_6.html).
 - Land Transport Authority. [DataMall dynamic datasets](https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html) and [API User Guide](https://datamall.lta.gov.sg/content/dam/datamall/datasets/LTA_DataMall_API_User_Guide.pdf).
 - Housing & Development Board. [HDB Existing Building, November 2025](https://data.gov.sg/datasets/d_16b157c52ed637edd6ba1232e026258d/view).
 - Land Transport Authority. [LTA Bus Stop](https://data.gov.sg/datasets/d_3f172c6feb3f4f92a2f47d93eed2908a/view).
