@@ -1,0 +1,13 @@
+[
+  {
+    "image": "screens/screen-01.jpg",
+    "caption": "Published visual analytics homepage",
+    "kind": "live-capture",
+    "source_commit": "19fa5b56dde6f8169166b88eeb65e5a5f590b39f",
+    "source_files": [
+      "index.qmd",
+      "_quarto.yml"
+    ],
+    "captured_url": "https://isss-608-vaa-snowy.vercel.app/"
+  }
+]
