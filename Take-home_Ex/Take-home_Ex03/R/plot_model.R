@@ -36,12 +36,38 @@ p_fit <- ggplot(existing, aes(observed_ridership, estimated_existing)) +
   theme(plot.title = element_text(face = "bold"))
 ggsave("figures/model-fit.png", p_fit, width = 8.4, height = 6.2, dpi = 180)
 
+# A same-month holdout of three newly opened CCL6 destinations reveals whether
+# coefficients learned from older stations transfer to genuinely new stops.
+recent <- read.csv("results/model/new-station-holdout.csv")
+recent$destination <- factor(recent$destination,
+                             levels = rev(recent$destination))
+p_recent <- ggplot(recent, aes(y = destination)) +
+  geom_segment(aes(x = observed_from_older_origins,
+                   xend = predicted_from_older_origins,
+                   yend = destination), colour = "#9aa7b0", linewidth = 1) +
+  geom_point(aes(x = observed_from_older_origins),
+             colour = orange, size = 3.3) +
+  geom_point(aes(x = predicted_from_older_origins),
+             colour = blue, size = 3.3) +
+  geom_text(aes(x = predicted_from_older_origins * 1.13,
+                label = sprintf("%.1f×", predicted_to_observed)),
+            hjust = 0, size = 3.8) +
+  scale_x_log10(labels = fmt, limits = c(1500, 500000)) +
+  labs(title = "A new-station holdout exposes the forecast gap",
+       subtitle = "Orange: observed · blue: modelled · label: overprediction factor",
+       x = "Monthly weekday tap-outs from older origins (log scale)",
+       y = NULL,
+       caption = "CCL6 opened July 2026; same-month transfer check.") +
+  theme(plot.title = element_text(face = "bold"))
+ggsave("figures/new-station-holdout.png", p_recent,
+       width = 9.4, height = 4.9, dpi = 180)
+
 # Compare the fitted model with a distance-only reference for new stations.
 top_new <- new |> slice_max(estimated_scenario, n = 12)
 chart_new <- bind_rows(
   data.frame(station = top_new$destination,
              trips = top_new$estimated_scenario / 1000,
-             specification = "Housing, activity, lines + distance"),
+             specification = "Full choice model"),
   data.frame(station = top_new$destination,
              trips = top_new$distance_only_scenario / 1000,
              specification = "Distance only"))
@@ -50,7 +76,7 @@ chart_new$station <- factor(chart_new$station,
 p_new <- ggplot(chart_new, aes(station, trips, fill = specification)) +
   geom_col(position = position_dodge(width = .8), width = .72) +
   coord_flip() +
-  scale_fill_manual(values = c("Housing, activity, lines + distance" = blue,
+  scale_fill_manual(values = c("Full choice model" = blue,
                                "Distance only" = orange), name = "Model") +
   labs(title = "Trips captured by proposed destinations",
        subtitle = "Top 12 under the fitted model; fixed September 2026 origin totals",
@@ -119,4 +145,97 @@ p_map <- ggplot() +
 ggsave("figures/modelled-new-station-map.png", p_map,
        width = 10, height = 6.5, dpi = 180)
 
-cat("Saved four model graphics for", checks$month, ".\n")
+# Show the change in an existing station's origin market. These dots are
+# *boarding stations*, not residential catchment polygons. The outcome is a
+# difference in choice probability from the same origin under two networks.
+current_pairs <- read.csv("results/model/interaction-existing.csv") |>
+  select(origin, destination, current_probability = probability)
+future_pairs <- read.csv("results/model/interaction-scenario.csv") |>
+  select(origin, destination, future_probability = probability)
+market_shift <- inner_join(current_pairs, future_pairs,
+                           by = c("origin", "destination")) |>
+  filter(destination %in% c("Ang Mo Kio", "Outram Park")) |>
+  left_join(features |> select(origin = station, lon, lat), by = "origin") |>
+  mutate(change_pp = 100 * (future_probability - current_probability),
+         destination = factor(destination, levels = c("Ang Mo Kio", "Outram Park")))
+stopifnot(nrow(market_shift) == 366L, !anyNA(market_shift$change_pp))
+market_sf <- st_as_sf(market_shift, coords = c("lon", "lat"), crs = 4326) |>
+  st_transform(3414)
+market_xy <- cbind(st_drop_geometry(market_sf), st_coordinates(market_sf))
+target_sf <- station_sf |>
+  filter(station %in% c("Ang Mo Kio", "Outram Park"))
+target_xy <- cbind(st_drop_geometry(target_sf), st_coordinates(target_sf)) |>
+  mutate(destination = factor(station, levels = c("Ang Mo Kio", "Outram Park")))
+p_market <- ggplot() +
+  geom_point(data = hdb, aes(x, y), size = .1, colour = "#d4dce2", alpha = .35) +
+  geom_point(data = market_xy,
+             aes(X, Y, colour = change_pp), size = 2, alpha = .9) +
+  geom_point(data = target_xy, aes(X, Y), shape = 8, size = 3,
+             colour = "#192b38") +
+  facet_wrap(~destination, nrow = 1) +
+  scale_colour_gradient2(low = orange, mid = "#c9d1d8", high = blue,
+                         midpoint = 0, limits = c(-2, 2),
+                         name = "Change in choice\nprobability (pp)") +
+  coord_sf(datum = NA) +
+  labs(title = "How two existing stations' origin markets shift",
+       subtitle = "Dots are current boarding stations; star marks the destination",
+       caption = "Expanded versus current network, same origin totals. Colour is a percentage-point change, not residents or a walking catchment.") +
+  theme(panel.grid = element_blank(), axis.title = element_blank(),
+        axis.text = element_blank(), plot.title = element_text(face = "bold"))
+ggsave("figures/existing-market-area-map.png", p_market,
+       width = 11.5, height = 6.1, dpi = 180)
+
+# A spatial residual check asks whether large station errors are geographically
+# patterned. Row-standardised k-nearest-station weights avoid an arbitrary
+# fixed radius; 999 label permutations provide the reference distribution.
+resid_sf <- station_sf |>
+  filter(status == "Existing") |>
+  left_join(existing |> select(destination, observed_ridership,
+                               estimated_existing), by = c("station" = "destination"))
+stopifnot(!anyNA(resid_sf$observed_ridership))
+resid_sf$log_ratio <- log2((resid_sf$observed_ridership + 1) /
+                             (resid_sf$estimated_existing + 1))
+distance <- as.matrix(st_distance(resid_sf))
+diag(distance) <- Inf
+z <- resid_sf$log_ratio - mean(resid_sf$log_ratio)
+moran <- function(v, nn) {
+  centred <- v - mean(v)
+  sum(centred[row(nn)] * centred[as.vector(nn)]) /
+    (ncol(nn) * sum(centred^2))
+}
+set.seed(626)
+spatial_audit <- do.call(rbind, lapply(c(4L, 6L, 8L), function(k) {
+  nn <- t(apply(distance, 1, order))[, seq_len(k), drop = FALSE]
+  observed_i <- moran(z, nn)
+  random_i <- replicate(999, moran(sample(z), nn))
+  data.frame(neighbours = k, moran_i = observed_i,
+             permutation_p = (1 + sum(random_i >= observed_i)) / 1000,
+             permutations = 999L)
+}))
+write.csv(spatial_audit, "results/model/residual-spatial-audit.csv", row.names = FALSE)
+labels <- resid_sf |>
+  filter(station %in% c("Changi Airport", "Boon Lay", "Keppel", "Teck Lee"))
+p_resid <- ggplot() +
+  geom_point(data = hdb, aes(x, y), size = .1, colour = "#d4dce2", alpha = .35) +
+  geom_sf(data = resid_sf, aes(colour = log_ratio), size = 2) +
+  geom_sf_text(data = labels, aes(label = station), nudge_y = 1200,
+               size = 3.2, check_overlap = TRUE, colour = "#172b39") +
+  scale_colour_gradient2(low = orange, mid = "#e5e9ed", high = blue,
+                         midpoint = 0, limits = c(-3, 3),
+                         oob = scales::squish,
+                         breaks = c(-3, -1, 0, 1, 3),
+                         labels = c("≤1/8", "1/2", "1", "2", "≥8"),
+                         name = "Recorded / fitted\ntap-outs") +
+  coord_sf(datum = NA) +
+  labs(title = "Station errors are geographically patterned",
+       subtitle = sprintf("Log-ratio residuals · six-neighbour Moran's I = %.2f · permutation p = %.3f",
+                          spatial_audit$moran_i[spatial_audit$neighbours == 6],
+                          spatial_audit$permutation_p[spatial_audit$neighbours == 6]),
+       caption = "Blue = more observed than fitted; orange = less. Colours capped at 1/8 and 8 times. LTA September 2026 OD Train.") +
+  theme(panel.grid = element_blank(), axis.title = element_blank(),
+        axis.text = element_blank(), plot.title = element_text(face = "bold"))
+ggsave("figures/station-residual-map.png", p_resid,
+       width = 10, height = 6.5, dpi = 180)
+
+cat("Saved seven model graphics and the spatial residual audit for",
+    checks$month, ".\n")

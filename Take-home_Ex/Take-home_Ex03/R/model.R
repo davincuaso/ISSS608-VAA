@@ -53,8 +53,8 @@ unmatched <- od[is.na(origin) | is.na(destination),
                 by = .(ORIGIN_PT_CODE, DESTINATION_PT_CODE)]
 data.table::fwrite(unmatched, file.path(out_dir, "unmatched-codes.csv"))
 unmatched_share <- sum(unmatched$trips) / sum(od$TOTAL_TRIPS)
-if (unmatched_share > .05) {
-  stop(sprintf("%.1f%% of trips have unmatched station codes; inspect unmatched-codes.csv.",
+if (nrow(unmatched) > 0L) {
+  stop(sprintf("Unmatched station codes affect %.4f%% of trips; inspect unmatched-codes.csv.",
                100 * unmatched_share))
 }
 same_station_trips <- od[!is.na(origin) & !is.na(destination) &
@@ -63,7 +63,9 @@ od <- od[!is.na(origin) & !is.na(destination) & origin != destination,
          .(trips = sum(TOTAL_TRIPS)), by = .(origin, destination)]
 features <- read.csv("results/station-features.csv")
 existing <- features |> filter(status == "Existing")
-stopifnot(all(unique(c(od$origin, od$destination)) %in% existing$station))
+stopifnot(all(unique(c(od$origin, od$destination)) %in% existing$station),
+          !anyNA(features$lrt_only), sum(existing$lrt_only) == 38L,
+          !any(features$lrt_only[features$status == "Planned new"]))
 
 # Build a complete choice set, including zero observed flows. The same station
 # cannot be both origin and destination in this station-choice model.
@@ -80,10 +82,12 @@ make_pairs <- function(origin_names, destinations, features, proposed = FALSE) {
   pairs$hdb_blocks_800m <- features$hdb_blocks_800m[j]
   pairs$activity_hectares_800m <- features$activity_hectares_800m[j]
   pairs$line_count <- if (proposed) features$scenario_lines[j] else features$n_lines[j]
+  pairs$lrt_only <- features$lrt_only[j]
   pairs
 }
 
 origin_market <- od[, .(market_potential = sum(trips)), by = origin]
+market <- setNames(origin_market$market_potential, origin_market$origin)
 observed_dest <- od[, .(observed_ridership = sum(trips)), by = destination]
 # The independently published station-volume file is a useful reconciliation
 # check. A difference is reported, never silently forced to match the OD file.
@@ -124,7 +128,7 @@ if (nzchar(station_path)) {
 dest_table <- features |>
   transmute(destination = station, status, hdb_blocks_800m,
             activity_hectares_800m, line_count_current = n_lines,
-            line_count_scenario = scenario_lines) |>
+            line_count_scenario = scenario_lines, lrt_only) |>
   left_join(as.data.frame(observed_dest), by = "destination") |>
   mutate(observed_ridership = coalesce(observed_ridership, 0))
 data.table::fwrite(dest_table |>
@@ -137,16 +141,21 @@ pairs <- make_pairs(origin_market$origin, existing$station, existing) |>
   left_join(as.data.frame(od), by = c("origin", "destination")) |>
   mutate(trips = coalesce(trips, 0))
 groups <- split(seq_len(nrow(pairs)), pairs$origin)
-X <- cbind(log1p(pairs$hdb_blocks_800m),
-           log1p(pairs$activity_hectares_800m),
-           log(pairs$line_count),
-           -log(pairs$distance_km + .25))
-colnames(X) <- c("HDB blocks", "Activity hectares", "Line count", "Distance decay")
+design_matrix <- function(pairs) cbind(
+  log1p(pairs$hdb_blocks_800m),
+  log1p(pairs$activity_hectares_800m),
+  log(pairs$line_count),
+  as.numeric(pairs$lrt_only),
+  -log(pairs$distance_km + .25)
+)
+X <- design_matrix(pairs)
+colnames(X) <- c("HDB blocks", "Activity hectares", "Line count",
+                 "LRT-only station", "Distance decay")
 y <- pairs$trips
 
 # The objective is the multinomial log likelihood conditional on each origin's
-# observed monthly weekday departures. Bounds prevent a counterintuitive
-# negative attraction or distance-decay exponent in the scenario projection.
+# observed monthly weekday departures. Bounds constrain the attraction and
+# distance-decay signs; the LRT-only term may reduce an LRT stop's score.
 loss <- function(b, X, y, groups) {
   utility <- as.vector(X %*% b)
   total <- 0
@@ -159,13 +168,14 @@ loss <- function(b, X, y, groups) {
 }
 fit <- function(X, y, groups, distance_only = FALSE) {
   if (distance_only) {
-    f <- function(v) loss(c(0, 0, 0, v), X, y, groups)
+    f <- function(v) loss(c(0, 0, 0, 0, v), X, y, groups)
     opt <- optim(1, f, method = "L-BFGS-B", lower = 0, upper = 4)
     stopifnot(opt$convergence == 0L)
-    return(c(0, 0, 0, opt$par))
+    return(c(0, 0, 0, 0, opt$par))
   }
-  opt <- optim(c(.4, .4, .3, 1), loss, X = X, y = y, groups = groups,
-               method = "L-BFGS-B", lower = rep(0, 4), upper = c(3, 3, 3, 4),
+  opt <- optim(c(.4, .4, .3, -1, 1), loss, X = X, y = y, groups = groups,
+               method = "L-BFGS-B", lower = c(0, 0, 0, -5, 0),
+               upper = c(3, 3, 3, 0, 4),
                control = list(maxit = 300))
   stopifnot(opt$convergence == 0L)
   opt$par
@@ -192,10 +202,19 @@ b_base <- fit(X[train_rows, , drop = FALSE], y[train_rows], train_groups,
               distance_only = TRUE)
 test_loss <- loss(b_train, X[test_rows, , drop = FALSE], y[test_rows], test_groups)
 base_loss <- loss(b_base, X[test_rows, , drop = FALSE], y[test_rows], test_groups)
+# Station totals from withheld origins test the intended output directly.
+heldout_station <- data.frame(
+  destination = pairs$destination[test_rows], observed = y[test_rows],
+  fitted = market[pairs$origin[test_rows]] *
+    probabilities(X[test_rows, , drop = FALSE], b_train, test_groups),
+  distance_only = market[pairs$origin[test_rows]] *
+    probabilities(X[test_rows, , drop = FALSE], b_base, test_groups)
+) |>
+  group_by(destination) |>
+  summarise(across(c(observed, fitted, distance_only), sum), .groups = "drop")
 model <- fit(X, y, groups)
-pairs$attraction <- exp(X[, 1:3, drop = FALSE] %*% model[1:3])
+pairs$attraction <- exp(X[, 1:4, drop = FALSE] %*% model[1:4])
 pairs$probability <- probabilities(X, model, groups)
-market <- setNames(origin_market$market_potential, origin_market$origin)
 pairs$estimated_trips <- market[pairs$origin] * pairs$probability
 
 current_pred <- pairs |>
@@ -207,12 +226,9 @@ current_pred <- pairs |>
 # existing origins, not complete future boardings or induced rail travel.
 scenario <- make_pairs(origin_market$origin, features$station, features,
                        proposed = TRUE)
-XS <- cbind(log1p(scenario$hdb_blocks_800m),
-            log1p(scenario$activity_hectares_800m),
-            log(scenario$line_count),
-            -log(scenario$distance_km + .25))
+XS <- design_matrix(scenario)
 scenario_groups <- split(seq_len(nrow(scenario)), scenario$origin)
-scenario$attraction <- exp(XS[, 1:3, drop = FALSE] %*% model[1:3])
+scenario$attraction <- exp(XS[, 1:4, drop = FALSE] %*% model[1:4])
 scenario$probability <- probabilities(XS, model, scenario_groups)
 scenario$estimated_trips <- market[scenario$origin] * scenario$probability
 # The newly gained line at seven existing interchanges is uncertain as a
@@ -244,6 +260,38 @@ comparison <- dest_table |>
                           estimated_scenario - estimated_existing, NA_real_),
          change_pct = 100 * change / estimated_existing)
 
+# The three CCL6 stations opened in July 2026 provide a hard transfer check.
+# Exclude them as both origins and destinations while fitting, then add them
+# back as destination choices for the 181 older origins. This is a same-month
+# destination holdout, not a genuine pre-opening forecast: origin totals and
+# geographic features are observed in September, after the line opened.
+recent_stations <- c("Keppel", "Cantonment", "Prince Edward Road")
+older_origins <- setdiff(origin_market$origin, recent_stations)
+older_rows <- which(pairs$origin %in% older_origins &
+                      !pairs$destination %in% recent_stations)
+older_groups <- split(seq_along(older_rows), pairs$origin[older_rows])
+recent_fit <- fit(X[older_rows, , drop = FALSE], y[older_rows], older_groups)
+recent_choice <- make_pairs(older_origins, existing$station, existing)
+recent_groups <- split(seq_len(nrow(recent_choice)), recent_choice$origin)
+recent_choice$estimated_trips <- market[recent_choice$origin] *
+  probabilities(design_matrix(recent_choice), recent_fit, recent_groups)
+recent_prediction <- recent_choice |>
+  filter(destination %in% recent_stations) |>
+  group_by(destination) |>
+  summarise(predicted_from_older_origins = sum(estimated_trips), .groups = "drop")
+recent_observed <- od[origin %in% older_origins & destination %in% recent_stations,
+                      .(observed_from_older_origins = sum(trips)), by = destination]
+recent_holdout <- data.frame(destination = recent_stations) |>
+  left_join(as.data.frame(recent_observed), by = "destination") |>
+  left_join(recent_prediction, by = "destination") |>
+  mutate(predicted_to_observed = predicted_from_older_origins /
+           observed_from_older_origins)
+stopifnot(nrow(recent_holdout) == 3L,
+          !anyNA(recent_holdout),
+          all(recent_holdout$observed_from_older_origins > 0))
+data.table::fwrite(recent_holdout,
+                   file.path(out_dir, "new-station-holdout.csv"))
+
 checks <- data.frame(
   month = month,
   raw_weekday_rows = nrow(raw[DAY_TYPE == "WEEKDAY" & PT_TYPE == "TRAIN"]),
@@ -258,9 +306,18 @@ checks <- data.frame(
   new_station_trips_full = sum(comparison$estimated_scenario[comparison$status == "Planned new"]),
   new_station_trips_no_uplift = sum(comparison$no_uplift_scenario[comparison$status == "Planned new"]),
   new_station_trips_distance_only = sum(comparison$distance_only_scenario[comparison$status == "Planned new"]),
+  current_interaction_rows = nrow(pairs),
+  proposed_interaction_rows = nrow(scenario),
+  zero_flow_current_pairs = sum(y == 0),
   heldout_origins = length(holdout),
   heldout_logloss_per_trip = test_loss / sum(y[test_rows]),
   distance_only_logloss_per_trip = base_loss / sum(y[test_rows]),
+  heldout_station_mae = mean(abs(heldout_station$fitted - heldout_station$observed)),
+  heldout_distance_only_station_mae = mean(abs(heldout_station$distance_only -
+                                                heldout_station$observed)),
+  recent_station_predicted_to_observed =
+    sum(recent_holdout$predicted_from_older_origins) /
+    sum(recent_holdout$observed_from_older_origins),
   station_mae = mean(abs(comparison$estimated_existing[comparison$status == "Existing"] -
                            comparison$observed_ridership[comparison$status == "Existing"]))
 )

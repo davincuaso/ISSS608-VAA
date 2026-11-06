@@ -1,214 +1,214 @@
-destination,status,hdb_blocks_800m,activity_hectares_800m,line_count_current,line_count_scenario,observed_ridership
-Admiralty,Existing,286,34.12,1,1,844249
-Aljunied,Existing,82,50.05,1,1,504629
-Ang Mo Kio,Existing,219,33.58,1,2,1003844
-Bakau,Existing,254,17.54,1,1,67918
-Bangkit,Existing,199,9.38,1,1,47038
-Bartley,Existing,56,52.78,1,1,182779
-Bayfront,Existing,0,58.73,2,2,681503
-Bayshore,Existing,15,7.88,1,1,82740
-Beauty World,Existing,21,17.14,1,1,351322
-Bedok,Existing,152,64.72,1,1,695516
-Bedok North,Existing,111,54.76,1,1,169311
-Bedok Reservoir,Existing,131,15.99,1,1,211794
-Bencoolen,Existing,18,82.33,1,1,225943
-Bendemeer,Existing,75,81.75,1,1,119819
-Bishan,Existing,134,43.57,2,2,490882
-Boon Keng,Existing,147,51.98,1,1,520208
-Boon Lay,Existing,177,63.09,1,2,1225905
-Botanic Gardens,Existing,0,18.49,2,2,135334
-Braddell,Existing,187,49.28,1,1,311388
-Bras Basah,Existing,17,84.58,1,1,133191
-Bright Hill,Existing,72,42.93,1,2,152861
-Buangkok,Existing,250,37.87,1,1,548099
-Bugis,Existing,36,104.91,2,2,1196084
-Bukit Batok,Existing,205,35.46,1,1,711280
-Bukit Gombak,Existing,123,13.06,1,1,433743
-Bukit Panjang,Existing,158,13.99,2,2,928087
-Buona Vista,Existing,93,62.45,2,2,665639
-Caldecott,Existing,75,40.21,2,2,194589
-Canberra,Existing,105,33.25,1,1,454698
-Cantonment,Existing,48,43.54,1,1,47533
-Cashew,Existing,16,17.54,1,1,87000
-Changi Airport,Existing,0,0,1,1,394393
-Cheng Lim,Existing,255,30.16,1,1,26488
-Chinatown,Existing,37,91.95,2,2,1004267
-Chinese Garden,Existing,91,32.2,1,1,299395
-Choa Chu Kang,Existing,174,12.3,2,3,905154
-City Hall,Existing,7,93,2,2,982164
-Clarke Quay,Existing,20,84.19,1,1,334838
-Clementi,Existing,164,19.55,1,1,1110658
-Commonwealth,Existing,115,32.27,1,1,318728
-Compassvale,Existing,300,17.56,1,1,100507
-Coral Edge,Existing,256,18.85,1,1,144237
-Cove,Existing,357,22.09,1,1,86625
-Dakota,Existing,66,19.97,1,1,164458
-Damai,Existing,230,44.11,1,1,90926
-Dhoby Ghaut,Existing,8,92.14,3,3,645132
-Dover,Existing,30,49.47,1,1,183806
-Downtown,Existing,0,82.76,1,1,559217
-Esplanade,Existing,7,90.71,1,1,160713
-Eunos,Existing,90,20.53,1,1,350324
-Expo,Existing,0,133.21,2,2,349833
-Fajar,Existing,222,16.1,1,1,70618
-Farmway,Existing,186,23.98,1,1,47698
-Farrer Park,Existing,82,61.47,1,1,650318
-Farrer Road,Existing,10,8.09,1,1,125212
-Fernvale,Existing,209,18.19,1,1,137686
-Fort Canning,Existing,12,65.51,1,1,148312
-Gardens by the Bay,Existing,0,23.62,1,1,75416
-Geylang Bahru,Existing,67,53.15,1,1,124011
-Great World,Existing,31,33.89,1,1,232328
-Gul Circle,Existing,0,148.3,1,1,102306
-HarbourFront,Existing,7,28.02,2,2,1014815
-Havelock,Existing,152,45.06,1,1,165021
-Haw Par Villa,Existing,0,43.27,1,1,159088
-Hillview,Existing,0,18.01,1,1,138864
-Holland Village,Existing,60,19.52,1,1,245548
-Hougang,Existing,213,22.14,1,2,667909
-Hume,Existing,0,2.59,1,1,52266
-Jalan Besar,Existing,71,99.04,1,1,230125
-Jelapang,Existing,225,14.83,1,1,57560
-Joo Koon,Existing,0,104.46,1,1,408065
-Jurong East,Existing,50,145.01,2,3,1585959
-Kadaloor,Existing,214,16.4,1,1,125370
-Kaki Bukit,Existing,116,76.04,1,1,271177
-Kallang,Existing,42,59.42,1,1,258618
-Kangkar,Existing,221,13.2,1,1,80555
-Katong Park,Existing,16,8.43,1,1,72312
-Keat Hong,Existing,208,30,1,1,82821
-Kembangan,Existing,16,15.12,1,1,269307
-Kent Ridge,Existing,0,89.06,1,1,635369
-Keppel,Existing,32,10.48,1,1,2449
-Khatib,Existing,167,22.19,1,1,690377
-King Albert Park,Existing,0,9.18,1,1,157343
-Kovan,Existing,66,23.06,1,1,519923
-Kranji,Existing,0,11.49,1,1,615233
-Kupang,Existing,94,6.32,1,1,25389
-Labrador Park,Existing,37,34.23,1,1,223908
-Lakeside,Existing,138,29.18,1,1,736792
-Lavender,Existing,57,85.3,1,1,419751
-Layar,Existing,207,16.05,1,1,68252
-Lentor,Existing,33,17.15,1,1,158129
-Little India,Existing,36,97.95,2,2,610951
-Lorong Chuan,Existing,57,28.04,1,1,173177
-MacPherson,Existing,123,69.65,2,2,412022
-Marina Bay,Existing,0,61.23,3,3,143287
-Marina South Pier,Existing,0,22.24,1,1,34203
-Marine Parade,Existing,35,25.98,1,1,249310
-Marine Terrace,Existing,55,22.66,1,1,131222
-Marsiling,Existing,152,40.43,1,1,385958
-Marymount,Existing,19,48.07,1,1,163738
-Mattar,Existing,133,55.72,1,1,107044
-Maxwell,Existing,50,109.15,1,1,239081
-Mayflower,Existing,125,19.44,1,1,272449
-Meridian,Existing,365,24.74,1,1,124497
-Mountbatten,Existing,76,27.4,1,1,136256
-Napier,Existing,0,18.54,1,1,123241
-Newton,Existing,0,24.21,2,2,1254620
-Nibong,Existing,102,39.11,1,1,64740
-Nicoll Highway,Existing,28,51.22,1,1,116158
-Novena,Existing,12,48.42,1,1,914733
-Oasis,Existing,280,21.17,1,1,160058
-Orchard,Existing,0,51.56,2,2,1352336
-Orchard Boulevard,Existing,0,28.08,1,1,105158
-Outram Park,Existing,81,91.52,3,3,822779
-Pasir Panjang,Existing,0,23.36,1,1,159686
-Pasir Ris,Existing,158,17.27,1,2,677498
-Paya Lebar,Existing,57,49.56,2,2,1019140
-Pending,Existing,176,12.1,1,1,44912
-Petir,Existing,187,17.1,1,1,23973
-Phoenix,Existing,140,21.31,1,1,39760
-Pioneer,Existing,221,47.51,1,1,640653
-Potong Pasir,Existing,78,48.2,1,1,378873
-Prince Edward Road,Existing,16,53.75,1,1,46377
-Promenade,Existing,0,59.39,2,2,501628
-Punggol,Existing,247,21.9,2,2,891960
-Punggol Coast,Existing,55,62,1,1,382955
-Punggol Point,Existing,98,48.03,1,1,20052
-Queenstown,Existing,157,28.84,1,1,370648
-Raffles Place,Existing,8,85.56,2,2,1428088
-Ranggung,Existing,265,20.51,1,1,64206
-Redhill,Existing,108,51.86,1,1,429441
-Renjong,Existing,234,52.86,1,1,35634
-Riviera,Existing,201,18.78,1,1,37023
-Rochor,Existing,48,88.16,1,1,252890
-Rumbia,Existing,322,17.5,1,1,117829
-Sam Kee,Existing,119,46.04,1,1,47216
-Samudera,Existing,90,46.95,1,1,86887
-Segar,Existing,188,10.58,1,1,69021
-Sembawang,Existing,233,17.14,1,1,910303
-Sengkang,Existing,292,26.81,2,2,1071268
-Senja,Existing,218,20.81,1,1,23363
-Serangoon,Existing,123,30.57,2,2,1289834
-Shenton Way,Existing,0,86.41,1,1,348532
-Siglap,Existing,0,18.59,1,1,99328
-Simei,Existing,129,18.85,1,1,402808
-Sixth Avenue,Existing,0,21.17,1,1,116089
-Somerset,Existing,0,80.88,1,1,740357
-Soo Teck,Existing,192,29.7,1,1,78686
-South View,Existing,255,21.07,1,1,54125
-Springleaf,Existing,0,4.71,1,1,123140
-Stadium,Existing,0,16.35,1,1,137427
-Stevens,Existing,0,21.77,2,2,179187
-Sumang,Existing,138,23.7,1,1,32380
-Tai Seng,Existing,36,109.7,1,1,498920
-Tampines,Existing,197,34.04,2,2,1256235
-Tampines East,Existing,298,35.31,1,1,395022
-Tampines West,Existing,181,75.62,1,1,217148
-Tan Kah Kee,Existing,1,52,1,1,113568
-Tanah Merah,Existing,42,19.56,1,1,342113
-Tanjong Katong,Existing,0,5.15,1,1,66876
-Tanjong Pagar,Existing,41,83.05,1,1,927246
-Tanjong Rhu,Existing,0,3.87,1,1,63291
-Teck Lee,Existing,95,66.28,1,1,3885
-Teck Whye,Existing,129,27.55,1,1,57086
-Telok Ayer,Existing,18,109.65,1,1,416339
-Telok Blangah,Existing,69,9.46,1,1,112086
-Thanggam,Existing,136,16.02,1,1,60454
-Tiong Bahru,Existing,250,25.93,1,1,578667
-Toa Payoh,Existing,167,45.76,1,1,827865
-Tongkang,Existing,185,44.45,1,1,43183
-Tuas Crescent,Existing,0,186.33,1,1,109340
-Tuas Link,Existing,0,49.76,1,1,130307
-Tuas West Road,Existing,0,168.69,1,1,134907
-Ubi,Existing,85,104.38,1,1,241260
-Upper Changi,Existing,50,51.43,1,1,125197
-Upper Thomson,Existing,31,30.71,1,1,219668
-Woodlands,Existing,198,39.04,2,2,1470044
-Woodlands North,Existing,20,69.43,1,1,123444
-Woodlands South,Existing,119,28.74,1,1,284647
-Woodleigh,Existing,117,21.69,1,1,363582
-Yew Tee,Existing,218,20.28,1,1,641789
-Yio Chu Kang,Existing,50,81.91,1,1,388846
-Yishun,Existing,202,48.16,1,1,1231592
-one-north,Existing,11,107.72,1,1,380514
-Aviation Park,Planned new,0,10.34,1,1,0
-Bahar Junction,Planned new,265,37.99,1,1,0
-Bukit Batok West,Planned new,173,31.69,1,1,0
-Choa Chu Kang West,Planned new,233,13.11,1,1,0
-Corporation,Planned new,110,79.11,1,1,0
-Defu,Planned new,50,34.82,1,1,0
-Enterprise,Planned new,17,128.83,1,1,0
-Gek Poh,Planned new,209,25.52,1,1,0
-Hong Kah,Planned new,84,38.61,1,1,0
-Jurong Hill,Planned new,0,120.37,1,1,0
-Jurong Pier,Planned new,0,126.5,1,1,0
-Jurong Town Hall,Planned new,22,88.02,1,1,0
-Jurong West,Planned new,142,61.72,1,1,0
-Loyang,Planned new,0,97.09,1,1,0
-Nanyang Crescent,Planned new,0,172.71,1,1,0
-Nanyang Gateway,Planned new,0,199.89,1,1,0
-Pandan Reservoir,Planned new,52,41.52,1,1,0
-Pasir Ris East,Planned new,262,27.15,1,1,0
-Peng Kang Hill,Planned new,1,172.71,1,1,0
-Serangoon North,Planned new,151,45.32,1,1,0
-Tampines North,Planned new,116,46.43,1,1,0
-Tavistock,Planned new,43,73.53,1,1,0
-Tawas,Planned new,84,46.01,1,1,0
-Teck Ghee,Planned new,184,33.41,1,1,0
-Tengah,Planned new,45,42.55,1,1,0
-Tengah Park,Planned new,182,34.14,1,1,0
-Tengah Plantation,Planned new,199,25.86,1,1,0
-Toh Guan,Planned new,176,39.45,1,1,0
-Tukang,Planned new,0,136.01,1,1,0
+destination,status,hdb_blocks_800m,activity_hectares_800m,line_count_current,line_count_scenario,lrt_only,observed_ridership
+Admiralty,Existing,286,34.12,1,1,FALSE,844249
+Aljunied,Existing,82,50.05,1,1,FALSE,504629
+Ang Mo Kio,Existing,219,33.58,1,2,FALSE,1003844
+Bakau,Existing,254,17.54,1,1,TRUE,67918
+Bangkit,Existing,199,9.38,1,1,TRUE,47038
+Bartley,Existing,56,52.78,1,1,FALSE,182779
+Bayfront,Existing,0,58.73,2,2,FALSE,681503
+Bayshore,Existing,15,7.88,1,1,FALSE,82740
+Beauty World,Existing,21,17.14,1,1,FALSE,351322
+Bedok,Existing,152,64.72,1,1,FALSE,695516
+Bedok North,Existing,111,54.76,1,1,FALSE,169311
+Bedok Reservoir,Existing,131,15.99,1,1,FALSE,211794
+Bencoolen,Existing,18,82.33,1,1,FALSE,225943
+Bendemeer,Existing,75,81.75,1,1,FALSE,119819
+Bishan,Existing,134,43.57,2,2,FALSE,490882
+Boon Keng,Existing,147,51.98,1,1,FALSE,520208
+Boon Lay,Existing,177,63.09,1,2,FALSE,1225905
+Botanic Gardens,Existing,0,18.49,2,2,FALSE,135334
+Braddell,Existing,187,49.28,1,1,FALSE,311388
+Bras Basah,Existing,17,84.58,1,1,FALSE,133191
+Bright Hill,Existing,72,42.93,1,2,FALSE,152861
+Buangkok,Existing,250,37.87,1,1,FALSE,548099
+Bugis,Existing,36,104.91,2,2,FALSE,1196084
+Bukit Batok,Existing,205,35.46,1,1,FALSE,711280
+Bukit Gombak,Existing,123,13.06,1,1,FALSE,433743
+Bukit Panjang,Existing,158,13.99,2,2,FALSE,928087
+Buona Vista,Existing,93,62.45,2,2,FALSE,665639
+Caldecott,Existing,75,40.21,2,2,FALSE,194589
+Canberra,Existing,105,33.25,1,1,FALSE,454698
+Cantonment,Existing,48,43.54,1,1,FALSE,47533
+Cashew,Existing,16,17.54,1,1,FALSE,87000
+Changi Airport,Existing,0,0,1,1,FALSE,394393
+Cheng Lim,Existing,255,30.16,1,1,TRUE,26488
+Chinatown,Existing,37,91.95,2,2,FALSE,1004267
+Chinese Garden,Existing,91,32.2,1,1,FALSE,299395
+Choa Chu Kang,Existing,174,12.3,2,3,FALSE,905154
+City Hall,Existing,7,93,2,2,FALSE,982164
+Clarke Quay,Existing,20,84.19,1,1,FALSE,334838
+Clementi,Existing,164,19.55,1,1,FALSE,1110658
+Commonwealth,Existing,115,32.27,1,1,FALSE,318728
+Compassvale,Existing,300,17.56,1,1,TRUE,100507
+Coral Edge,Existing,256,18.85,1,1,TRUE,144237
+Cove,Existing,357,22.09,1,1,TRUE,86625
+Dakota,Existing,66,19.97,1,1,FALSE,164458
+Damai,Existing,230,44.11,1,1,TRUE,90926
+Dhoby Ghaut,Existing,8,92.14,3,3,FALSE,645132
+Dover,Existing,30,49.47,1,1,FALSE,183806
+Downtown,Existing,0,82.76,1,1,FALSE,559217
+Esplanade,Existing,7,90.71,1,1,FALSE,160713
+Eunos,Existing,90,20.53,1,1,FALSE,350324
+Expo,Existing,0,133.21,2,2,FALSE,349833
+Fajar,Existing,222,16.1,1,1,TRUE,70618
+Farmway,Existing,186,23.98,1,1,TRUE,47698
+Farrer Park,Existing,82,61.47,1,1,FALSE,650318
+Farrer Road,Existing,10,8.09,1,1,FALSE,125212
+Fernvale,Existing,209,18.19,1,1,TRUE,137686
+Fort Canning,Existing,12,65.51,1,1,FALSE,148312
+Gardens by the Bay,Existing,0,23.62,1,1,FALSE,75416
+Geylang Bahru,Existing,67,53.15,1,1,FALSE,124011
+Great World,Existing,31,33.89,1,1,FALSE,232328
+Gul Circle,Existing,0,148.3,1,1,FALSE,102306
+HarbourFront,Existing,7,28.02,2,2,FALSE,1014815
+Havelock,Existing,152,45.06,1,1,FALSE,165021
+Haw Par Villa,Existing,0,43.27,1,1,FALSE,159088
+Hillview,Existing,0,18.01,1,1,FALSE,138864
+Holland Village,Existing,60,19.52,1,1,FALSE,245548
+Hougang,Existing,213,22.14,1,2,FALSE,667909
+Hume,Existing,0,2.59,1,1,FALSE,52266
+Jalan Besar,Existing,71,99.04,1,1,FALSE,230125
+Jelapang,Existing,225,14.83,1,1,TRUE,57560
+Joo Koon,Existing,0,104.46,1,1,FALSE,408065
+Jurong East,Existing,50,145.01,2,3,FALSE,1585959
+Kadaloor,Existing,214,16.4,1,1,TRUE,125370
+Kaki Bukit,Existing,116,76.04,1,1,FALSE,271177
+Kallang,Existing,42,59.42,1,1,FALSE,258618
+Kangkar,Existing,221,13.2,1,1,TRUE,80555
+Katong Park,Existing,16,8.43,1,1,FALSE,72312
+Keat Hong,Existing,208,30,1,1,TRUE,82821
+Kembangan,Existing,16,15.12,1,1,FALSE,269307
+Kent Ridge,Existing,0,89.06,1,1,FALSE,635369
+Keppel,Existing,32,10.48,1,1,FALSE,2449
+Khatib,Existing,167,22.19,1,1,FALSE,690377
+King Albert Park,Existing,0,9.18,1,1,FALSE,157343
+Kovan,Existing,66,23.06,1,1,FALSE,519923
+Kranji,Existing,0,11.49,1,1,FALSE,615233
+Kupang,Existing,94,6.32,1,1,TRUE,25389
+Labrador Park,Existing,37,34.23,1,1,FALSE,223908
+Lakeside,Existing,138,29.18,1,1,FALSE,736792
+Lavender,Existing,57,85.3,1,1,FALSE,419751
+Layar,Existing,207,16.05,1,1,TRUE,68252
+Lentor,Existing,33,17.15,1,1,FALSE,158129
+Little India,Existing,36,97.95,2,2,FALSE,610951
+Lorong Chuan,Existing,57,28.04,1,1,FALSE,173177
+MacPherson,Existing,123,69.65,2,2,FALSE,412022
+Marina Bay,Existing,0,61.23,3,3,FALSE,143287
+Marina South Pier,Existing,0,22.24,1,1,FALSE,34203
+Marine Parade,Existing,35,25.98,1,1,FALSE,249310
+Marine Terrace,Existing,55,22.66,1,1,FALSE,131222
+Marsiling,Existing,152,40.43,1,1,FALSE,385958
+Marymount,Existing,19,48.07,1,1,FALSE,163738
+Mattar,Existing,133,55.72,1,1,FALSE,107044
+Maxwell,Existing,50,109.15,1,1,FALSE,239081
+Mayflower,Existing,125,19.44,1,1,FALSE,272449
+Meridian,Existing,365,24.74,1,1,TRUE,124497
+Mountbatten,Existing,76,27.4,1,1,FALSE,136256
+Napier,Existing,0,18.54,1,1,FALSE,123241
+Newton,Existing,0,24.21,2,2,FALSE,1254620
+Nibong,Existing,102,39.11,1,1,TRUE,64740
+Nicoll Highway,Existing,28,51.22,1,1,FALSE,116158
+Novena,Existing,12,48.42,1,1,FALSE,914733
+Oasis,Existing,280,21.17,1,1,TRUE,160058
+Orchard,Existing,0,51.56,2,2,FALSE,1352336
+Orchard Boulevard,Existing,0,28.08,1,1,FALSE,105158
+Outram Park,Existing,81,91.52,3,3,FALSE,822779
+Pasir Panjang,Existing,0,23.36,1,1,FALSE,159686
+Pasir Ris,Existing,158,17.27,1,2,FALSE,677498
+Paya Lebar,Existing,57,49.56,2,2,FALSE,1019140
+Pending,Existing,176,12.1,1,1,TRUE,44912
+Petir,Existing,187,17.1,1,1,TRUE,23973
+Phoenix,Existing,140,21.31,1,1,TRUE,39760
+Pioneer,Existing,221,47.51,1,1,FALSE,640653
+Potong Pasir,Existing,78,48.2,1,1,FALSE,378873
+Prince Edward Road,Existing,16,53.75,1,1,FALSE,46377
+Promenade,Existing,0,59.39,2,2,FALSE,501628
+Punggol,Existing,247,21.9,2,2,FALSE,891960
+Punggol Coast,Existing,55,62,1,1,FALSE,382955
+Punggol Point,Existing,98,48.03,1,1,TRUE,20052
+Queenstown,Existing,157,28.84,1,1,FALSE,370648
+Raffles Place,Existing,8,85.56,2,2,FALSE,1428088
+Ranggung,Existing,265,20.51,1,1,TRUE,64206
+Redhill,Existing,108,51.86,1,1,FALSE,429441
+Renjong,Existing,234,52.86,1,1,TRUE,35634
+Riviera,Existing,201,18.78,1,1,TRUE,37023
+Rochor,Existing,48,88.16,1,1,FALSE,252890
+Rumbia,Existing,322,17.5,1,1,TRUE,117829
+Sam Kee,Existing,119,46.04,1,1,TRUE,47216
+Samudera,Existing,90,46.95,1,1,TRUE,86887
+Segar,Existing,188,10.58,1,1,TRUE,69021
+Sembawang,Existing,233,17.14,1,1,FALSE,910303
+Sengkang,Existing,292,26.81,2,2,FALSE,1071268
+Senja,Existing,218,20.81,1,1,TRUE,23363
+Serangoon,Existing,123,30.57,2,2,FALSE,1289834
+Shenton Way,Existing,0,86.41,1,1,FALSE,348532
+Siglap,Existing,0,18.59,1,1,FALSE,99328
+Simei,Existing,129,18.85,1,1,FALSE,402808
+Sixth Avenue,Existing,0,21.17,1,1,FALSE,116089
+Somerset,Existing,0,80.88,1,1,FALSE,740357
+Soo Teck,Existing,192,29.7,1,1,TRUE,78686
+South View,Existing,255,21.07,1,1,TRUE,54125
+Springleaf,Existing,0,4.71,1,1,FALSE,123140
+Stadium,Existing,0,16.35,1,1,FALSE,137427
+Stevens,Existing,0,21.77,2,2,FALSE,179187
+Sumang,Existing,138,23.7,1,1,TRUE,32380
+Tai Seng,Existing,36,109.7,1,1,FALSE,498920
+Tampines,Existing,197,34.04,2,2,FALSE,1256235
+Tampines East,Existing,298,35.31,1,1,FALSE,395022
+Tampines West,Existing,181,75.62,1,1,FALSE,217148
+Tan Kah Kee,Existing,1,52,1,1,FALSE,113568
+Tanah Merah,Existing,42,19.56,1,1,FALSE,342113
+Tanjong Katong,Existing,0,5.15,1,1,FALSE,66876
+Tanjong Pagar,Existing,41,83.05,1,1,FALSE,927246
+Tanjong Rhu,Existing,0,3.87,1,1,FALSE,63291
+Teck Lee,Existing,95,66.28,1,1,TRUE,3885
+Teck Whye,Existing,129,27.55,1,1,TRUE,57086
+Telok Ayer,Existing,18,109.65,1,1,FALSE,416339
+Telok Blangah,Existing,69,9.46,1,1,FALSE,112086
+Thanggam,Existing,136,16.02,1,1,TRUE,60454
+Tiong Bahru,Existing,250,25.93,1,1,FALSE,578667
+Toa Payoh,Existing,167,45.76,1,1,FALSE,827865
+Tongkang,Existing,185,44.45,1,1,TRUE,43183
+Tuas Crescent,Existing,0,186.33,1,1,FALSE,109340
+Tuas Link,Existing,0,49.76,1,1,FALSE,130307
+Tuas West Road,Existing,0,168.69,1,1,FALSE,134907
+Ubi,Existing,85,104.38,1,1,FALSE,241260
+Upper Changi,Existing,50,51.43,1,1,FALSE,125197
+Upper Thomson,Existing,31,30.71,1,1,FALSE,219668
+Woodlands,Existing,198,39.04,2,2,FALSE,1470044
+Woodlands North,Existing,20,69.43,1,1,FALSE,123444
+Woodlands South,Existing,119,28.74,1,1,FALSE,284647
+Woodleigh,Existing,117,21.69,1,1,FALSE,363582
+Yew Tee,Existing,218,20.28,1,1,FALSE,641789
+Yio Chu Kang,Existing,50,81.91,1,1,FALSE,388846
+Yishun,Existing,202,48.16,1,1,FALSE,1231592
+one-north,Existing,11,107.72,1,1,FALSE,380514
+Aviation Park,Planned new,0,10.34,1,1,FALSE,0
+Bahar Junction,Planned new,265,37.99,1,1,FALSE,0
+Bukit Batok West,Planned new,173,31.69,1,1,FALSE,0
+Choa Chu Kang West,Planned new,233,13.11,1,1,FALSE,0
+Corporation,Planned new,110,79.11,1,1,FALSE,0
+Defu,Planned new,50,34.82,1,1,FALSE,0
+Enterprise,Planned new,17,128.83,1,1,FALSE,0
+Gek Poh,Planned new,209,25.52,1,1,FALSE,0
+Hong Kah,Planned new,84,38.61,1,1,FALSE,0
+Jurong Hill,Planned new,0,120.37,1,1,FALSE,0
+Jurong Pier,Planned new,0,126.5,1,1,FALSE,0
+Jurong Town Hall,Planned new,22,88.02,1,1,FALSE,0
+Jurong West,Planned new,142,61.72,1,1,FALSE,0
+Loyang,Planned new,0,97.09,1,1,FALSE,0
+Nanyang Crescent,Planned new,0,172.71,1,1,FALSE,0
+Nanyang Gateway,Planned new,0,199.89,1,1,FALSE,0
+Pandan Reservoir,Planned new,52,41.52,1,1,FALSE,0
+Pasir Ris East,Planned new,262,27.15,1,1,FALSE,0
+Peng Kang Hill,Planned new,1,172.71,1,1,FALSE,0
+Serangoon North,Planned new,151,45.32,1,1,FALSE,0
+Tampines North,Planned new,116,46.43,1,1,FALSE,0
+Tavistock,Planned new,43,73.53,1,1,FALSE,0
+Tawas,Planned new,84,46.01,1,1,FALSE,0
+Teck Ghee,Planned new,184,33.41,1,1,FALSE,0
+Tengah,Planned new,45,42.55,1,1,FALSE,0
+Tengah Park,Planned new,182,34.14,1,1,FALSE,0
+Tengah Plantation,Planned new,199,25.86,1,1,FALSE,0
+Toh Guan,Planned new,176,39.45,1,1,FALSE,0
+Tukang,Planned new,0,136.01,1,1,FALSE,0

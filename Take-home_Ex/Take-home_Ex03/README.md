@@ -9,8 +9,8 @@ This is one Exercise 3 submission following the [course brief](https://isss626-a
 - Executive-summary.qmd: presentation, plus cover and contents.
 - R/prepare_geography.R: station, HDB, land-use and bus-stop preparation.
 - R/download_lta.R: downloads one month of LTA OD and station-volume ZIPs using an account key from the environment.
-- R/model.R: code reconciliation, full interaction tables, calibration, holdout check and proposed-network comparison.
-- R/plot_model.R: model-fit and scenario charts.
+- R/model.R: code reconciliation, full interaction tables, calibration, origin holdout, recent-station holdout and proposed-network comparison.
+- R/plot_model.R: model-fit and scenario charts, origin-market map and spatial residual diagnostic.
 - data/source/: checked station coordinate CSVs and licence notes.
 - results/: derived station and model summaries. Full pairwise interaction files are excluded from Git.
 - figures/: maps and charts used in the report and deck.
@@ -33,17 +33,21 @@ The LTA DataMall API returns short-lived download links and, according to its [A
     quarto render Executive-summary.qmd
     quarto render Take-home_Ex03.qmd
 
-The default Quarto render reads checked aggregate files, so it does not require an account key. To rebuild the report and data together, pass the same two EX03 file variables to Quarto and render the report with its recompute parameter set to true.
+The default Quarto render reads checked aggregate files, so it does not require an account key. Once the ZIPs are available, this command runs geographic preparation, model fitting, graphics and report rendering end to end:
+
+    EX03_OD_FILE=data/private/origin_destination_train_202609.zip EX03_STATION_FILE=data/private/transport_node_train_202609.zip quarto render Take-home_Ex03-report.qmd -P recompute:true
 
 ## Data and checks
 
-The saved coordinate compilation comes from [Singapore Train Station Coordinates](https://github.com/elliotwutingfeng/singapore_train_station_coordinates) at commit 9f5972c71db8a529801eee9c527946a45a78e409 (5 March 2026). It predates the July 2026 [Circle Line Stage 6](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/circle_line_6.html) opening. Keppel, Cantonment and Prince Edward Road were added using centroids of their station polygons from LTA's September 2026 Train Station geospatial layer, downloaded through DataMall on 6 November 2026. Bayfront and Marina Bay use their current CC34 and CC33 codes. Points are projected to SVY21 / Singapore TM (EPSG:3414) for distances.
+The saved coordinate compilation comes from [Singapore Train Station Coordinates](https://github.com/elliotwutingfeng/singapore_train_station_coordinates) at commit 9f5972c71db8a529801eee9c527946a45a78e409 (5 March 2026). It predates the July 2026 [Circle Line Stage 6](https://www.lta.gov.sg/content/ltagov/en/upcoming_projects/rail_expansion/circle_line_6.html) opening. Keppel, Cantonment and Prince Edward Road were added using centroids of their station polygons from LTA's September 2026 Train Station geospatial layer, downloaded through DataMall on 6 November 2026. Bayfront and Marina Bay use their current CC34 and CC33 codes. Points are projected to SVY21 / Singapore TM (EPSG:3414) for distances. The geographic script repairs four invalid HDB polygons and three invalid land-use polygons after projection; results/geometry-audit.csv records the checks and confirms no empty geometries remain.
 
 The proposed scenario uses JS1–JS12, JW1–JW5, JE1–JE7 and CR2–CR13: 24 JRL and 12 CRL1 codes. The extra JS2A record is outside the brief's 24-code JRL scope. Interchanges are grouped by physical station name: 216 current code records become 184 physical current stations; seven of the 36 proposed codes are current interchange sites, leaving 29 new destinations.
 
-The September OD extract has 475,395 weekday rows and 66,784,543 weekday trips. The model excludes 238 same-station trips. All recorded station codes matched; 66,784,305 trips enter the fitted market. The independent station-volume extract has 67,421,973 weekday tap-outs across the same 184 stations, 637,668 more than the OD destination sum. The available fields do not establish the cause, so the model is not rescaled. The script checks month, day type, hours, non-negative trips, code coverage, trip conservation and origin probabilities. It keeps zero-flow pairs in the choice set, holds out 20% of origins, and saves the station-volume reconciliation.
+The September OD extract has 475,395 weekday rows and 66,784,543 weekday trips. The model excludes 238 same-station trips. All recorded station codes matched; 66,784,305 trips enter the fitted market. The independent station-volume extract has 67,421,973 weekday tap-outs across the same 184 stations, 637,668 more than the OD destination sum. The available fields do not establish the cause, so the model is not rescaled. The script checks month, day type, hours, non-negative trips, exact code coverage, trip conservation and origin probabilities. It keeps 2,216 zero-flow current pairs in the choice set, holds out 20% of origins, and saves the station-volume reconciliation.
 
-Raw LTA ZIPs and the account key are not committed. The .gitignore file excludes data/private/ and data/cache/, plus the full pairwise interaction CSVs. The public aggregate model files are checks.csv, coefficients.csv, origins.csv, destinations.csv, station-predictions.csv and station-volume-reconciliation.csv.
+The choice model distinguishes 38 LRT-only stops from MRT and MRT/LRT interchange destinations. The origin holdout reports trip-weighted log loss and station-total MAE against distance only. A separate same-month transfer check fits without Keppel, Cantonment and Prince Edward Road, then predicts their September 2026 tap-outs from 181 older origins; it overpredicts each by 8–159 times. The scenario allocations are therefore conditional calculations, not opening forecasts. The spatial diagnostic tests whether log recorded-to-fitted station ratios cluster under 4-, 6- and 8-nearest-station weights using 999 permutations. A positive six-neighbour Moran's I of 0.13 (p = 0.003) indicates remaining geographic structure in the errors, without identifying its cause.
+
+Raw LTA ZIPs and the account key are not committed. The .gitignore file excludes data/private/ and data/cache/, plus the full pairwise interaction CSVs. The public aggregate model files are checks.csv, coefficients.csv, origins.csv, destinations.csv, station-predictions.csv, station-volume-reconciliation.csv, new-station-holdout.csv and residual-spatial-audit.csv.
 
 ## Input checksums
 

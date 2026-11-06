@@ -25,7 +25,7 @@ execute:
 
 1. Reconcile current and proposed station locations.
 2. Check the geographic access change.
-3. Fit station choice to observed LTA trips and test its error.
+3. Fit station choice and test its station and new-station errors.
 4. Compare new destinations and existing station shares.
 
 ::: notes
@@ -73,74 +73,74 @@ An independent LTA station-volume file reports **67.42 million weekday tap-outs*
 The OD file contains 475,395 weekday rows. Its 66,784,305 modelled trips are monthly totals across weekdays, not trips per weekday. The station file's gap is 637,668 trips, and the available fields do not explain it.
 :::
 
-## The local access screen
-
-Of **13,436 completed HDB blocks**, **9,676** have centroids within 800 m of a current station. Another **1,319 blocks** cross that threshold when the proposed locations are added.
-
-The calculation is straight-line distance from a block centroid. It counts neither residents nor actual walking routes.
-
-::: notes
-At 600 m the new count is 1,206 blocks; at 1,000 m it is 1,106. More blocks are already within the wider current-network radius, so the incremental count falls. The threshold is an access screen, not a passenger market boundary.
-:::
-
 ## Where those blocks are
 
-![](figures/hdb-new-coverage.png){height=515}
+![Map of proposed stations and HDB blocks newly within 800 metres of rail](figures/hdb-new-coverage.png){height=450}
 
-The newly reached blocks cluster around proposed stops in the west and north-east.
+Of **13,436 HDB blocks**, **9,676** lie within 800 m of current rail. The proposed locations bring **1,319 more** inside that straight-line threshold. The clusters sit mainly in the west and north-east.
 
 ::: notes
-Each building is assigned using its centroid. Pasir Ris East has 216 newly reached blocks, Serangoon North 151, and Tengah Plantation 144. These counts do not rank future ridership.
+Each building is assigned using its centroid. The count is not residents or a real walking route. Pasir Ris East has 216 newly reached blocks, Serangoon North 151, and Tengah Plantation 144. At 600 m the new count is 1,206; at 1,000 m it is 1,106. These counts do not rank future ridership.
 :::
 
 ## Fitting station choice
 
-Each current origin contributes its observed outbound trips. A destination's score uses nearby **HDB blocks**, **activity-zoned land**, **rail-line count**, and **straight-line distance**. The scores become probabilities across all available destinations, including pairs with zero observed trips.
+Each current origin contributes its observed outbound trips. A destination's score uses nearby **HDB blocks**, **activity-zoned land**, **rail-line count**, **LRT-only status**, and **straight-line distance**. The scores become probabilities across all available destinations, including pairs with zero observed trips.
 
 The model is fitted to observed OD flows. **36 origins** are held out to test prediction against a distance-only version.
 
 ::: notes
-The technical report gives the conditional multinomial likelihood and exact utility equation. The fitted terms are 0.100 for log HDB blocks, 0.162 for log activity hectares, 1.278 for log line count and 0.765 for log distance decay. These are associations from the current network.
+The technical report gives the conditional multinomial likelihood and utility equation. The fitted terms are 0.169 for log HDB blocks, 0.020 for log activity hectares, 1.098 for log line count, -1.897 for LRT-only stops, and 0.783 for log distance decay. The LRT flag prevents small LRT-only stops from being treated as MRT destinations. These are current-network associations.
 :::
 
 ## The fit limits the claim
 
-![](figures/model-fit.png){height=475}
+![Scatterplot of recorded versus fitted station tap-outs, with wide errors around the equality line](figures/model-fit.png){height=475}
 
-Station error averages **237,987 monthly trips**; in-sample station R² is **0.23**. Held-out log loss improves over distance only (**4.947 versus 5.080** nats per trip), but many station totals remain far from observed counts.
+Full-month station error averages **193,826 trips**; in-sample station R² is **0.38**. On held-out origins, the station MAE is **44,604**, versus **63,740** for distance only. The model improves, but many station totals remain far from observed counts.
 
 ::: notes
-Boon Lay records 1.23 million tap-outs while the model fits about 285,000. Outram Park records 823,000 while the model fits 1.71 million. The model adds information to a distance-only benchmark, yet it is not an accurate station-level forecast.
+Boon Lay records 1.23 million tap-outs while the model fits 368,000. Outram Park records 823,000 while the model fits 1.62 million. Held-out trip-weighted log loss is 4.857 nats per trip against 5.080 for distance only. The held-out station MAE uses only trips from withheld origins, about one-fifth of the full market, so it should not be compared directly with full-month MAE.
+:::
+
+## The new-station test fails
+
+![Observed and modelled tap-outs at three recently opened stations; all three are strongly overpredicted](figures/new-station-holdout.png){height=450}
+
+Fitted without three stations opened in July 2026, the model overpredicts their September tap-outs by **8–159 times**. This is a same-month transfer check, yet it is a strong warning against treating proposed-station allocations as opening forecasts.
+
+::: notes
+The comparison uses trips from 181 older origin stations on both sides. Keppel records 2,247 such tap-outs versus 357,064 modelled; Cantonment 46,400 versus 409,947; Prince Edward Road 45,035 versus 365,515. These stations may still be maturing. The test does not provide a universal discount for future JRL or CRL1 stations.
 :::
 
 ## New destinations in the fixed market
 
-![](figures/new-station-modelled-trips.png){height=485}
+![Top proposed-station allocations under the full and distance-only models](figures/new-station-modelled-trips.png){height=485}
 
-The fitted model allocates **6.29 million trips** to new destinations, about **9.4%** of current-origin trips. Distance only allocates **7.59 million**. The gap reflects model choice, not a confidence interval.
+The fitted model allocates **7.55 million trips** to new destinations, about **11.3%** of current-origin trips. Distance only allocates **7.59 million** overall, but individual station allocations can differ substantially. These are conditional model outputs, not opening forecasts.
 
 ::: notes
-Teck Ghee, Serangoon North and Tavistock are the highest modelled new destinations. These are captured tap-outs from current origins. The calculation omits new-origin trips, future housing and jobs, schedules, and feeder-service changes.
+Teck Ghee, Serangoon North and Toh Guan are the highest modelled new destinations. Tukang differs by about 117,000 trips between the fitted and distance-only models. These are captured tap-outs from current origins. The calculation omits new-origin trips, future housing and jobs, schedules, and feeder-service changes.
 :::
 
 ## Existing stations: a fragile interchange gain
 
-![](figures/existing-station-change.png){height=490}
+![Changes at existing stations with and without an attraction uplift at seven proposed interchanges](figures/existing-station-change.png){height=490}
 
 Seven existing interchanges gain share in the main model because the added line raises their attraction score. **All seven lose share** if that uplift is removed. The direction of their change depends on this assumption.
 
 ::: notes
-Under the main specification, Ang Mo Kio gains about 363,000 modelled trips and Outram Park loses about 202,000 versus fitted current-network trips. Changes are not relative to observed tap-outs. Without the line-count uplift, all 184 existing destinations lose some modelled share.
+Under the main specification, Ang Mo Kio gains about 381,000 modelled trips and Outram Park loses about 220,000 versus fitted current-network trips. Changes are not relative to observed tap-outs. Without the line-count uplift, all 184 existing destinations lose some modelled share. The technical report maps origin-by-origin choice-probability changes for these two stations.
 :::
 
 ## What the results support
 
 The **1,319 newly reached HDB blocks** show a geographic access opportunity, subject to actual walking routes and block populations.
 
-The **6.29 million allocated trips** show what the fitted model does when new destinations enter a fixed September 2026 market. Its station errors and interchange sensitivity are too large to treat that allocation as a planning forecast.
+The **7.55 million allocated trips** show what the model does when new destinations enter a fixed September 2026 market. The failed new-station test and interchange sensitivity rule out treating that allocation as a planning forecast.
 
-Use the model to test assumptions and identify places needing better travel-time, employment, housing and feeder-bus data before making a patronage claim.
+Use the model to test assumptions and identify places needing better travel-time, opening-stage employment, housing and feeder-bus data before making a patronage claim.
 
 ::: notes
-The report includes the full station map, independent station-volume reconciliation, model equations, coefficients and scenario files. Future-origin demand and induced trips require a separate forecast.
+The report includes the independent station-volume reconciliation, a spatial residual audit, origin-market map, model equations and scenario files. The residuals show geographic clustering (six-neighbour Moran's I = 0.13, permutation p = 0.003), suggesting omitted spatial factors without identifying their cause. Future-origin demand and induced trips require a separate forecast.
 :::

@@ -73,7 +73,12 @@ new_sf <- station_sf |> filter(status == "Planned new")
 
 # HDB block centroids are a count of buildings, not residents or households.
 hdb <- st_read(hdb_path, quiet = TRUE) |> st_transform(3414)
+hdb_invalid <- which(!st_is_valid(hdb))
+if (length(hdb_invalid)) {
+  st_geometry(hdb)[hdb_invalid] <- st_make_valid(st_geometry(hdb)[hdb_invalid])
+}
 stopifnot(nrow(hdb) > 10000L)
+stopifnot(all(st_is_valid(hdb)), !any(st_is_empty(hdb)))
 hdb_pts <- st_centroid(hdb)
 dist_now <- st_distance(hdb_pts, now_sf) |> unclass()
 dist_new <- st_distance(hdb_pts, new_sf) |> unclass()
@@ -99,6 +104,12 @@ write.csv(hdb_tab, "results/hdb-block-proximity.csv", row.names = FALSE)
 # business, civic, education and health parcels. A polygon is counted where its
 # centroid falls within 800 m; this is documented as an approximation.
 land <- st_read(land_path, quiet = TRUE) |> st_transform(3414)
+land_invalid <- which(!st_is_valid(land))
+if (length(land_invalid)) {
+  st_geometry(land)[land_invalid] <- st_make_valid(st_geometry(land)[land_invalid])
+}
+stopifnot(all(st_is_valid(land)), !any(st_is_empty(land)))
+land_source_rows <- nrow(land)
 land$category <- trimws(land$LU_DESC)
 activity_codes <- c("COMMERCIAL", "BUSINESS 1", "BUSINESS 2", "BUSINESS PARK",
                     "COMMERCIAL & RESIDENTIAL", "COMMERCIAL / INSTITUTION",
@@ -119,12 +130,23 @@ blocks_800 <- lengths(hdb_within_800)
 bus <- st_read(bus_path, quiet = TRUE) |> st_transform(3414)
 stopifnot(nrow(bus) > 5000L, !anyNA(bus$BUS_STOP_NUM),
           !anyDuplicated(bus$BUS_STOP_NUM), all(st_is_valid(bus)))
+write.csv(data.frame(
+  layer = c("HDB Existing Building", "Master Plan 2025 Land Use", "LTA Bus Stop"),
+  source_features = c(nrow(hdb), land_source_rows, nrow(bus)),
+  invalid_polygons_repaired = c(length(hdb_invalid), length(land_invalid), 0L),
+  empty_after_repair = c(sum(st_is_empty(hdb)), sum(st_is_empty(land)),
+                         sum(st_is_empty(bus))),
+  analysis_epsg = 3414L
+), "results/geometry-audit.csv", row.names = FALSE)
 bus_within_400 <- st_is_within_distance(station_sf, bus, dist = 400)
 bus_stops_400 <- lengths(bus_within_400)
 features <- st_drop_geometry(station_sf) |>
   mutate(hdb_blocks_800m = blocks_800,
          activity_hectares_800m = round(activity_ha, 2),
          bus_stops_400m = bus_stops_400,
+         # A station is LRT-only when every code belongs to the three LRT
+         # systems. MRT/LRT interchanges remain in the MRT group.
+         lrt_only = grepl("^(BP|SE|SW|PE|PW)[0-9]+$", station_codes),
          scenario_lines = n_lines + if_else(station %in% planned$station &
                                               status == "Existing", 1L, 0L))
 write.csv(features, "results/station-features.csv", row.names = FALSE)
@@ -180,7 +202,7 @@ p_map <- ggplot() +
   coord_sf(datum = NA) +
   labs(title = "Proposed stations and nearby HDB blocks",
        subtitle = "Orange blocks are beyond 800 m from existing rail but within 800 m of a proposed station",
-       caption = "Straight-line distance in SVY21; HDB existing buildings (Nov 2025); rail coordinates from data.gov.sg/URA via Wu Tingfeng") +
+       caption = "Straight-line distance in SVY21; HDB buildings (Nov 2025); station points from Wu Tingfeng compilation and LTA (Sep 2026)") +
   theme(panel.grid = element_blank(), axis.title = element_blank(),
         axis.text = element_blank(), plot.title = element_text(face = "bold"))
 ggsave("figures/hdb-new-coverage.png", p_map, width = 10, height = 6.5, dpi = 180)
@@ -226,7 +248,8 @@ p_bus <- new_station_bus |>
 ggsave("figures/proposed-bus-stops.png", p_bus,
        width = 8.5, height = 6, dpi = 180)
 
-writeLines(capture.output(sessionInfo()), "results/geography-session-info.txt")
+writeLines(trimws(capture.output(sessionInfo()), which = "right"),
+           "results/geography-session-info.txt")
 cat("Prepared", nrow(existing), "existing stations,", nrow(new_stations),
     "new station locations,", nrow(bus), "bus stops and", sum(newly_reached),
     "newly reached HDB blocks.\n")

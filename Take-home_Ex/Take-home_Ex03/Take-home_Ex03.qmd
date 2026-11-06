@@ -42,7 +42,7 @@ Among **13,436 completed HDB blocks**, **9,676** have centroids within 800 m of 
 
 The September 2026 LTA OD extract supplies **66.78 million weekday trips** after excluding 238 same-station trips. All recorded station codes match the updated station list. A separate LTA station-volume file reports **67.42 million weekday tap-outs**; the OD destination sum is 99.05% of that figure. I use the OD totals without scaling away the discrepancy.
 
-The fitted model assigns **6.29 million** of the fixed current-origin trips to proposed destinations. That number is highly conditional. Its in-sample station error averages **237,987 trips**, and its station-level R² is **0.23**. Seven existing interchanges gain trips only when the model gives their added line an attraction uplift; without that uplift, they lose share like the other existing stations. The [technical report](Take-home_Ex03-report.qmd) puts these checks beside the maps and rankings.
+The fitted model assigns **7.55 million** of the fixed current-origin trips to proposed destinations. That is a calculation under the model, **not a reliable opening-year forecast**. Its in-sample station error averages **193,826 trips** and its station-level R² is **0.38**. A tougher holdout of Keppel, Cantonment and Prince Edward Road, which opened in July 2026, overpredicts their September tap-outs by **8–159 times**. Seven existing interchanges gain trips only when the model gives their added line an attraction uplift; without that uplift, they lose share. The [technical report](Take-home_Ex03-report.qmd) shows these checks and the origin-market map beside the station rankings.
 
 ## Reproduce the analysis
 
